@@ -12,7 +12,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import BASE_DIR, settings
 from app.db import get_db
-from app.routers import analisis, auth, bloques, clima, encuestas, menu
+from app.routers import analisis, auth, bloques, campanas, clima, encuestas, menu
 from app.services import ml
 from app.templating import templates
 
@@ -43,6 +43,7 @@ app.include_router(bloques.router)
 app.include_router(encuestas.router)
 app.include_router(clima.router)
 app.include_router(analisis.router)
+app.include_router(campanas.router)
 
 
 @app.exception_handler(StarletteHTTPException)

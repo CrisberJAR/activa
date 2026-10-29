@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% import "_campos.html" as c with context %}
+{% block titulo %}Generar campaña{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Generar campaña con IA</h1>
+<p class="text-muted">Los datos vienen prellenados con el último análisis del bloque y la estación del IoT: revísalos y
+  ajústalos. Gemini redacta la campaña; no fija tasas ni promete aprobación. Queda en borrador hasta que el gerente la publique.</p>
+
+<form method="post" action="/campanas/nueva" onsubmit="const b = this.querySelector('[type=submit]'); b.disabled = true; b.innerHTML = '<span class=\'spinner-border spinner-border-sm\'></span> Generando… (puede tardar unos segundos)'">
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Tipo y origen</div>
+    <div class="card-body row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="tipo_campana">Tipo de campaña</label>
+        <select class="form-select{{ c.invalido('tipo_campana') }}" id="tipo_campana" name="tipo_campana" required>
+          <option value="">Elige…</option>
+          {% for grupo, items in tipos.items()|groupby("1.grupo") %}
+          <optgroup label="{{ grupo }}">
+            {% for clave, t in items %}
+            <option value="{{ clave }}" {% if v.get("tipo_campana") == clave %}selected{% endif %}>{{ t.nombre }}</option>
+            {% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+        {{ c.error("tipo_campana") }}
+        {% if v.get("tipo_campana") and v.get("bloque_id") %}<div class="form-text"><i class="bi bi-diagram-3"></i> Sugerido por el Random Forest para este bloque.</div>{% endif %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="bloque_id">Bloque de origen (opcional)</label>
+        <select class="form-select{{ c.invalido('bloque_id') }}" id="bloque_id" name="bloque_id"
+                onchange="location.href = '/campanas/nueva' + (this.value ? '?bloque_id=' + this.value : '')">
+          <option value="">Sin bloque</option>
+          {% for b in bloques %}
+          <option value="{{ b.id }}" {% if v.get("bloque_id") == b.id|string %}selected{% endif %}>{{ b.nombre }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-text">Al cambiarlo se vuelven a sugerir los datos.</div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="temporada">Temporada</label>
+        <select class="form-select{{ c.invalido('temporada') }}" id="temporada" name="temporada" required>
+          <option value="">Elige…</option>
+          {% for valor, texto in cat.temporada_necesidad.items() %}
+          <option value="{{ valor }}" {% if v.get("temporada") == valor %}selected{% endif %}>{{ texto }}</option>
+          {% endfor %}
+        </select>
+        {{ c.error("temporada") }}
+        <div class="form-text">Sugerida según el IoT y el bloque.</div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="tipo_cliente">Tipo de cliente</label>
+        <select class="form-select{{ c.invalido('tipo_cliente') }}" id="tipo_cliente" name="tipo_cliente" required>
+          {% for valor, texto in tipos_cliente.items() %}
+          <option value="{{ valor }}" {% if v.get("tipo_cliente") == valor %}selected{% endif %}>{{ texto }}</option>
+          {% endfor %}
+        </select>
+        {{ c.error("tipo_cliente") }}
+      </div>
+      <div class="col-md-4">{{ c.texto("zona", "Zona") }}</div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Público y necesidad</div>
+    <div class="card-body row g-3">
+      <div class="col-md-6">{{ c.texto("publico_objetivo", "Público objetivo") }}</div>
+      <div class="col-md-6">{{ c.texto("necesidad", "Riesgo o necesidad que atiende") }}</div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Condiciones, duración y meta</div>
+    <div class="card-body row g-3">
+      <div class="col-6 col-md-3">{{ c.texto("monto_maximo", "Monto máximo S/ (opcional)", tipo="number", extra='min="1" step="0.01"', requerido=false) }}</div>
+      <div class="col-6 col-md-3">{{ c.texto("plazo_meses", "Plazo (meses)", tipo="number", extra='min="1" max="60"') }}</div>
+      <div class="col-6 col-md-3">{{ c.texto("periodo_gracia_meses", "Periodo de gracia (meses)", tipo="number", extra='min="0" max="6"') }}</div>
+      <div class="col-6 col-md-3">{{ c.texto("meta_creditos", "Meta (créditos)", tipo="number", extra='min="1"') }}</div>
+      <div class="col-6 col-md-4">{{ c.texto("fecha_inicio", "Inicio", tipo="date") }}</div>
+      <div class="col-6 col-md-4">{{ c.texto("duracion_semanas", "Duración (semanas)", tipo="number", extra='min="1" max="26"') }}</div>
+      <div class="col-md-4">{{ c.texto("presupuesto_difusion", "Presupuesto de difusión S/", tipo="number", extra='min="0" step="0.01"') }}</div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-activa" type="submit"><i class="bi bi-stars"></i> Generar campaña</button>
+    <a class="btn btn-outline-secondary" href="/campanas">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

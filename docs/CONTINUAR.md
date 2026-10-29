@@ -17,6 +17,7 @@ Forma de trabajo: **una fase a la vez**, plan corto → visto bueno del usuario 
 | 4 App Flutter | ✅ validada (2026-10-29) | Pantallas Hoy / Registros / Análisis / Ajustes, notificación local, servidor configurable. APK en `docs\apk\ACTIVA-Clima.apk` |
 | 5a Análisis por bloque | ✅ validada (2026-10-29) | `/analisis`: indicadores, ranking de necesidades (palabras clave en `config/necesidades.yaml`) y texto del patrón con Gemini (principal `gemini-3.1-flash-lite` + respaldos; si todos fallan, plantilla). Probar clave: `python -m scripts.probar_gemini` |
 | 5b Random Forest | ✅ validada (2026-10-29) | 15 tipos de campaña; entrenar con `python -m ml.entrenar` (≈10 s); métricas en `/analisis/modelo`. Exactitud 91 % sintética y 80 % (16/20) con encuestas reales |
+| 5c Generador de campañas | ✅ validada (2026-10-29) | `/campanas`: el asesor genera (borrador), solo el gerente edita/publica/retira. Gemini en JSON validado + filtro de tasas y promesas + plantilla. Vigentes en `/api/campanas/vigentes` (para el chatbot) |
 
 Pruebas: 63 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 12 de Flutter (`cd mobile; flutter test`), todas pasan.
 

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block titulo %}{{ c.nombre }}{% endblock %}
+{% block contenido %}
+{% set colores = {"borrador": "secondary", "programada": "info", "vigente": "success", "finalizada": "dark", "retirada": "danger"} %}
+{% set cont = c.contenido %}
+{% set e = c.entradas %}
+{% set es_gerente = usuario.rol == "gerente" %}
+<a class="small" href="/campanas"><i class="bi bi-arrow-left"></i> Campañas</a>
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 my-2">
+  <div>
+    <h1 class="h3 mb-1">{{ cont.nombre }}</h1>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <span class="badge text-bg-{{ colores[estado] }} text-capitalize">{{ estado }}</span>
+      <span class="small text-muted">{{ tipos.get(c.tipo_campana, {}).get("nombre", c.tipo_campana) }} ·
+        del {{ c.vigente_desde.strftime('%d/%m/%Y') }} al {{ c.vigente_hasta.strftime('%d/%m/%Y') }}</span>
+      {% if c.generado_con == "plantilla" %}<span class="badge text-bg-secondary">Plantilla automática (sin IA)</span>
+      {% else %}<span class="badge text-bg-primary"><i class="bi bi-stars"></i> Gemini ({{ c.generado_con }})</span>{% endif %}
+    </div>
+  </div>
+  {% if es_gerente %}
+  <div class="d-flex flex-wrap gap-2">
+    {% if c.estado == "borrador" %}
+    <a class="btn btn-outline-secondary" href="/campanas/{{ c.id }}/editar"><i class="bi bi-pencil"></i> Editar</a>
+    <form method="post" action="/campanas/{{ c.id }}/regenerar" onsubmit="this.querySelector('button').disabled = true">
+      <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-arrow-repeat"></i> Regenerar con IA</button>
+    </form>
+    <form method="post" action="/campanas/{{ c.id }}/publicar">
+      <button class="btn btn-activa" type="submit"><i class="bi bi-patch-check"></i> Publicar</button>
+    </form>
+    <form method="post" action="/campanas/{{ c.id }}/eliminar" onsubmit="return confirm('¿Eliminar este borrador?')">
+      <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+    </form>
+    {% elif c.estado == "publicada" %}
+    <form method="post" action="/campanas/{{ c.id }}/retirar" onsubmit="return confirm('¿Retirar la campaña? El chatbot dejará de ofrecerla.')">
+      <button class="btn btn-outline-danger" type="submit"><i class="bi bi-x-circle"></i> Retirar</button>
+    </form>
+    {% endif %}
+  </div>
+  {% elif c.estado == "borrador" %}
+  <div class="alert alert-light border small mb-0">Borrador: el gerente la revisa, edita y publica.</div>
+  {% endif %}
+</div>
+
+<div class="card mb-3 border-activa">
+  <div class="card-header fw-semibold">1. Propuesta de valor</div>
+  <div class="card-body"><p class="mb-0">{{ cont.propuesta_valor }}</p></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">2. Decisiones para la gerencia</div>
+      <ul class="list-group list-group-flush">
+        {% for d in cont.decisiones_gerencia %}<li class="list-group-item"><i class="bi bi-check2-square text-activa"></i> {{ d }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">Datos de la campaña</div>
+      <div class="card-body small">
+        <dl class="row mb-0">
+          <dt class="col-5">Público</dt><dd class="col-7">{{ e.publico_objetivo }}</dd>
+          <dt class="col-5">Necesidad</dt><dd class="col-7">{{ e.necesidad }}</dd>
+          <dt class="col-5">Temporada</dt><dd class="col-7">{{ cat.temporada_necesidad.get(e.temporada) }}</dd>
+          <dt class="col-5">Zona</dt><dd class="col-7">{{ e.zona }}</dd>
+          <dt class="col-5">Cliente</dt><dd class="col-7">{{ tipos_cliente.get(e.tipo_cliente) }}</dd>
+          <dt class="col-5">Monto máximo</dt><dd class="col-7">{{ "S/ %.0f"|format(e.monto_maximo|float) if e.monto_maximo else "Según evaluación" }}</dd>
+          <dt class="col-5">Plazo / gracia</dt><dd class="col-7">{{ e.plazo_meses }} meses / {{ e.periodo_gracia_meses }} mes(es)</dd>
+          <dt class="col-5">Difusión / meta</dt><dd class="col-7">S/ {{ "%.0f"|format(e.presupuesto_difusion|float) }} / {{ e.meta_creditos }} créditos</dd>
+          {% if c.bloque %}<dt class="col-5">Bloque</dt><dd class="col-7"><a href="/analisis?bloque_id={{ c.bloque_id }}">{{ c.bloque.nombre }}</a></dd>{% endif %}
+          <dt class="col-5">Creada por</dt><dd class="col-7">{{ c.autor.nombre }} · {{ c.creado_en|fecha_hora }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header fw-semibold">3. Capacitación del asesor</div>
+  <div class="card-body">
+    <div class="small text-muted mb-1">Speech</div>
+    <blockquote class="border-start border-3 ps-3 mb-3">{{ cont.capacitacion.speech }}</blockquote>
+    <div class="small text-muted mb-1">Objeciones frecuentes</div>
+    <div class="accordion" id="objeciones">
+      {% for o in cont.capacitacion.objeciones %}
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#obj{{ loop.index }}">«{{ o.objecion }}»</button>
+        </h2>
+        <div id="obj{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#objeciones">
+          <div class="accordion-body">{{ o.respuesta }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header fw-semibold">4. Plan de marketing</div>
+  <div class="card-body row g-3">
+    <div class="col-md-5">
+      <div class="small text-muted">Canales</div>
+      <div class="mb-3">{% for canal in cont.marketing.canales %}<span class="badge text-bg-light border me-1 mb-1">{{ canal }}</span>{% endfor %}</div>
+      <div class="small text-muted">Gancho</div>
+      <p class="fw-semibold">{{ cont.marketing.gancho }}</p>
+    </div>
+    <div class="col-md-7">
+      <div class="small text-muted d-flex justify-content-between">Mensaje de WhatsApp
+        <button class="btn btn-sm btn-link p-0" type="button" onclick="navigator.clipboard.writeText(document.getElementById('wsp').innerText); this.innerText = 'Copiado ✓'">Copiar</button>
+      </div>
+      <div id="wsp" class="p-3 rounded" style="background:#dcf8c6; white-space: pre-line">{{ cont.marketing.mensaje_whatsapp }}</div>
+    </div>
+  </div>
+</div>
+<p class="small text-muted">Texto generado como apoyo. Las tasas y la aprobación de cada crédito dependen de la evaluación y de la política de la empresa.</p>
+{% endblock %}

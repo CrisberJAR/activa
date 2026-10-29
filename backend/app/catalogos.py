@@ -47,6 +47,13 @@ CONTACTOS = {
     "visita": "Visita",
 }
 
+# Tipo de cliente al que apunta una campaña
+TIPOS_CLIENTE = {
+    "ambos": "Nuevos y recurrentes",
+    "nuevo": "Clientes nuevos",
+    "recurrente": "Clientes recurrentes",
+}
+
 # Sugerencias para el campo zona (se puede escribir otra)
 ZONAS = [
     "Huánuco (Cercado)", "Amarilis", "Pillco Marca", "Santa María del Valle",

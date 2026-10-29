@@ -36,3 +36,8 @@
 | 2026-10-29 | No se ajustaron los perfiles para acertar las 4 encuestas reales falladas | Hacerlo sería sobreajustar al conjunto de prueba |
 | 2026-10-29 | `modelo.joblib` se guarda en el repositorio y scikit-learn se fija en 1.9.1 | Otra laptop funciona sin reentrenar; el archivo solo carga con la misma versión |
 | 2026-10-29 | El modelo se carga una vez en memoria (en segundo plano al arrancar); sin modelo, el análisis sigue sin sugerencia | Predicción en ~30 ms; el sistema nunca se cae por el ML |
+| 2026-10-29 | Solo el gerente edita, regenera, publica, retira y elimina campañas; el asesor solo las genera (quedan en borrador) y las consulta | Las decisiones comerciales son responsabilidad de la gerencia (pedido del usuario) |
+| 2026-10-29 | Gemini responde en modo JSON y se valida con Pydantic; si el JSON es inválido o el texto menciona tasas o promete aprobación, se pasa al siguiente modelo y, al final, a una plantilla | La IA no inventa tasas ni promete aprobación, y el sistema nunca se queda sin campaña |
+| 2026-10-29 | El filtro de reglas solo se aplica al texto de la IA, no a lo que edita el gerente | Fijar condiciones es decisión humana de la gerencia |
+| 2026-10-29 | Vigencia = fecha de inicio + duración en semanas; estados visibles: borrador, programada, vigente, finalizada, retirada | El chatbot ofrece solo las campañas publicadas dentro de sus fechas (`/api/campanas/vigentes`) |
+| 2026-10-29 | El formulario se prellena con el último análisis del bloque (tipo del Random Forest, necesidad, zonas, plazo, meta) y la temporada del IoT como sugerencia | Menos tiempo para crear una campaña: ese es el problema que resuelve el proyecto |

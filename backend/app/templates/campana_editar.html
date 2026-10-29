@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "_campos.html" as f with context %}
+{% block titulo %}Editar campaña{% endblock %}
+{% macro area(campo, etiqueta, filas=3, ayuda="") %}
+  <label class="form-label" for="{{ campo }}">{{ etiqueta }}</label>
+  <textarea class="form-control{{ f.invalido(campo) }}" id="{{ campo }}" name="{{ campo }}" rows="{{ filas }}" required>{{ v.get(campo) or "" }}</textarea>
+  {% if ayuda %}<div class="form-text">{{ ayuda }}</div>{% endif %}
+  {{ f.error(campo) }}
+{% endmacro %}
+{% block contenido %}
+<a class="small" href="/campanas/{{ c.id }}"><i class="bi bi-arrow-left"></i> Volver a la campaña</a>
+<h1 class="h3 my-2">Editar campaña (gerente)</h1>
+<p class="text-muted">Ajusta el texto antes de publicar. Una vez publicada ya no se edita.</p>
+
+<form method="post" action="/campanas/{{ c.id }}/editar">
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Nombre, propuesta y vigencia</div>
+    <div class="card-body row g-3">
+      <div class="col-12">{{ f.texto("nombre", "Nombre de la campaña") }}</div>
+      <div class="col-12">{{ area("propuesta_valor", "Propuesta de valor", 3) }}</div>
+      <div class="col-6 col-md-4">{{ f.texto("fecha_inicio", "Inicio", tipo="date") }}</div>
+      <div class="col-6 col-md-4">{{ f.texto("duracion_semanas", "Duración (semanas)", tipo="number", extra='min="1" max="26"') }}</div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Decisiones para la gerencia</div>
+    <div class="card-body">{{ area("decisiones_gerencia", "Decisiones", 5, "Una decisión por línea.") }}</div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Capacitación</div>
+    <div class="card-body">
+      <div class="mb-3">{{ area("speech", "Speech del asesor", 5) }}</div>
+      <label class="form-label">Objeciones y respuestas</label>
+      {{ f.error("objeciones") }}
+      {% set objeciones = v.get("objeciones") or [] %}
+      {% for i in range(max_objeciones) %}
+      {% set o = objeciones[i] if i < objeciones|length else {} %}
+      <div class="row g-2 mb-2">
+        <div class="col-md-5"><input class="form-control form-control-sm" name="objecion_{{ i }}" placeholder="Objeción del cliente" value="{{ o.get('objecion', '') }}"></div>
+        <div class="col-md-7"><input class="form-control form-control-sm" name="respuesta_{{ i }}" placeholder="Respuesta del asesor" value="{{ o.get('respuesta', '') }}"></div>
+      </div>
+      {% endfor %}
+      <div class="form-text">Deja en blanco las filas que no uses.</div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Plan de marketing</div>
+    <div class="card-body row g-3">
+      <div class="col-md-4">{{ area("canales", "Canales", 4, "Uno por línea.") }}</div>
+      <div class="col-md-8">
+        <div class="mb-3">{{ f.texto("gancho", "Gancho") }}</div>
+        {{ area("mensaje_whatsapp", "Mensaje de WhatsApp", 4) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-activa" type="submit"><i class="bi bi-save"></i> Guardar cambios</button>
+    <a class="btn btn-outline-secondary" href="/campanas/{{ c.id }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

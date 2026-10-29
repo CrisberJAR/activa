@@ -119,7 +119,8 @@ activa/
   - Entorno: Flutter 3.47 en `C:\src\flutter`, Android SDK 36; IP LAN de la PC 192.168.18.14 (red "Pública": requiere la regla de firewall que crea `iniciar_servidor.ps1` como admin).
   - La dirección del servidor se cambia en la app (Ajustes). En la sustentación quizá use otra laptop con internet compartido del celular: ver `docs/guia_otra_laptop.md`.
   - Notificación local solo con la app abierta/al volver a primer plano, y solo si el mensaje de alerta es nuevo.
-- [ ] Fase 5 – IA (en 3 entregas):
+- [x] Fase 5 – IA (en 3 entregas), validada por el usuario (2026-10-29):
   - [x] (a) Análisis por bloque (validada por el usuario 2026-10-29): página `/analisis`, API `/api/analisis/{bloque_id}`, 89 pruebas pasando. Categorías en `config/necesidades.yaml`; Gemini por REST (`services/ia.py`): modelo principal + modelos de respaldo si hay 503/429/demora, y plantilla si todos fallan. `iniciar_servidor.ps1 -Recargar` para desarrollo.
   - [x] (b) Random Forest (validada por el usuario 2026-10-29): 112 pruebas pasando. 15 tipos en `config/tipos_campana.yaml`; dataset sintético (`ml/generar_dataset.py`), entrenamiento `python -m ml.entrenar` → `ml/modelo.joblib` + `ml/metricas.json` (scikit-learn fijo en 1.9.1). Variables: sector, categoría de necesidad, temporada, riesgo, frecuencia, garantía, mes de registro y montos. Página `/analisis/modelo`.
-  - [ ] (c) generador de campañas
+  - [x] (c) Generador de campañas: 137 pruebas pasando; migración `7c1f3a9d2e5b` aplicada en Supabase. `/campanas` (lista, nueva, detalle, editar), API `/api/campanas/vigentes`. Lógica en `services/campanas.py` (prompt JSON, validación Pydantic, filtro de tasas/promesas, plantilla de respaldo, vigencia).
+    - Solo el gerente edita, regenera, publica, retira y elimina; el asesor genera (borrador) y consulta.

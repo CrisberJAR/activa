@@ -14,14 +14,15 @@ OPCIONES_COMUNES = [
     {"titulo": "Encuestas", "descripcion": "Registrar y editar encuestas socioeconómicas", "icono": "clipboard-check", "url": "/encuestas"},
     {"titulo": "Clima y estación", "descripcion": "Registros diarios y estación actual", "icono": "cloud-sun", "url": "/clima"},
     {"titulo": "Análisis de bloque", "descripcion": "Necesidades detectadas por la IA", "icono": "graph-up", "url": "/analisis"},
-    {"titulo": "Generar campaña", "descripcion": "Propuesta de campaña con IA", "icono": "megaphone", "fase": 5},
+    {"titulo": "Generar campaña", "descripcion": "Propuesta de campaña con IA", "icono": "megaphone", "url": "/campanas/nueva"},
+    {"titulo": "Campañas", "descripcion": "Borradores, vigentes y finalizadas", "icono": "card-list", "url": "/campanas"},
     {"titulo": "Interesados", "descripcion": "Clientes captados por el chatbot", "icono": "people", "fase": 6},
 ]
 
 OPCIONES_ASESOR = [BLOQUES_ASESOR] + OPCIONES_COMUNES
 
 OPCIONES_GERENTE = [BLOQUES_GERENTE] + OPCIONES_COMUNES + [
-    {"titulo": "Publicar campañas", "descripcion": "Aprobar y publicar campañas vigentes", "icono": "patch-check", "fase": 5},
+    {"titulo": "Publicar campañas", "descripcion": "Aprobar y publicar campañas vigentes", "icono": "patch-check", "url": "/campanas?estado=borrador"},
 ]
 
 

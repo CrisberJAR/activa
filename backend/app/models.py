@@ -140,13 +140,21 @@ class Campana(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nombre: Mapped[str] = mapped_column(String(160))
     temporada: Mapped[str] = mapped_column(String(20))
+    tipo_campana: Mapped[str | None] = mapped_column(String(40))  # clave de config/tipos_campana.yaml
+    bloque_id: Mapped[int | None] = mapped_column(ForeignKey("bloques.id"))  # bloque que la originó
     entradas: Mapped[dict] = mapped_column(JSON)    # datos ingresados por el asesor
     contenido: Mapped[dict] = mapped_column(JSON)   # las cinco secciones generadas por la IA
-    estado: Mapped[str] = mapped_column(String(20), default="borrador")  # borrador | publicada
+    generado_con: Mapped[str | None] = mapped_column(String(60))  # modelo de Gemini o "plantilla"
+    estado: Mapped[str] = mapped_column(String(20), default="borrador")  # borrador | publicada | retirada
+    vigente_desde: Mapped[date | None] = mapped_column(Date)
+    vigente_hasta: Mapped[date | None] = mapped_column(Date)
     creado_por: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
     publicado_por: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"))
     publicado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    bloque: Mapped[Bloque | None] = relationship()
+    autor: Mapped[Usuario] = relationship(foreign_keys=[creado_por])
 
 
 class Interesado(Base):

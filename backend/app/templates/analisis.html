@@ -63,7 +63,10 @@
       <div class="progress-bar {{ 'bg-activa' if loop.first else 'bg-secondary' }}" style="width: {{ r.porcentaje }}%"></div>
     </div>
     {% endfor %}
-    <div class="small text-muted mt-2">Sugerencia de apoyo: la decisión final es del asesor y del gerente.</div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+      <div class="small text-muted">Sugerencia de apoyo: la decisión final es del asesor y del gerente.</div>
+      <a class="btn btn-activa" href="/campanas/nueva?bloque_id={{ bloque.id }}"><i class="bi bi-megaphone"></i> Generar campaña con esta sugerencia</a>
+    </div>
     {% else %}
     <p class="text-muted mb-0">El modelo no está entrenado. Ejecuta <code>python -m ml.entrenar</code> en la carpeta backend
       y vuelve a analizar.</p>

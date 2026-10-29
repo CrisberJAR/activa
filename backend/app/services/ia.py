@@ -37,14 +37,17 @@ def anonimizar(texto: str, nombres: list[str] = ()) -> str:
 
 # ---------- Llamada a Gemini ----------
 
-def llamar_modelo(prompt: str, modelo: str) -> str:
-    """Una consulta a un modelo concreto de Gemini."""
+def llamar_modelo(prompt: str, modelo: str, json: bool = False, timeout: float = 25) -> str:
+    """Una consulta a un modelo concreto de Gemini. Con json=True pide la respuesta en JSON."""
+    config = {"temperature": 0.4}
+    if json:
+        config["responseMimeType"] = "application/json"
     try:
         r = httpx.post(
             URL_GEMINI.format(modelo=modelo),
             headers={"x-goog-api-key": settings.gemini_api_key},
-            json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.4}},
-            timeout=25,
+            json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": config},
+            timeout=timeout,
         )
     except httpx.TimeoutException as e:
         raise ErrorIA(f"{modelo} tardó demasiado en responder", reintentable=True) from e
@@ -70,17 +73,20 @@ def llamar_modelo(prompt: str, modelo: str) -> str:
     return texto
 
 
-def llamar_gemini(prompt: str) -> tuple[str, str]:
-    """Prueba el modelo principal y, si está saturado o sin cuota, los de respaldo.
+def llamar_gemini(prompt: str, json: bool = False, validar=None, timeout: float = 25) -> tuple:
+    """Prueba el modelo principal y, si está saturado, sin cuota o su respuesta no pasa
+    `validar`, los de respaldo. Devuelve (respuesta, modelo que respondió).
 
-    Devuelve (texto, modelo que respondió).
+    `validar(texto)` puede transformar la respuesta (p. ej. JSON → objeto) y debe lanzar
+    ErrorIA(reintentable=True) si no sirve.
     """
     if not settings.gemini_api_key:
         raise ErrorIA("Falta GEMINI_API_KEY en backend/.env")
     errores = []
     for modelo in settings.gemini_modelos:
         try:
-            return llamar_modelo(prompt, modelo), modelo
+            texto = llamar_modelo(prompt, modelo, json=json, timeout=timeout)
+            return (validar(texto) if validar else texto), modelo
         except ErrorIA as e:
             if not e.reintentable:
                 raise
@@ -90,7 +96,7 @@ def llamar_gemini(prompt: str) -> tuple[str, str]:
 
 # ---------- Texto del patrón del bloque ----------
 
-def _resumen(indicadores: dict, ranking: list[dict], estacion: dict | None, campana: dict | None = None) -> list[str]:
+def resumen_bloque(indicadores: dict, ranking: list[dict], estacion: dict | None, campana: dict | None = None) -> list[str]:
     """Datos agregados (sin datos personales) que se le dan a la IA y a la plantilla."""
     lineas = [
         f"Encuestas del bloque: {indicadores['total']}",
@@ -115,7 +121,7 @@ def _resumen(indicadores: dict, ranking: list[dict], estacion: dict | None, camp
 def crear_prompt(
     indicadores: dict, ranking: list[dict], textos: list[str], estacion: dict | None, campana: dict | None = None
 ) -> str:
-    datos = "\n".join("- " + l for l in _resumen(indicadores, ranking, estacion, campana))
+    datos = "\n".join("- " + l for l in resumen_bloque(indicadores, ranking, estacion, campana))
     necesidades = "\n".join("- " + t for t in textos[:40])
     paso2 = ("2) por qué conviene la campaña sugerida por el modelo y cuándo lanzarla (puedes mencionar la segunda opción)."
              if campana else "2) qué tipo de campaña crediticia convendría preparar y cuándo.")
