@@ -90,7 +90,7 @@ def llamar_gemini(prompt: str) -> tuple[str, str]:
 
 # ---------- Texto del patrón del bloque ----------
 
-def _resumen(indicadores: dict, ranking: list[dict], estacion: dict | None) -> list[str]:
+def _resumen(indicadores: dict, ranking: list[dict], estacion: dict | None, campana: dict | None = None) -> list[str]:
     """Datos agregados (sin datos personales) que se le dan a la IA y a la plantilla."""
     lineas = [
         f"Encuestas del bloque: {indicadores['total']}",
@@ -106,16 +106,23 @@ def _resumen(indicadores: dict, ranking: list[dict], estacion: dict | None) -> l
     if estacion and estacion.get("estacion_actual"):
         lineas.append(f"Estación actual según los sensores IoT: {estacion['estacion_nombre']}. "
                       f"Temporada que se acerca: {estacion['temporada_nombre']}.")
+    if campana:
+        lineas.append("Tipo de campaña sugerido por el modelo Random Forest (clientes por tipo): "
+                      + "; ".join(f"{r['nombre']} {r['cantidad']} ({r['porcentaje']} %)" for r in campana["reparto"][:4]))
     return lineas
 
 
-def crear_prompt(indicadores: dict, ranking: list[dict], textos: list[str], estacion: dict | None) -> str:
-    datos = "\n".join("- " + l for l in _resumen(indicadores, ranking, estacion))
+def crear_prompt(
+    indicadores: dict, ranking: list[dict], textos: list[str], estacion: dict | None, campana: dict | None = None
+) -> str:
+    datos = "\n".join("- " + l for l in _resumen(indicadores, ranking, estacion, campana))
     necesidades = "\n".join("- " + t for t in textos[:40])
+    paso2 = ("2) por qué conviene la campaña sugerida por el modelo y cuándo lanzarla (puedes mencionar la segunda opción)."
+             if campana else "2) qué tipo de campaña crediticia convendría preparar y cuándo.")
     return f"""Eres analista de una microfinanciera de Huánuco (Perú) que atiende agricultores, comerciantes de mercado, ambulantes y taxistas.
 Con estos datos de UN bloque de encuestas, escribe en español sencillo un análisis de 2 párrafos cortos (máximo 150 palabras en total):
 1) qué necesitan principalmente estos clientes y por qué, relacionándolo con la temporada y el riesgo;
-2) qué tipo de campaña crediticia convendría preparar y cuándo.
+{paso2}
 Reglas: usa solo los datos dados; no inventes cifras, nombres, tasas de interés ni promesas de aprobación; no uses títulos ni viñetas.
 
 Datos agregados:
@@ -125,7 +132,7 @@ Necesidades escritas por los clientes (anonimizadas):
 {necesidades}"""
 
 
-def texto_plantilla(indicadores: dict, ranking: list[dict], estacion: dict | None) -> str:
+def texto_plantilla(indicadores: dict, ranking: list[dict], estacion: dict | None, campana: dict | None = None) -> str:
     """Texto automático, sin IA, para cuando Gemini no está disponible."""
     principal = ranking[0]
     sector = SECTORES.get(indicadores["sector_principal"], indicadores["sector_principal"])
@@ -144,15 +151,20 @@ def texto_plantilla(indicadores: dict, ranking: list[dict], estacion: dict | Non
             texto += f" y se acerca {estacion['temporada_nombre']}."
         else:
             texto += ", sin cambios relevantes a la vista."
+    if campana:
+        principal = campana["reparto"][0]
+        texto += (f" El modelo sugiere preparar la campaña «{principal['nombre']}», "
+                  f"adecuada para el {principal['porcentaje']} % de los clientes del bloque.")
     return texto
 
 
 def texto_patron(
-    indicadores: dict, ranking: list[dict], textos: list[str], estacion: dict | None
+    indicadores: dict, ranking: list[dict], textos: list[str], estacion: dict | None, campana: dict | None = None
 ) -> dict:
     """Devuelve {texto, fuente ('gemini' o 'plantilla'), modelo, error}."""
     try:
-        texto, modelo = llamar_gemini(crear_prompt(indicadores, ranking, textos, estacion))
+        texto, modelo = llamar_gemini(crear_prompt(indicadores, ranking, textos, estacion, campana))
         return {"texto": texto, "fuente": "gemini", "modelo": modelo, "error": None}
     except ErrorIA as e:
-        return {"texto": texto_plantilla(indicadores, ranking, estacion), "fuente": "plantilla", "modelo": None, "error": str(e)}
+        texto = texto_plantilla(indicadores, ranking, estacion, campana)
+        return {"texto": texto, "fuente": "plantilla", "modelo": None, "error": str(e)}

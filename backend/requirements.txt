@@ -13,5 +13,10 @@ pyyaml>=6.0
 httpx>=0.27
 apscheduler>=3.10,<4
 
+# Machine learning (versión fija de scikit-learn: el modelo guardado solo carga con la misma)
+scikit-learn==1.9.1
+pandas>=2.2
+joblib>=1.4
+
 # Pruebas
 pytest>=8.3

@@ -43,6 +43,34 @@
 
 {% if analisis %}
 {% set ind = analisis.indicadores %}
+{% set cm = ind.campana_modelo %}
+<div class="card mb-4 border-activa">
+  <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-diagram-3"></i> Campaña sugerida (Random Forest)</span>
+    <a class="small" href="/analisis/modelo">Ver métricas del modelo</a>
+  </div>
+  <div class="card-body">
+    {% if cm %}
+    {% set top = cm.reparto[0] %}
+    <div class="h4 text-activa mb-1">{{ top.nombre }}</div>
+    <p class="text-muted mb-3">{{ tipos.get(top.tipo, {}).get("descripcion", "") }}</p>
+    <div class="small text-muted mb-1">Tipo de campaña que el modelo asigna a cada cliente del bloque:</div>
+    {% for r in cm.reparto %}
+    <div class="d-flex justify-content-between small">
+      <span>{{ r.nombre }}</span><span class="text-muted">{{ r.cantidad }} clientes · {{ r.porcentaje }} % · confianza {{ r.confianza }} %</span>
+    </div>
+    <div class="progress mb-2" style="height: 6px" role="progressbar" aria-valuenow="{{ r.porcentaje }}" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar {{ 'bg-activa' if loop.first else 'bg-secondary' }}" style="width: {{ r.porcentaje }}%"></div>
+    </div>
+    {% endfor %}
+    <div class="small text-muted mt-2">Sugerencia de apoyo: la decisión final es del asesor y del gerente.</div>
+    {% else %}
+    <p class="text-muted mb-0">El modelo no está entrenado. Ejecuta <code>python -m ml.entrenar</code> en la carpeta backend
+      y vuelve a analizar.</p>
+    {% endif %}
+  </div>
+</div>
+
 <div class="card mb-4">
   <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
     <span>Patrón detectado</span>

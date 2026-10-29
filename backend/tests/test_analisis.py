@@ -35,10 +35,20 @@ def encuesta(**cambios) -> dict:
     ("Reparar el canal de riego dañado por huaicos", "riego"),
     ("Contratar peones para la cosecha de maíz", "mano_obra"),
     ("Comprar un carrito con techo para vender emoliente", "equipamiento"),
-    ("Aumentar MERCADERÍA para la campaña navideña", "mercaderia"),
+    ("Aumentar MERCADERÍA para la campaña navideña", "navidad"),
+    ("Aumentar mercadería para la tienda", "mercaderia"),
     ("Surtir ropa de abrigo para el invierno", "mercaderia"),
     ("Comprar mallas antiheladas para el cultivo", "proteccion_clima"),
-    ("Capital de trabajo para fiestas patrias", "capital_trabajo"),
+    ("Proteger el cultivo de papa contra las heladas", "proteccion_clima"),  # "papa" no es Día del Padre
+    ("Capital de trabajo para fiestas patrias", "fiestas_patrias"),
+    ("Capital para vender gaseosas", "capital_trabajo"),
+    ("Comprar útiles y uniformes para el inicio de clases", "escolar"),
+    ("Comprar alimento balanceado para el engorde de cuyes", "pecuario"),
+    ("Comprar un mototaxi nuevo para trabajar", "compra_vehiculo"),
+    ("Reparar el motor del mototaxi", "vehiculo"),
+    ("Abrir una tienda virtual en Facebook", "ecommerce"),
+    ("Techar y cerrar el puesto antes de las lluvias", "construccion"),
+    ("Pagar la operación de mi madre en el hospital", "salud"),
     ("Viajar a Lima", "otros"),
 ])
 def test_clasifica_necesidades_por_palabras_clave(texto, categoria):
@@ -48,7 +58,7 @@ def test_clasifica_necesidades_por_palabras_clave(texto, categoria):
 def test_palabra_solo_cuenta_al_inicio_de_palabra():
     # "auto" no debe encontrarse dentro de "rauto"; "techo" sí dentro de "techos"
     assert clasificar("rauto", CONFIG) == "otros"
-    assert clasificar("Arreglar techos", CONFIG) == "proteccion_clima"
+    assert clasificar("Arreglar techos", CONFIG) == "construccion"
 
 
 # ---------- Indicadores y ranking ----------

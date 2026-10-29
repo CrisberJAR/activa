@@ -4,8 +4,10 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.catalogos import TEMPORADAS
+from app.config import cargar_tipos_campana
 from app.db import get_db
 from app.models import Bloque, Encuesta, Usuario
+from app.services import ml
 from app.services.analisis import analisis_a_dict, analizar_bloque, ultimo_analisis
 from app.services.clima import diagnostico_actual
 from app.security import requiere_rol, usuario_web_o_api
@@ -53,7 +55,16 @@ def pagina(
             "total_actual": totales.get(bloque.id, 0) if bloque else 0,
             "analisis": analisis,
             "nombres": TEMPORADAS,
+            "tipos": cargar_tipos_campana(),
         },
+    )
+
+
+@router.get("/analisis/modelo")
+def pagina_modelo(request: Request, usuario: Usuario = Depends(requiere_rol("asesor", "gerente"))):
+    """Métricas del Random Forest (para revisar el modelo y para el informe)."""
+    return templates.TemplateResponse(
+        request, "modelo.html", {"usuario": usuario, "m": ml.leer_metricas(), "tipos": cargar_tipos_campana()}
     )
 
 

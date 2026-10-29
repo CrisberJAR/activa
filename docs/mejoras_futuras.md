@@ -7,3 +7,6 @@ Ideas que surgen durante el desarrollo y que NO se implementan para respetar los
 - Historial de cambios de cada encuesta (quién cambió qué campo).
 - Revisar el diagnóstico con la app cerrada (tareas en segundo plano o notificaciones push con Firebase Cloud Messaging).
 - Publicar el backend en la nube de forma permanente para no depender de una laptop encendida.
+
+- **Reentrenar el Random Forest con campañas reales**: guardar qué campaña tomó cada cliente y reemplazar el dataset sintético por ese historial.
+

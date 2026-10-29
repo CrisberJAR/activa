@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block titulo %}Modelo Random Forest{% endblock %}
+{% macro nombre(t) %}{{ tipos.get(t, {}).get("nombre", t) }}{% endmacro %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">Modelo que sugiere el tipo de campaña</h1>
+  <a class="btn btn-outline-secondary" href="/analisis"><i class="bi bi-arrow-left"></i> Volver al análisis</a>
+</div>
+
+{% if not m %}
+<div class="alert alert-info">El modelo todavía no está entrenado. En la carpeta <code>backend</code> ejecuta
+  <code>python -m ml.entrenar</code> y recarga esta página.</div>
+{% else %}
+<div class="alert alert-warning small">
+  <i class="bi bi-info-circle"></i> <strong>Datos de entrenamiento sintéticos.</strong> No existe todavía un historial real de
+  campañas, así que el modelo se entrenó con {{ m.n_sintetico }} clientes generados con reglas del negocio y ruido aleatorio
+  (<code>ml/generar_dataset.py</code>). Las métricas sintéticas miden qué tan bien aprende esas reglas; la prueba con encuestas
+  reales muestra cómo se comporta con datos que nunca vio. Entrenado el {{ m.fecha }}.
+</div>
+
+<div class="row g-3 mb-4">
+  {% for titulo, valor, nota in [
+      ("Exactitud (prueba sintética)", "%.0f %%"|format(m.prueba.exactitud * 100), "%d clientes no usados al entrenar"|format(m.n_prueba)),
+      ("F1 macro (prueba sintética)", "%.2f"|format(m.prueba.f1_macro), "promedio de los %d tipos"|format(m.prueba.matriz.etiquetas|length)),
+      ("Validación cruzada (5 partes)", "%.2f ± %.2f"|format(m.validacion_cruzada.f1_macro_media, m.validacion_cruzada.f1_macro_desv), "F1 macro"),
+      ("Encuestas reales", "%.0f %%"|format(m.reales.exactitud * 100), "%d de %d aciertos"|format(m.reales.filas|selectattr("acierto")|list|length, m.reales.n)),
+  ] %}
+  <div class="col-6 col-lg-3">
+    <div class="card h-100 text-center"><div class="card-body py-3">
+      <div class="small text-muted">{{ titulo }}</div>
+      <div class="h4 mb-0 text-activa">{{ valor }}</div>
+      <div class="small text-muted">{{ nota }}</div>
+    </div></div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">Importancia de cada variable</div>
+      <ul class="list-group list-group-flush">
+        {% for i in m.importancia %}
+        <li class="list-group-item py-2">
+          <div class="d-flex justify-content-between small"><span>{{ i.variable }}</span><span>{{ "%.1f"|format(i.valor * 100) }} %</span></div>
+          <div class="progress" style="height: 6px"><div class="progress-bar bg-activa" style="width: {{ i.valor * 100 }}%"></div></div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">Resultado por tipo de campaña (prueba sintética)</div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0 small align-middle">
+          <thead class="table-light"><tr><th>Tipo</th><th class="text-end">Precisión</th><th class="text-end">Recall</th><th class="text-end">F1</th><th class="text-end">Casos</th></tr></thead>
+          <tbody>
+            {% for t, r in m.prueba.por_tipo.items() %}
+            <tr><td>{{ nombre(t) }}</td><td class="text-end">{{ r.precision }}</td><td class="text-end">{{ r.recall }}</td>
+              <td class="text-end fw-semibold">{{ r.f1 }}</td><td class="text-end">{{ r.soporte }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header fw-semibold">Prueba con las {{ m.reales.n }} encuestas de ejemplo (etiquetadas a mano, nunca vistas por el modelo)</div>
+  <div class="table-responsive">
+    <table class="table table-sm mb-0 small align-middle">
+      <thead class="table-light"><tr><th>Necesidad</th><th>Tipo correcto</th><th>Tipo predicho</th><th class="text-end">Confianza</th><th></th></tr></thead>
+      <tbody>
+        {% for f in m.reales.filas %}
+        <tr class="{{ '' if f.acierto else 'table-warning' }}">
+          <td>{{ f.necesidad }}</td><td>{{ nombre(f.real) }}</td><td>{{ nombre(f.predicho) }}</td>
+          <td class="text-end">{{ f.confianza }} %</td>
+          <td>{% if f.acierto %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}<i class="bi bi-x-circle-fill text-danger"></i>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if m.reales.tipos_sin_ejemplos %}
+  <div class="card-footer small text-muted">Tipos sin encuestas reales de ejemplo:
+    {% for t in m.reales.tipos_sin_ejemplos %}{{ nombre(t) }}{{ ", " if not loop.last }}{% endfor %}.</div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-header fw-semibold">Matriz de confusión (prueba sintética: fila = tipo real, columna = tipo predicho)</div>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered mb-0 text-center matriz">
+      <thead class="table-light">
+        <tr><th></th>{% for t in m.prueba.matriz.etiquetas %}<th title="{{ nombre(t) }}">{{ loop.index }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for fila in m.prueba.matriz.valores %}
+        {% set i = loop.index0 %}
+        <tr>
+          <th class="text-start text-nowrap">{{ loop.index }}. {{ nombre(m.prueba.matriz.etiquetas[i]) }}</th>
+          {% for v in fila %}
+          <td class="{{ 'table-success fw-semibold' if loop.index0 == i and v else ('table-danger' if v else 'text-muted') }}">{{ v or "·" }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,36 +1,70 @@
 # Categorías para clasificar la "necesidad" (texto libre) de cada encuesta.
-# Se revisan EN ESTE ORDEN: la primera categoría con alguna palabra en el texto gana.
-# Las palabras se comparan sin tildes ni mayúsculas y al inicio de palabra
-# ("semilla" encuentra "semillas"). Ajustar aquí, nunca en el código.
+# Se revisan EN ESTE ORDEN: la primera categoría con alguna palabra en el texto gana
+# (por eso las más específicas van primero). Las palabras se comparan sin tildes ni
+# mayúsculas y al inicio de palabra ("semilla" encuentra "semillas").
+# Ajustar aquí, nunca en el código. Si se agrega o quita una categoría, reentrenar el
+# modelo (python -m ml.entrenar), porque la categoría es una de sus variables.
 
 categorias:
+  salud:
+    nombre: Salud o emergencia médica
+    palabras: [salud, medicina, medico, cirugia, operarme, hospital, clinica, tratamiento, enfermedad]
+  compra_vehiculo:
+    nombre: Compra de vehículo de trabajo
+    palabras: [comprar un mototaxi, comprar una mototaxi, comprar una moto, comprar mi moto, comprar un auto,
+               comprar un carro, comprar un vehiculo, furgoneta, camioneta, moto lineal, moto para delivery, vehiculo propio]
   vehiculo:
     nombre: Reparación o mejora del vehículo
-    palabras: [llanta, freno, motor, mototaxi, auto, vehiculo, parabrisas, plumilla, glp, repuesto, combustible]
+    palabras: [llanta, freno, motor, mototaxi, auto, vehiculo, parabrisas, plumilla, glp, gnv, repuesto, combustible]
+  pecuario:
+    nombre: Crianza de animales (ganado, cuyes, aves)
+    palabras: [ganado, vacuno, vaca, toro, cuy, cuyes, cerdo, porcino, chancho, ovino, oveja, gallina, aves de, engorde,
+               crianza, alimento balanceado, vacuna, establo, galpon, granja]
   insumos_agricolas:
     nombre: Insumos agrícolas (semillas, abono, fumigación)
-    palabras: [semilla, abono, fertiliz, fumig, plaguicid, siembra, sembrar]
+    palabras: [semilla, abono, fertiliz, fumig, plaguicid, pesticid, siembra, sembrar]
   riego:
     nombre: Riego y agua para el cultivo
     palabras: [riego, canal, goteo, reservorio, aspersor]
   mano_obra:
     nombre: Mano de obra (peones, jornales)
     palabras: [peon, peones, jornal, contratar, personal]
+  navidad:
+    nombre: Campaña de Navidad y fin de año
+    palabras: [navid, paneton, juguete, fin de ano, ano nuevo]
+  escolar:
+    nombre: Campaña escolar
+    palabras: [escolar, utiles, uniforme, colegio, mochila, libreria, cuaderno, inicio de clases, matricula]
+  fiestas_patrias:
+    nombre: Fiestas Patrias y gratificación
+    palabras: [fiestas patrias, gratificacion, 28 de julio]
+  dia_madre_padre:
+    nombre: Día de la Madre o del Padre
+    palabras: [dia de la madre, dia del padre, dia de la mama, dia del papa, floreria, flores, regalo]
+  ecommerce:
+    nombre: Ventas por internet
+    palabras: [tienda virtual, tienda online, internet, redes sociales, facebook, tiktok, instagram, cyber,
+               black friday, venta online, ventas online, marketplace, pedidos por]
   equipamiento:
     nombre: Equipos y herramientas
-    palabras: [congeladora, refrigerador, carrito, maquina, equipo, herramienta, cocina, balanza, vitrina]
+    palabras: [congeladora, refrigerador, carrito, maquina, equipo, herramienta, cocina, horno, balanza, vitrina,
+               estante, computadora]
+  construccion:
+    nombre: Construcción o mejora de la vivienda o el local
+    palabras: [construir, construccion, tarraje, techar, techado, techo, remodel, ampliar, mejorar el local,
+               vivienda, mi casa, piso, pared, ladrillo, cemento]
+  proteccion_clima:
+    nombre: Protección del negocio o cultivo frente al clima
+    palabras: [helada, antihelad, friaje, malla, toldo, plastico, proteger, cubrir, invernadero, manta termica]
   mercaderia:
     nombre: Compra de mercadería
     palabras: [mercaderia, abarrote, surtir, stock, por mayor, productos, ropa]
-  proteccion_clima:
-    nombre: Protección del negocio o cultivo frente al clima
-    palabras: [helada, antihelad, malla, techar, techo, toldo, plastico, proteger, cubrir]
   deudas:
     nombre: Pago o compra de deudas
     palabras: [deuda, refinanci, prestamo]
   capital_trabajo:
     nombre: Capital de trabajo
-    palabras: [capital, invertir, inversion, negocio]
+    palabras: [capital, invertir, inversion, proveedor, caja chica, negocio]
 
 # Si ninguna palabra coincide
 otros:

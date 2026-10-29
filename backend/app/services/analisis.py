@@ -6,13 +6,14 @@ Se usan SOLO las encuestas del bloque elegido.
 import re
 import unicodedata
 from collections import Counter
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.config import cargar_necesidades
+from app.config import HORA_PERU, cargar_necesidades, hoy_peru
 from app.models import AnalisisBloque, Bloque, Encuesta
-from app.services import ia
+from app.services import ia, ml
 
 # Campos que entran al análisis. Nombre y teléfono NO: no se necesitan y así nunca llegan a la IA
 CAMPOS = (
@@ -98,10 +99,29 @@ def ranking_necesidades(encuestas: list[dict], config: dict) -> list[dict]:
 
 # ---------- Unión con la base de datos ----------
 
+def _mes_peru(momento: datetime | None) -> int:
+    """Mes (hora de Perú) en que se registró la encuesta; el modelo lo usa para las campañas festivas."""
+    if momento is None:
+        return hoy_peru().month
+    if momento.tzinfo is None:
+        momento = momento.replace(tzinfo=timezone.utc)
+    return momento.astimezone(HORA_PERU).month
+
+
 def encuestas_del_bloque(db: Session, bloque_id: int) -> tuple[list[dict], list[str]]:
     """Encuestas del bloque (sin datos personales) y, aparte, los nombres para anonimizar textos."""
     filas = db.scalars(select(Encuesta).where(Encuesta.bloque_id == bloque_id)).all()
-    return [{c: getattr(e, c) for c in CAMPOS} for e in filas], [e.nombre for e in filas]
+    encuestas = [{c: getattr(e, c) for c in CAMPOS} | {"mes": _mes_peru(e.creado_en)} for e in filas]
+    return encuestas, [e.nombre for e in filas]
+
+
+def sugerencia_modelo(encuestas: list[dict], config: dict) -> dict | None:
+    """Tipo de campaña sugerido por el Random Forest (None si el modelo no está entrenado)."""
+    filas = [ml.caracteristicas(e, clasificar(e["necesidad"], config), e["mes"]) for e in encuestas]
+    sugerencia = ml.sugerir(filas)
+    if sugerencia:
+        sugerencia.pop("por_cliente")  # no se guarda el detalle por cliente
+    return sugerencia
 
 
 def ultimo_analisis(db: Session, bloque_id: int) -> AnalisisBloque | None:
@@ -119,15 +139,18 @@ def analizar_bloque(db: Session, bloque: Bloque, estacion: dict | None) -> Anali
     config = cargar_necesidades()
     indicadores = calcular_indicadores(encuestas)
     ranking = ranking_necesidades(encuestas, config)
+    campana = sugerencia_modelo(encuestas, config)
     textos = [ia.anonimizar(e["necesidad"], nombres) for e in encuestas]
-    patron = ia.texto_patron(indicadores, ranking, textos, estacion)
+    patron = ia.texto_patron(indicadores, ranking, textos, estacion, campana)
     # Datos del contexto guardados junto a los indicadores (sin migración nueva)
     indicadores["estacion_actual"] = estacion.get("estacion_actual") if estacion else None
     indicadores["fuente_texto"] = patron["fuente"]
     indicadores["modelo_ia"] = patron["modelo"]
     indicadores["error_ia"] = patron["error"]
+    indicadores["campana_modelo"] = campana
     analisis = AnalisisBloque(
-        bloque_id=bloque.id, indicadores=indicadores, ranking_necesidades=ranking, texto_patron=patron["texto"]
+        bloque_id=bloque.id, indicadores=indicadores, ranking_necesidades=ranking, texto_patron=patron["texto"],
+        tipo_campana_sugerida=campana["sugerida"] if campana else None,
     )
     db.add(analisis)
     db.commit()

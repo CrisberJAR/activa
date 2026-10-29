@@ -1,0 +1,21 @@
+sector,categoria_necesidad,temporada_necesidad,riesgo_principal,frecuencia_ingresos,garantia,mes,ingreso_mensual,monto,plazo_meses,anios_negocio,trabajadores,credito_vigente,tipo,necesidad
+comerciante,navidad,verano,bajas_ventas,diaria,aval,10,2800.0,5000.0,6.0,8.0,1.0,1,campana_navidena,Aumentar mercadería para la campaña navideña
+comerciante,construccion,lluvias,lluvias,diaria,propiedad,10,3500.0,4000.0,8.0,12.0,2.0,0,construccion_vivienda,Techar y cerrar el puesto antes de las lluvias
+comerciante,mercaderia,todo_el_anio,alza_precios,diaria,ninguna,10,1900.0,2500.0,6.0,4.0,0.0,0,capital_trabajo,Comprar abarrotes al por mayor para bajar costos
+ambulante,proteccion_clima,lluvias,lluvias,diaria,ninguna,10,1200.0,800.0,4.0,3.0,0.0,0,comercio_temporada,Comprar toldo y plásticos para vender en temporada de lluvias
+comerciante,mercaderia,invierno,heladas,diaria,aval,10,2200.0,3000.0,5.0,6.0,1.0,1,comercio_temporada,Surtir ropa de abrigo para el invierno
+ambulante,equipamiento,verano,sequia,diaria,ninguna,10,1000.0,1500.0,6.0,2.0,0.0,0,equipamiento,Comprar una congeladora para vender helados en verano
+comerciante,fiestas_patrias,transicion,bajas_ventas,diaria,vehiculo,10,2600.0,3500.0,6.0,10.0,1.0,0,campana_fiestas_patrias,Capital de trabajo para fiestas patrias y feriados
+agricola,insumos_agricolas,lluvias,lluvias,cosecha,propiedad,10,1800.0,6000.0,9.0,15.0,3.0,0,agro_siembra,Comprar semillas y abono antes de la siembra de lluvias
+agricola,riego,lluvias,lluvias,cosecha,propiedad,10,1500.0,4500.0,12.0,20.0,2.0,1,agro_clima,Reparar el canal de riego dañado por huaicos
+agricola,proteccion_clima,invierno,heladas,cosecha,aval,10,1300.0,3500.0,8.0,25.0,4.0,0,agro_clima,Proteger el cultivo de papa contra las heladas
+agricola,riego,verano,sequia,cosecha,propiedad,10,2100.0,7000.0,12.0,9.0,2.0,0,agro_clima,Instalar riego por goteo para la época seca
+agricola,mano_obra,transicion,alza_precios,cosecha,propiedad,10,1600.0,3000.0,6.0,18.0,3.0,1,agro_siembra,Contratar peones para la cosecha de maíz
+agricola,insumos_agricolas,lluvias,lluvias,cosecha,ninguna,10,1400.0,2500.0,6.0,12.0,1.0,0,agro_siembra,Comprar fertilizante y fumigar antes de las lluvias
+agricola,proteccion_clima,invierno,heladas,cosecha,aval,10,1200.0,2000.0,6.0,30.0,2.0,0,agro_clima,Comprar mallas antiheladas para el cultivo
+taxista,vehiculo,lluvias,lluvias,diaria,vehiculo,10,2400.0,3000.0,8.0,6.0,0.0,1,movilidad,Cambiar llantas y frenos antes de la temporada de lluvias
+taxista,vehiculo,todo_el_anio,salud,diaria,vehiculo,10,2000.0,2500.0,6.0,4.0,0.0,0,movilidad,Reparar el motor del mototaxi
+taxista,vehiculo,todo_el_anio,alza_precios,diaria,vehiculo,10,2700.0,4000.0,12.0,9.0,0.0,0,movilidad,Pagar la conversión del auto a GLP para ahorrar combustible
+ambulante,equipamiento,invierno,heladas,diaria,ninguna,10,1100.0,1200.0,6.0,5.0,0.0,0,equipamiento,Comprar un carrito con techo para vender emoliente en invierno
+ambulante,capital_trabajo,verano,sequia,diaria,ninguna,10,950.0,900.0,4.0,2.0,0.0,0,comercio_temporada,Capital para vender gaseosas y raspadillas en verano
+taxista,vehiculo,lluvias,lluvias,diaria,aval,10,2200.0,1500.0,5.0,3.0,0.0,1,movilidad,Comprar parabrisas y plumillas nuevas para las lluvias

@@ -15,3 +15,7 @@
 .opcion-pendiente { opacity: .75; }
 .opcion-activa { transition: box-shadow .15s; }
 .opcion-activa:hover { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .12); }
+
+.border-activa { border-color: var(--activa); }
+.matriz { font-size: .75rem; }
+

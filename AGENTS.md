@@ -121,4 +121,5 @@ activa/
   - Notificación local solo con la app abierta/al volver a primer plano, y solo si el mensaje de alerta es nuevo.
 - [ ] Fase 5 – IA (en 3 entregas):
   - [x] (a) Análisis por bloque (validada por el usuario 2026-10-29): página `/analisis`, API `/api/analisis/{bloque_id}`, 89 pruebas pasando. Categorías en `config/necesidades.yaml`; Gemini por REST (`services/ia.py`): modelo principal + modelos de respaldo si hay 503/429/demora, y plantilla si todos fallan. `iniciar_servidor.ps1 -Recargar` para desarrollo.
-  - [ ] (b) Random Forest · [ ] (c) generador de campañas
+  - [x] (b) Random Forest (validada por el usuario 2026-10-29): 112 pruebas pasando. 15 tipos en `config/tipos_campana.yaml`; dataset sintético (`ml/generar_dataset.py`), entrenamiento `python -m ml.entrenar` → `ml/modelo.joblib` + `ml/metricas.json` (scikit-learn fijo en 1.9.1). Variables: sector, categoría de necesidad, temporada, riesgo, frecuencia, garantía, mes de registro y montos. Página `/analisis/modelo`.
+  - [ ] (c) generador de campañas

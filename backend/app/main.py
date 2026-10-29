@@ -1,3 +1,4 @@
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request
@@ -12,11 +13,14 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.config import BASE_DIR, settings
 from app.db import get_db
 from app.routers import analisis, auth, bloques, clima, encuestas, menu
+from app.services import ml
 from app.templating import templates
 
 
 @asynccontextmanager
 async def ciclo_de_vida(app: FastAPI):
+    # Carga el modelo de ML en segundo plano para que el primer análisis no espere
+    threading.Thread(target=ml.cargar_modelo, daemon=True).start()
     planificador = None
     if settings.scheduler_activo:
         from app.scheduler import iniciar

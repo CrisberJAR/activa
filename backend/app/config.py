@@ -67,3 +67,9 @@ def cargar_necesidades() -> dict:
     """Lee las categorías de necesidades desde config/necesidades.yaml."""
     with open(BASE_DIR / "config" / "necesidades.yaml", encoding="utf-8") as f:
         return yaml.safe_load(f)
+
+
+def cargar_tipos_campana() -> dict:
+    """Tipos de campaña que sugiere el modelo: {clave: {grupo, nombre, descripcion}}."""
+    with open(BASE_DIR / "config" / "tipos_campana.yaml", encoding="utf-8") as f:
+        return yaml.safe_load(f)["tipos"]

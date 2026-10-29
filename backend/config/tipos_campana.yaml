@@ -1,0 +1,72 @@
+# Tipos de campaña que sugiere el modelo Random Forest (Fase 5b).
+# La clave es la etiqueta que aprende el modelo: si se cambia una clave hay que reentrenar
+# (python -m ml.entrenar). El nombre y la descripción se pueden editar libremente.
+
+tipos:
+  # Festivas y comerciales
+  campana_navidena:
+    grupo: Festivas y comerciales
+    nombre: Campaña Navideña y Año Nuevo
+    descripcion: Octubre a diciembre. Comerciantes, confeccionistas, jugueterías, bodegas y restaurantes que se abastecen para Navidad.
+  campana_escolar:
+    grupo: Festivas y comerciales
+    nombre: Campaña Escolar
+    descripcion: Enero a marzo. Útiles, uniformes, calzado, imprentas, librerías y familias que financian el inicio de clases.
+  campana_fiestas_patrias:
+    grupo: Festivas y comerciales
+    nombre: Campaña Fiestas Patrias / Gratificación
+    descripcion: Junio y julio. Ropa, restaurantes, turismo y servicios que aprovechan la gratificación de julio.
+  campana_dia_madre_padre:
+    grupo: Festivas y comerciales
+    nombre: Campaña Día de la Madre y del Padre
+    descripcion: Abril a junio. Florerías, regalos, electrodomésticos, restaurantes y confección.
+  campana_cyber_black:
+    grupo: Festivas y comerciales
+    nombre: Campaña Ecommerce / Cyber / Black Friday
+    descripcion: Mayo, julio y noviembre. Negocios digitales y emprendedores que necesitan stock para vender por internet.
+  comercio_temporada:
+    grupo: Festivas y comerciales
+    nombre: Mercadería por cambio de estación
+    descripcion: Comerciantes y ambulantes que adaptan su mercadería al clima (abrigo en invierno, toldos en lluvias, helados en verano).
+
+  # Agrícolas y pecuarias
+  agro_siembra:
+    grupo: Agrícolas y pecuarias
+    nombre: Campaña de Siembra y Cosecha
+    descripcion: Agricultores que compran semillas, fertilizantes, abono o pesticidas, o pagan jornales.
+  agro_clima:
+    grupo: Agrícolas y pecuarias
+    nombre: Prevención Climática y Riego
+    descripcion: Agricultores expuestos a heladas, friaje, sequías o lluvias intensas (mantas térmicas, riego, invernaderos).
+  agro_pecuaria:
+    grupo: Agrícolas y pecuarias
+    nombre: Campaña Pecuaria y Engorde
+    descripcion: Criadores que compran alimento balanceado, vacunas o financian el engorde de ganado, cuyes o aves.
+
+  # Rubro y equipamiento
+  equipamiento:
+    grupo: Rubro y equipamiento
+    nombre: Activo Fijo y Maquinaria
+    descripcion: Compra de máquinas, congeladoras, hornos, computadoras, estantes o herramientas de trabajo.
+  movilidad:
+    grupo: Rubro y equipamiento
+    nombre: Mantenimiento y Renovación Vehicular
+    descripcion: Taxistas, mototaxistas y transportistas para llantas, repuestos, conversión a GNV/GLP o motor.
+  credito_vehicular:
+    grupo: Rubro y equipamiento
+    nombre: Compra de Vehículo de Trabajo
+    descripcion: Financiamiento de mototaxis, furgonetas, motos de delivery o autos para taxi.
+  capital_trabajo:
+    grupo: Rubro y equipamiento
+    nombre: Capital de Trabajo Continuo
+    descripcion: Liquidez para mercadería del día a día, pago a proveedores o caja chica, sin temporada específica.
+
+  # Vivienda y salud
+  construccion_vivienda:
+    grupo: Vivienda y salud
+    nombre: Mejoramiento de Vivienda / Local
+    descripcion: Construcción, tarrajeo, techado o remodelación de la casa o del local comercial.
+  salud_emergencia:
+    grupo: Vivienda y salud
+    nombre: Emergencia Médica / Salud
+    descripcion: Gastos inesperados de salud, intervenciones o tratamientos familiares.

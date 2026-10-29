@@ -1,0 +1,626 @@
+{
+  "fecha": "29/10/2026 12:07",
+  "arboles": 100,
+  "variables": [
+    "sector",
+    "categoria_necesidad",
+    "temporada_necesidad",
+    "riesgo_principal",
+    "frecuencia_ingresos",
+    "garantia",
+    "mes",
+    "ingreso_mensual",
+    "monto",
+    "plazo_meses",
+    "anios_negocio",
+    "trabajadores",
+    "credito_vigente"
+  ],
+  "n_sintetico": 1500,
+  "n_entrenamiento": 1200,
+  "n_prueba": 300,
+  "validacion_cruzada": {
+    "f1_macro_media": 0.869,
+    "f1_macro_desv": 0.011
+  },
+  "prueba": {
+    "exactitud": 0.913,
+    "f1_macro": 0.913,
+    "por_tipo": {
+      "agro_clima": {
+        "precision": 1.0,
+        "recall": 0.95,
+        "f1": 0.97,
+        "soporte": 20
+      },
+      "agro_pecuaria": {
+        "precision": 0.95,
+        "recall": 0.9,
+        "f1": 0.92,
+        "soporte": 20
+      },
+      "agro_siembra": {
+        "precision": 0.83,
+        "recall": 1.0,
+        "f1": 0.91,
+        "soporte": 20
+      },
+      "campana_cyber_black": {
+        "precision": 0.94,
+        "recall": 0.8,
+        "f1": 0.86,
+        "soporte": 20
+      },
+      "campana_dia_madre_padre": {
+        "precision": 0.85,
+        "recall": 0.85,
+        "f1": 0.85,
+        "soporte": 20
+      },
+      "campana_escolar": {
+        "precision": 0.94,
+        "recall": 0.85,
+        "f1": 0.89,
+        "soporte": 20
+      },
+      "campana_fiestas_patrias": {
+        "precision": 0.85,
+        "recall": 0.85,
+        "f1": 0.85,
+        "soporte": 20
+      },
+      "campana_navidena": {
+        "precision": 0.77,
+        "recall": 0.85,
+        "f1": 0.81,
+        "soporte": 20
+      },
+      "capital_trabajo": {
+        "precision": 0.83,
+        "recall": 0.75,
+        "f1": 0.79,
+        "soporte": 20
+      },
+      "comercio_temporada": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "soporte": 20
+      },
+      "construccion_vivienda": {
+        "precision": 0.95,
+        "recall": 1.0,
+        "f1": 0.98,
+        "soporte": 20
+      },
+      "credito_vehicular": {
+        "precision": 0.95,
+        "recall": 1.0,
+        "f1": 0.98,
+        "soporte": 20
+      },
+      "equipamiento": {
+        "precision": 0.9,
+        "recall": 0.9,
+        "f1": 0.9,
+        "soporte": 20
+      },
+      "movilidad": {
+        "precision": 0.95,
+        "recall": 1.0,
+        "f1": 0.98,
+        "soporte": 20
+      },
+      "salud_emergencia": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "soporte": 20
+      }
+    },
+    "matriz": {
+      "etiquetas": [
+        "agro_clima",
+        "agro_pecuaria",
+        "agro_siembra",
+        "campana_cyber_black",
+        "campana_dia_madre_padre",
+        "campana_escolar",
+        "campana_fiestas_patrias",
+        "campana_navidena",
+        "capital_trabajo",
+        "comercio_temporada",
+        "construccion_vivienda",
+        "credito_vehicular",
+        "equipamiento",
+        "movilidad",
+        "salud_emergencia"
+      ],
+      "valores": [
+        [
+          19,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          18,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          20,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          16,
+          0,
+          0,
+          2,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          17,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          17,
+          0,
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          17,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          17,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          2,
+          0,
+          1,
+          1,
+          0,
+          0,
+          15,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          18,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20
+        ]
+      ]
+    }
+  },
+  "reales": {
+    "n": 20,
+    "exactitud": 0.8,
+    "tipos_sin_ejemplos": [
+      "agro_pecuaria",
+      "campana_cyber_black",
+      "campana_dia_madre_padre",
+      "campana_escolar",
+      "credito_vehicular",
+      "salud_emergencia"
+    ],
+    "filas": [
+      {
+        "necesidad": "Aumentar mercadería para la campaña navideña",
+        "sector": "comerciante",
+        "real": "campana_navidena",
+        "predicho": "campana_navidena",
+        "acierto": true,
+        "confianza": 80.7
+      },
+      {
+        "necesidad": "Techar y cerrar el puesto antes de las lluvias",
+        "sector": "comerciante",
+        "real": "construccion_vivienda",
+        "predicho": "comercio_temporada",
+        "acierto": false,
+        "confianza": 42.9
+      },
+      {
+        "necesidad": "Comprar abarrotes al por mayor para bajar costos",
+        "sector": "comerciante",
+        "real": "capital_trabajo",
+        "predicho": "campana_navidena",
+        "acierto": false,
+        "confianza": 31.6
+      },
+      {
+        "necesidad": "Comprar toldo y plásticos para vender en temporada de lluvias",
+        "sector": "ambulante",
+        "real": "comercio_temporada",
+        "predicho": "comercio_temporada",
+        "acierto": true,
+        "confianza": 88.6
+      },
+      {
+        "necesidad": "Surtir ropa de abrigo para el invierno",
+        "sector": "comerciante",
+        "real": "comercio_temporada",
+        "predicho": "comercio_temporada",
+        "acierto": true,
+        "confianza": 83.0
+      },
+      {
+        "necesidad": "Comprar una congeladora para vender helados en verano",
+        "sector": "ambulante",
+        "real": "equipamiento",
+        "predicho": "comercio_temporada",
+        "acierto": false,
+        "confianza": 76.6
+      },
+      {
+        "necesidad": "Capital de trabajo para fiestas patrias y feriados",
+        "sector": "comerciante",
+        "real": "campana_fiestas_patrias",
+        "predicho": "campana_fiestas_patrias",
+        "acierto": true,
+        "confianza": 65.4
+      },
+      {
+        "necesidad": "Comprar semillas y abono antes de la siembra de lluvias",
+        "sector": "agricola",
+        "real": "agro_siembra",
+        "predicho": "agro_siembra",
+        "acierto": true,
+        "confianza": 96.5
+      },
+      {
+        "necesidad": "Reparar el canal de riego dañado por huaicos",
+        "sector": "agricola",
+        "real": "agro_clima",
+        "predicho": "agro_clima",
+        "acierto": true,
+        "confianza": 80.5
+      },
+      {
+        "necesidad": "Proteger el cultivo de papa contra las heladas",
+        "sector": "agricola",
+        "real": "agro_clima",
+        "predicho": "agro_clima",
+        "acierto": true,
+        "confianza": 76.7
+      },
+      {
+        "necesidad": "Instalar riego por goteo para la época seca",
+        "sector": "agricola",
+        "real": "agro_clima",
+        "predicho": "agro_clima",
+        "acierto": true,
+        "confianza": 94.6
+      },
+      {
+        "necesidad": "Contratar peones para la cosecha de maíz",
+        "sector": "agricola",
+        "real": "agro_siembra",
+        "predicho": "agro_siembra",
+        "acierto": true,
+        "confianza": 83.7
+      },
+      {
+        "necesidad": "Comprar fertilizante y fumigar antes de las lluvias",
+        "sector": "agricola",
+        "real": "agro_siembra",
+        "predicho": "agro_siembra",
+        "acierto": true,
+        "confianza": 96.8
+      },
+      {
+        "necesidad": "Comprar mallas antiheladas para el cultivo",
+        "sector": "agricola",
+        "real": "agro_clima",
+        "predicho": "agro_clima",
+        "acierto": true,
+        "confianza": 72.2
+      },
+      {
+        "necesidad": "Cambiar llantas y frenos antes de la temporada de lluvias",
+        "sector": "taxista",
+        "real": "movilidad",
+        "predicho": "movilidad",
+        "acierto": true,
+        "confianza": 94.2
+      },
+      {
+        "necesidad": "Reparar el motor del mototaxi",
+        "sector": "taxista",
+        "real": "movilidad",
+        "predicho": "movilidad",
+        "acierto": true,
+        "confianza": 83.8
+      },
+      {
+        "necesidad": "Pagar la conversión del auto a GLP para ahorrar combustible",
+        "sector": "taxista",
+        "real": "movilidad",
+        "predicho": "movilidad",
+        "acierto": true,
+        "confianza": 87.9
+      },
+      {
+        "necesidad": "Comprar un carrito con techo para vender emoliente en invierno",
+        "sector": "ambulante",
+        "real": "equipamiento",
+        "predicho": "comercio_temporada",
+        "acierto": false,
+        "confianza": 82.8
+      },
+      {
+        "necesidad": "Capital para vender gaseosas y raspadillas en verano",
+        "sector": "ambulante",
+        "real": "comercio_temporada",
+        "predicho": "comercio_temporada",
+        "acierto": true,
+        "confianza": 78.3
+      },
+      {
+        "necesidad": "Comprar parabrisas y plumillas nuevas para las lluvias",
+        "sector": "taxista",
+        "real": "movilidad",
+        "predicho": "movilidad",
+        "acierto": true,
+        "confianza": 96.1
+      }
+    ]
+  },
+  "importancia": [
+    {
+      "variable": "categoria_necesidad",
+      "valor": 0.4149
+    },
+    {
+      "variable": "riesgo_principal",
+      "valor": 0.1418
+    },
+    {
+      "variable": "plazo_meses",
+      "valor": 0.0942
+    },
+    {
+      "variable": "sector",
+      "valor": 0.0805
+    },
+    {
+      "variable": "monto",
+      "valor": 0.0638
+    },
+    {
+      "variable": "temporada_necesidad",
+      "valor": 0.0597
+    },
+    {
+      "variable": "mes",
+      "valor": 0.0426
+    },
+    {
+      "variable": "frecuencia_ingresos",
+      "valor": 0.0295
+    },
+    {
+      "variable": "ingreso_mensual",
+      "valor": 0.0219
+    },
+    {
+      "variable": "anios_negocio",
+      "valor": 0.0203
+    },
+    {
+      "variable": "garantia",
+      "valor": 0.0136
+    },
+    {
+      "variable": "trabajadores",
+      "valor": 0.0118
+    },
+    {
+      "variable": "credito_vigente",
+      "valor": 0.0053
+    }
+  ]
+}
