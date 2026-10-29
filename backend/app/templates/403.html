@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block titulo %}Sin permiso{% endblock %}
+{% block contenido %}
+<div class="text-center mt-5">
+  <i class="bi bi-shield-lock display-3 text-danger"></i>
+  <h1 class="h4 mt-3">{{ mensaje }}</h1>
+  <a class="btn btn-activa mt-3" href="/login">Volver a mi menú</a>
+</div>
+{% endblock %}

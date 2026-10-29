@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block titulo %}Encuesta de {{ e.nombre }}{% endblock %}
+{% macro fila(etiqueta, valor) %}
+<div class="col-sm-6 col-lg-4"><div class="small text-muted">{{ etiqueta }}</div><div>{{ valor }}</div></div>
+{% endmacro %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-0">{{ e.nombre }}</h1>
+    <div class="text-muted small">
+      Bloque <a href="/encuestas?bloque_id={{ e.bloque_id }}">{{ e.bloque.nombre }}</a> ·
+      registrada por {{ e.asesor.nombre }} el {{ e.creado_en|fecha_hora }}
+      {% if e.actualizado_en %}· editada el {{ e.actualizado_en|fecha_hora }}{% endif %}
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {% if editable %}<a class="btn btn-outline-primary" href="/encuestas/{{ e.id }}/editar"><i class="bi bi-pencil"></i> Editar</a>{% endif %}
+    <a class="btn btn-outline-secondary" href="/encuestas?bloque_id={{ e.bloque_id }}">Volver</a>
+  </div>
+</div>
+
+<div class="card mb-3"><div class="card-header fw-semibold">Datos del cliente</div>
+  <div class="card-body row g-3">
+    {{ fila("Teléfono", e.telefono) }}
+    {{ fila("Zona", e.zona) }}
+    {{ fila("Sector", cat.sector.get(e.sector, e.sector)) }}
+  </div>
+</div>
+
+<div class="card mb-3"><div class="card-header fw-semibold">Negocio</div>
+  <div class="card-body row g-3">
+    {{ fila("Ingreso mensual", "S/ {:,.2f}".format(e.ingreso_mensual)) }}
+    {{ fila("Años con el negocio", e.anios_negocio) }}
+    {{ fila("Trabajadores", e.trabajadores) }}
+    {{ fila("Frecuencia de ingresos", cat.frecuencia_ingresos.get(e.frecuencia_ingresos, e.frecuencia_ingresos)) }}
+    {{ fila("Garantía", cat.garantia.get(e.garantia, e.garantia)) }}
+    {{ fila("Crédito vigente", "Sí" if e.credito_vigente else "No") }}
+  </div>
+</div>
+
+<div class="card mb-3"><div class="card-header fw-semibold">Necesidad de crédito</div>
+  <div class="card-body row g-3">
+    <div class="col-12"><div class="small text-muted">Necesidad</div><div>{{ e.necesidad }}</div></div>
+    {{ fila("Monto", "S/ {:,.2f}".format(e.monto)) }}
+    {{ fila("Plazo deseado", "%d meses" % e.plazo_meses) }}
+    {{ fila("Temporada de mayor necesidad", cat.temporada_necesidad.get(e.temporada_necesidad, e.temporada_necesidad)) }}
+    {{ fila("Riesgo principal", cat.riesgo_principal.get(e.riesgo_principal, e.riesgo_principal)) }}
+    {{ fila("Contacto preferido", cat.contacto_preferido.get(e.contacto_preferido, e.contacto_preferido)) }}
+    {{ fila("Interés en campaña", "Sí" if e.interes_campana else "No") }}
+  </div>
+</div>
+
+<p class="small text-muted"><i class="bi bi-shield-check"></i> Consentimiento de datos personales (Ley 29733) otorgado.</p>
+{% endblock %}

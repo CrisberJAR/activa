@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% import "_campos.html" as c with context %}
+{% set titulo = "Editar encuesta" if encuesta else "Nueva encuesta" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-3">{{ titulo }}</h1>
+
+{% if errores %}
+<div class="alert alert-danger">Revisa los campos marcados en rojo.</div>
+{% endif %}
+{% if not bloques %}
+<div class="alert alert-warning">No hay bloques abiertos.
+  {% if usuario.rol == "gerente" %}<a href="/bloques">Crea o abre un bloque</a> antes de registrar encuestas.
+  {% else %}Pide al gerente que abra un bloque para poder registrar encuestas.{% endif %}</div>
+{% endif %}
+
+<form method="post">
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Bloque</div>
+    <div class="card-body">
+      <select class="form-select{{ c.invalido('bloque_id') }}" name="bloque_id" required>
+        <option value="">Elige el bloque…</option>
+        {% for b in bloques %}
+        <option value="{{ b.id }}" {% if v.get('bloque_id')|string == b.id|string %}selected{% endif %}>
+          {{ b.nombre }}{% if not b.activo %} (cerrado){% endif %}
+        </option>
+        {% endfor %}
+      </select>
+      {{ c.error("bloque_id") }}
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Datos del cliente</div>
+    <div class="card-body row g-3">
+      <div class="col-md-6">{{ c.texto("nombre", "Nombre completo") }}</div>
+      <div class="col-md-6">{{ c.texto("telefono", "Teléfono", tipo="tel", extra='placeholder="9XXXXXXXX" maxlength="11"') }}</div>
+      <div class="col-md-6">
+        {{ c.texto("zona", "Zona", extra='list="lista-zonas"') }}
+        <datalist id="lista-zonas">{% for z in zonas %}<option value="{{ z }}">{% endfor %}</datalist>
+      </div>
+      <div class="col-md-6">{{ c.opciones("sector", "Sector") }}</div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Negocio</div>
+    <div class="card-body row g-3">
+      <div class="col-md-4">{{ c.texto("ingreso_mensual", "Ingreso mensual (S/)", tipo="number", extra='step="0.01" min="0.01"') }}</div>
+      <div class="col-md-4">{{ c.texto("anios_negocio", "Años con el negocio", tipo="number", extra='min="0" max="80"') }}</div>
+      <div class="col-md-4">{{ c.texto("trabajadores", "Trabajadores", tipo="number", extra='min="0" max="500"') }}</div>
+      <div class="col-md-4">{{ c.opciones("frecuencia_ingresos", "Frecuencia de ingresos") }}</div>
+      <div class="col-md-4">{{ c.opciones("garantia", "Garantía") }}</div>
+      <div class="col-md-4">{{ c.sino("credito_vigente", "¿Tiene crédito vigente?") }}</div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header fw-semibold">Necesidad de crédito</div>
+    <div class="card-body row g-3">
+      <div class="col-12">
+        <label class="form-label" for="necesidad">¿Para qué necesita el crédito?</label>
+        <textarea class="form-control{{ c.invalido('necesidad') }}" id="necesidad" name="necesidad" rows="3" required
+                  placeholder="Ej.: comprar semillas y abono antes de las lluvias">{{ v.get('necesidad') or '' }}</textarea>
+        {{ c.error("necesidad") }}
+      </div>
+      <div class="col-md-4">{{ c.texto("monto", "Monto (S/)", tipo="number", extra='step="0.01" min="0.01"') }}</div>
+      <div class="col-md-4">{{ c.texto("plazo_meses", "Plazo deseado (meses)", tipo="number", extra='min="1" max="60"') }}</div>
+      <div class="col-md-4">{{ c.opciones("temporada_necesidad", "Temporada de mayor necesidad") }}</div>
+      <div class="col-md-4">{{ c.opciones("riesgo_principal", "Riesgo principal") }}</div>
+      <div class="col-md-4">{{ c.opciones("contacto_preferido", "Contacto preferido") }}</div>
+      <div class="col-md-4">{{ c.sino("interes_campana", "¿Le interesa una campaña?") }}</div>
+    </div>
+  </div>
+
+  <div class="card mb-3 border-warning">
+    <div class="card-body">
+      <div class="form-check">
+        <input class="form-check-input{{ c.invalido('consentimiento') }}" type="checkbox" id="consentimiento"
+               name="consentimiento" value="on" {% if v.get('consentimiento') %}checked{% endif %} required>
+        <label class="form-check-label" for="consentimiento">
+          El cliente autoriza a GRUPO ACTIVA S.A.C. a tratar sus datos personales para evaluar y ofrecerle productos
+          crediticios, conforme a la Ley N.º 29733 de Protección de Datos Personales.
+        </label>
+        {{ c.error("consentimiento") }}
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-activa" type="submit"><i class="bi bi-check-lg"></i> Guardar</button>
+    <a class="btn btn-outline-secondary" href="{{ '/encuestas/%d' % encuesta.id if encuesta else '/encuestas' }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

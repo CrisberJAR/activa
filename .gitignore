@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Secretos: NUNCA subir
+.env
+*.env
+!.env.example
+
+# Bases locales temporales
+*.db
+*.sqlite3
+
+# Flutter
+mobile/build/
+mobile/.dart_tool/
+mobile/.flutter-plugins*
+docs/apk/
+
+# Editores / SO
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

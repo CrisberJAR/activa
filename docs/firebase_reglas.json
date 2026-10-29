@@ -1,0 +1,33 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "lecturas": {
+      "$sensor": {
+        ".indexOn": ["ts"],
+        "$lectura": {
+          ".write": "!data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['temperatura', 'humedad', 'sector', 'ts'])",
+          "temperatura": { ".validate": "newData.isNumber() && newData.val() >= -20 && newData.val() <= 60" },
+          "humedad": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "sector": { ".validate": "newData.isString() && newData.val().matches(/^(agricola|comerciante|ambulante|taxista)$/)" },
+          "ts": { ".validate": "newData.val() == now" },
+          "$otro": { ".validate": false }
+        }
+      }
+    },
+
+    "ultima": {
+      "$sensor": {
+        ".write": "newData.exists()",
+        ".validate": "newData.hasChildren(['temperatura', 'humedad', 'sector', 'ts'])",
+        "temperatura": { ".validate": "newData.isNumber() && newData.val() >= -20 && newData.val() <= 60" },
+        "humedad": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+        "sector": { ".validate": "newData.isString() && newData.val().matches(/^(agricola|comerciante|ambulante|taxista)$/)" },
+        "ts": { ".validate": "newData.val() == now" },
+        "$otro": { ".validate": false }
+      }
+    }
+  }
+}

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block titulo %}Clima y estación{% endblock %}
+{% macro delta(valor, unidad, alerta) %}
+  <span class="{{ 'fw-bold text-danger' if alerta else '' }}">{{ "%+.1f"|format(valor) }} {{ unidad }}</span>
+{% endmacro %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">Clima y estación</h1>
+  <div class="d-flex flex-wrap gap-2">
+    <form method="get" action="/clima">
+      <select class="form-select" name="sensor" onchange="this.form.submit()" aria-label="Sensor">
+        <option value="">Todos los sensores (promedio)</option>
+        {% for s in sensores %}
+        <option value="{{ s.codigo }}" {% if sensor == s.codigo %}selected{% endif %}>{{ s.codigo }} · {{ cat.sector.get(s.sector, s.sector) }}</option>
+        {% endfor %}
+      </select>
+    </form>
+    {% if usuario.rol == "gerente" %}
+    <form method="post" action="/clima/consolidar">
+      <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-arrow-repeat"></i> Actualizar desde Firebase</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if diag.estacion_actual is none %}
+<div class="alert alert-info">Todavía no hay registros diarios. Inicia el sensor en Wokwi o genera datos de prueba con
+  <code>python -m scripts.generar_datos_clima</code>.</div>
+{% else %}
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <div class="text-muted small">Estación actual (promedio {{ diag.promedio.dias }} días)</div>
+        <div class="display-6 fw-semibold text-activa my-2">{{ diag.estacion_nombre }}</div>
+        <div>{{ diag.promedio.temperatura }} °C · {{ diag.promedio.humedad }} % humedad</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card h-100 {{ 'border-warning' if diag.alerta else '' }}">
+      <div class="card-body">
+        <div class="text-muted small">Temporada que se acerca</div>
+        <div class="h4 my-2">
+          {% if diag.alerta %}<i class="bi bi-exclamation-triangle-fill text-warning"></i>{% endif %}
+          {{ diag.temporada_nombre }}
+        </div>
+        <p class="mb-0">{{ diag.mensaje }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 class="h5">Cambios detectados</h2>
+<div class="table-responsive mb-4">
+  <table class="table bg-white align-middle">
+    <thead class="table-light">
+      <tr><th>Periodo</th><th>Actual</th><th>Anterior</th><th>Cambio humedad</th><th>Cambio temperatura</th><th>Resultado</th></tr>
+    </thead>
+    <tbody>
+      {% for c in diag.comparaciones %}
+      <tr>
+        <td>Últimos {{ c.periodo }} días</td>
+        {% if c.suficientes_datos %}
+        <td class="small">{{ c.actual.temperatura }} °C · {{ c.actual.humedad }} %</td>
+        <td class="small">{{ c.anterior.temperatura }} °C · {{ c.anterior.humedad }} %</td>
+        <td>{{ delta(c.cambio_humedad, "%", c.alerta_humedad) }}</td>
+        <td>{{ delta(c.cambio_temperatura, "°C", c.alerta_temperatura) }}</td>
+        <td class="small">{{ c.mensaje }}</td>
+        {% else %}
+        <td colspan="5" class="text-muted small">{{ c.mensaje }}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="small text-muted">
+  Reglas (config/umbrales.yaml): humedad ≥ {{ umbrales.estacion.lluvias_humedad_min }} % = Lluvias;
+  temperatura ≤ {{ umbrales.estacion.invierno_temp_max }} °C = Invierno; ≥ {{ umbrales.estacion.verano_temp_min }} °C = Verano;
+  si no, Transición. Alerta si la humedad cambia ≥ {{ umbrales.cambios.humedad_puntos }} puntos
+  o la temperatura ≥ {{ umbrales.cambios.temperatura_grados }} °C.
+</p>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header fw-semibold">Registros diarios (últimas 8 semanas)</div>
+      <div class="card-body">
+        {% if registros %}<canvas id="grafico" height="120"></canvas>
+        {% else %}<p class="text-muted mb-0">Sin registros.</p>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header fw-semibold">Lectura en vivo (Firebase)</div>
+      <ul class="list-group list-group-flush">
+        {% if error_firebase %}
+        <li class="list-group-item text-danger small">{{ error_firebase }}</li>
+        {% endif %}
+        {% for u in ultimas %}
+        <li class="list-group-item">
+          <div class="fw-semibold">{{ u.sensor }}</div>
+          <div>{{ u.temperatura }} °C · {{ u.humedad }} %</div>
+          <div class="small text-muted">{{ u.hora[:16].replace("T", " ") if u.hora }}</div>
+        </li>
+        {% else %}
+        {% if not error_firebase %}<li class="list-group-item text-muted small">Sin lecturas en Firebase.</li>{% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% if registros %}
+<div class="table-responsive mt-4">
+  <table class="table table-sm bg-white">
+    <thead class="table-light">
+      <tr><th>Fecha</th><th class="text-end">Temp. prom.</th><th class="text-end">Mín / Máx</th><th class="text-end">Humedad prom.</th><th class="text-end">Mín / Máx</th><th class="text-end">Lecturas</th></tr>
+    </thead>
+    <tbody>
+      {% for r in registros|reverse %}{% if loop.index <= 14 %}
+      <tr>
+        <td>{{ r.fecha }}</td>
+        <td class="text-end">{{ r.temperatura }} °C</td>
+        <td class="text-end small">{{ r.temp_min }} / {{ r.temp_max }}</td>
+        <td class="text-end">{{ r.humedad }} %</td>
+        <td class="text-end small">{{ r.humedad_min }} / {{ r.humedad_max }}</td>
+        <td class="text-end">{{ r.n_lecturas }}</td>
+      </tr>
+      {% endif %}{% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const registros = {{ registros|tojson }};
+  new Chart(document.getElementById("grafico"), {
+    type: "line",
+    data: {
+      labels: registros.map(r => r.fecha.slice(5)),
+      datasets: [
+        { label: "Temperatura (°C)", data: registros.map(r => r.temperatura), borderColor: "#d9480f", yAxisID: "t", tension: .3, pointRadius: 0 },
+        { label: "Humedad (%)", data: registros.map(r => r.humedad), borderColor: "#1c7ed6", yAxisID: "h", tension: .3, pointRadius: 0 },
+      ],
+    },
+    options: {
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        t: { position: "left", title: { display: true, text: "°C" } },
+        h: { position: "right", title: { display: true, text: "%" }, grid: { drawOnChartArea: false } },
+      },
+    },
+  });
+</script>
+{% endif %}
+{% endblock %}

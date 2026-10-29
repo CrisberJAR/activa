@@ -1,0 +1,17 @@
+:root {
+  --activa: #0b5d3b;
+}
+
+.bg-activa { background-color: var(--activa); }
+.text-activa { color: var(--activa); }
+
+.btn-activa {
+  background-color: var(--activa);
+  border-color: var(--activa);
+  color: #fff;
+}
+.btn-activa:hover { background-color: #08472d; color: #fff; }
+
+.opcion-pendiente { opacity: .75; }
+.opcion-activa { transition: box-shadow .15s; }
+.opcion-activa:hover { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .12); }

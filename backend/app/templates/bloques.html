@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% import "_campos.html" as c with context %}
+{% block titulo %}Bloques{% endblock %}
+{% block contenido %}
+{% set es_gerente = usuario.rol == "gerente" %}
+<h1 class="h3 mb-3">Bloques de encuestas</h1>
+<p class="text-muted">Un bloque agrupa las encuestas de una salida de campo o periodo. Puede haber varios abiertos a la vez;
+  solo en los bloques abiertos se registran encuestas nuevas.
+  {% if not es_gerente %}Los bloques los crea, abre y cierra el gerente.{% endif %}</p>
+
+<div class="row g-4">
+  {% if es_gerente %}
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header fw-semibold">Nuevo bloque</div>
+      <div class="card-body">
+        <form method="post" action="/bloques">
+          <div class="mb-3">{{ c.texto("nombre", "Nombre", extra='placeholder="Ej.: Mercado Modelo – noviembre"') }}</div>
+          <div class="mb-3">
+            <label class="form-label" for="descripcion">Descripción (opcional)</label>
+            <textarea class="form-control{{ c.invalido('descripcion') }}" id="descripcion" name="descripcion" rows="2">{{ v.get('descripcion') or '' }}</textarea>
+            {{ c.error("descripcion") }}
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">{{ c.texto("fecha_inicio", "Inicio", tipo="date") }}</div>
+            <div class="col-6 mb-3">{{ c.texto("fecha_fin", "Fin (opcional)", tipo="date", requerido=false) }}</div>
+          </div>
+          <button class="btn btn-activa w-100" type="submit"><i class="bi bi-plus-lg"></i> Crear bloque</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="{{ 'col-lg-8' if es_gerente else 'col-12' }}">
+    {% if filas %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle bg-white">
+        <thead class="table-light">
+          <tr><th>Bloque</th><th>Fechas</th><th class="text-center">Encuestas</th><th>Estado</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for b, total in filas %}
+          <tr>
+            <td>
+              <a href="/encuestas?bloque_id={{ b.id }}" class="fw-semibold">{{ b.nombre }}</a>
+              {% if b.descripcion %}<div class="small text-muted">{{ b.descripcion }}</div>{% endif %}
+            </td>
+            <td class="small">{{ b.fecha_inicio.strftime('%d/%m/%Y') }}{% if b.fecha_fin %} – {{ b.fecha_fin.strftime('%d/%m/%Y') }}{% endif %}</td>
+            <td class="text-center">{{ total }}</td>
+            <td>
+              {% if b.activo %}<span class="badge text-bg-success">Abierto</span>
+              {% else %}<span class="badge text-bg-secondary">Cerrado</span>{% endif %}
+            </td>
+            <td class="text-end">
+              {% if es_gerente %}
+              <form method="post" action="/bloques/{{ b.id }}/estado" class="d-inline">
+                <button class="btn btn-sm btn-outline-secondary" type="submit">{{ 'Cerrar' if b.activo else 'Abrir' }}</button>
+              </form>
+              {% else %}
+              <a class="btn btn-sm btn-outline-secondary" href="/encuestas?bloque_id={{ b.id }}">Ver encuestas</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">Todavía no hay bloques.
+      {{ 'Crea el primero con el formulario.' if es_gerente else 'El gerente debe crear el primero.' }}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

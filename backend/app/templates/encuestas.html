@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titulo %}Encuestas{% endblock %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">Encuestas</h1>
+  <a class="btn btn-activa" href="/encuestas/nueva"><i class="bi bi-plus-lg"></i> Nueva encuesta</a>
+</div>
+
+<form method="get" action="/encuestas" class="row g-2 align-items-end mb-3">
+  <div class="col-sm-8 col-md-6">
+    <label class="form-label" for="bloque_id">Bloque</label>
+    <select class="form-select" id="bloque_id" name="bloque_id" onchange="this.form.submit()">
+      <option value="">Elige un bloque…</option>
+      {% for b in bloques %}
+      <option value="{{ b.id }}" {% if bloque and bloque.id == b.id %}selected{% endif %}>
+        {{ b.nombre }}{% if not b.activo %} (cerrado){% endif %}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <noscript><div class="col-auto"><button class="btn btn-outline-secondary">Ver</button></div></noscript>
+</form>
+
+{% if not bloque %}
+<div class="alert alert-info">Elige un bloque para ver sus encuestas.</div>
+{% elif not encuestas %}
+<div class="alert alert-info">El bloque «{{ bloque.nombre }}» todavía no tiene encuestas.</div>
+{% else %}
+<p class="text-muted small">{{ encuestas|length }} encuesta(s) en «{{ bloque.nombre }}»</p>
+<div class="table-responsive">
+  <table class="table table-hover align-middle bg-white">
+    <thead class="table-light">
+      <tr><th>Cliente</th><th>Sector</th><th>Zona</th><th class="text-end">Monto (S/)</th><th>Interés</th><th>Asesor</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for e in encuestas %}
+      <tr>
+        <td><a href="/encuestas/{{ e.id }}">{{ e.nombre }}</a></td>
+        <td>{{ cat.sector.get(e.sector, e.sector) }}</td>
+        <td>{{ e.zona }}</td>
+        <td class="text-end">{{ "{:,.2f}".format(e.monto) }}</td>
+        <td>{% if e.interes_campana %}<span class="badge text-bg-success">Sí</span>{% else %}<span class="badge text-bg-light">No</span>{% endif %}</td>
+        <td class="small">{{ e.asesor.nombre }}</td>
+        <td class="text-end text-nowrap">
+          <a class="btn btn-sm btn-outline-secondary" href="/encuestas/{{ e.id }}" title="Ver"><i class="bi bi-eye"></i></a>
+          {% if puede_editar(usuario, e) %}
+          <a class="btn btn-sm btn-outline-primary" href="/encuestas/{{ e.id }}/editar" title="Editar"><i class="bi bi-pencil"></i></a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

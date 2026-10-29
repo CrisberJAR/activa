@@ -1,0 +1,14 @@
+# Umbrales del análisis estacional (se usan desde la Fase 3).
+# Cambiar aquí, nunca en el código.
+
+estacion:
+  periodo_dias: 28          # promedio usado para decidir la estación actual
+  lluvias_humedad_min: 75   # % humedad >= → Lluvias
+  invierno_temp_max: 12     # °C temperatura <= → Invierno
+  verano_temp_min: 24       # °C temperatura >= → Verano
+                            # otro caso → Transición
+
+cambios:
+  periodos_dias: [7, 28]    # comparar bloque actual vs. anterior
+  humedad_puntos: 8         # diferencia de humedad que genera alerta
+  temperatura_grados: 2.5   # diferencia de temperatura que genera alerta

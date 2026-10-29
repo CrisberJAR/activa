@@ -1,0 +1,37 @@
+{# Macros de formulario. Importar con: {% import "_campos.html" as c with context %} #}
+
+{% macro error(campo) %}
+  {% if errores.get(campo) %}<div class="invalid-feedback d-block">{{ errores[campo] }}</div>{% endif %}
+{% endmacro %}
+
+{% macro invalido(campo) %}{% if errores.get(campo) %} is-invalid{% endif %}{% endmacro %}
+
+{% macro texto(campo, etiqueta, tipo="text", extra="", requerido=true) %}
+  <label class="form-label" for="{{ campo }}">{{ etiqueta }}</label>
+  <input class="form-control{{ invalido(campo) }}" type="{{ tipo }}" id="{{ campo }}" name="{{ campo }}"
+         value="{{ v.get(campo) if v.get(campo) is not none else '' }}" {% if requerido %}required{% endif %} {{ extra|safe }}>
+  {{ error(campo) }}
+{% endmacro %}
+
+{% macro opciones(campo, etiqueta) %}
+  <label class="form-label" for="{{ campo }}">{{ etiqueta }}</label>
+  <select class="form-select{{ invalido(campo) }}" id="{{ campo }}" name="{{ campo }}" required>
+    <option value="">Elige…</option>
+    {% for valor, texto in cat[campo].items() %}
+    <option value="{{ valor }}" {% if v.get(campo) == valor %}selected{% endif %}>{{ texto }}</option>
+    {% endfor %}
+  </select>
+  {{ error(campo) }}
+{% endmacro %}
+
+{% macro sino(campo, etiqueta) %}
+  <label class="form-label d-block">{{ etiqueta }}</label>
+  {% for valor, texto in [("true", "Sí"), ("false", "No")] %}
+  <div class="form-check form-check-inline">
+    <input class="form-check-input{{ invalido(campo) }}" type="radio" name="{{ campo }}" id="{{ campo }}_{{ valor }}"
+           value="{{ valor }}" {% if v.get(campo) == valor %}checked{% endif %} required>
+    <label class="form-check-label" for="{{ campo }}_{{ valor }}">{{ texto }}</label>
+  </div>
+  {% endfor %}
+  {{ error(campo) }}
+{% endmacro %}
