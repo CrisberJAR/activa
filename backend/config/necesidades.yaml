@@ -1,0 +1,37 @@
+# Categorías para clasificar la "necesidad" (texto libre) de cada encuesta.
+# Se revisan EN ESTE ORDEN: la primera categoría con alguna palabra en el texto gana.
+# Las palabras se comparan sin tildes ni mayúsculas y al inicio de palabra
+# ("semilla" encuentra "semillas"). Ajustar aquí, nunca en el código.
+
+categorias:
+  vehiculo:
+    nombre: Reparación o mejora del vehículo
+    palabras: [llanta, freno, motor, mototaxi, auto, vehiculo, parabrisas, plumilla, glp, repuesto, combustible]
+  insumos_agricolas:
+    nombre: Insumos agrícolas (semillas, abono, fumigación)
+    palabras: [semilla, abono, fertiliz, fumig, plaguicid, siembra, sembrar]
+  riego:
+    nombre: Riego y agua para el cultivo
+    palabras: [riego, canal, goteo, reservorio, aspersor]
+  mano_obra:
+    nombre: Mano de obra (peones, jornales)
+    palabras: [peon, peones, jornal, contratar, personal]
+  equipamiento:
+    nombre: Equipos y herramientas
+    palabras: [congeladora, refrigerador, carrito, maquina, equipo, herramienta, cocina, balanza, vitrina]
+  mercaderia:
+    nombre: Compra de mercadería
+    palabras: [mercaderia, abarrote, surtir, stock, por mayor, productos, ropa]
+  proteccion_clima:
+    nombre: Protección del negocio o cultivo frente al clima
+    palabras: [helada, antihelad, malla, techar, techo, toldo, plastico, proteger, cubrir]
+  deudas:
+    nombre: Pago o compra de deudas
+    palabras: [deuda, refinanci, prestamo]
+  capital_trabajo:
+    nombre: Capital de trabajo
+    palabras: [capital, invertir, inversion, negocio]
+
+# Si ninguna palabra coincide
+otros:
+  nombre: Otras necesidades

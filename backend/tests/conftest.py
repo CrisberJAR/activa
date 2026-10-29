@@ -5,6 +5,7 @@ os.environ["DATABASE_URL"] = "sqlite://"
 os.environ["SECRET_KEY"] = "clave-solo-para-pruebas-automaticas-1234"
 os.environ["SCHEDULER_ACTIVO"] = "false"
 os.environ["FIREBASE_DB_URL"] = "https://firebase-de-prueba.invalid"  # nunca se llama: se simula en las pruebas
+os.environ["GEMINI_API_KEY"] = ""  # sin clave: las pruebas nunca llaman a Gemini (se simula cuando hace falta)
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

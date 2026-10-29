@@ -15,6 +15,7 @@ Forma de trabajo: **una fase a la vez**, plan corto → visto bueno del usuario 
 | 2 IoT Wokwi → Firebase | ✅ validada | ESP32 + DHT22 en el pin 15; envía cada 30 s y se detiene tras 20 envíos. Reglas de Firebase cerradas (con `.indexOn`) |
 | 3 Análisis estacional | ✅ validada | Consolidación horaria Firebase → `registros_diarios`; página `/clima`; API `/api/clima/*`. Escenario «lluvias» simulado en el sensor `sim-huanuco-01` |
 | 4 App Flutter | ✅ validada (2026-10-29) | Pantallas Hoy / Registros / Análisis / Ajustes, notificación local, servidor configurable. APK en `docs\apk\ACTIVA-Clima.apk` |
+| 5a Análisis por bloque | ✅ validada (2026-10-29) | `/analisis`: indicadores, ranking de necesidades (palabras clave en `config/necesidades.yaml`) y texto del patrón con Gemini (principal `gemini-3.1-flash-lite` + respaldos; si todos fallan, plantilla). Probar clave: `python -m scripts.probar_gemini` |
 
 Pruebas: 63 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 12 de Flutter (`cd mobile; flutter test`), todas pasan.
 

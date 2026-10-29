@@ -3,8 +3,11 @@
 #
 # Uso (desde la carpeta activa):
 #   powershell -ExecutionPolicy Bypass -File .\iniciar_servidor.ps1
+#   powershell -ExecutionPolicy Bypass -File .\iniciar_servidor.ps1 -Recargar   (desarrollo: se reinicia solo al cambiar el código)
 #
 # La primera vez en una laptop, ejecutarlo "como administrador" para crear la regla del firewall.
+
+param([switch]$Recargar)
 
 $ErrorActionPreference = "Stop"
 $puerto = 8000
@@ -49,4 +52,10 @@ Write-Host "==============================================================" -For
 Write-Host ""
 
 Set-Location $backend
-& ".\.venv\Scripts\python.exe" -m uvicorn app.main:app --host 0.0.0.0 --port $puerto
+$opciones = @("--host", "0.0.0.0", "--port", $puerto)
+if ($Recargar) {
+    # Solo vigila la carpeta app (no .venv); los YAML de config se leen en cada uso
+    $opciones += @("--reload", "--reload-dir", "app")
+    Write-Host "Modo desarrollo: el servidor se reinicia solo al guardar cambios en backend\app" -ForegroundColor Yellow
+}
+& ".\.venv\Scripts\python.exe" -m uvicorn app.main:app @opciones

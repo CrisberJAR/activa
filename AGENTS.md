@@ -119,3 +119,6 @@ activa/
   - Entorno: Flutter 3.47 en `C:\src\flutter`, Android SDK 36; IP LAN de la PC 192.168.18.14 (red "Pública": requiere la regla de firewall que crea `iniciar_servidor.ps1` como admin).
   - La dirección del servidor se cambia en la app (Ajustes). En la sustentación quizá use otra laptop con internet compartido del celular: ver `docs/guia_otra_laptop.md`.
   - Notificación local solo con la app abierta/al volver a primer plano, y solo si el mensaje de alerta es nuevo.
+- [ ] Fase 5 – IA (en 3 entregas):
+  - [x] (a) Análisis por bloque (validada por el usuario 2026-10-29): página `/analisis`, API `/api/analisis/{bloque_id}`, 89 pruebas pasando. Categorías en `config/necesidades.yaml`; Gemini por REST (`services/ia.py`): modelo principal + modelos de respaldo si hay 503/429/demora, y plantilla si todos fallan. `iniciar_servidor.ps1 -Recargar` para desarrollo.
+  - [ ] (b) Random Forest · [ ] (c) generador de campañas

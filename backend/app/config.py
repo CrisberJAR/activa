@@ -24,6 +24,17 @@ class Settings(BaseSettings):
 
     scheduler_activo: bool = True  # tarea automática de consolidación (se apaga en las pruebas)
 
+    # Google Gemini (IA generativa). Sin clave, el sistema usa textos automáticos de respaldo
+    gemini_api_key: str | None = None
+    gemini_modelo: str = "gemini-3.1-flash-lite"
+    # Se prueban en orden si el principal está saturado (503), sin cuota (429) o tarda demasiado
+    gemini_modelos_respaldo: str = "gemini-3.5-flash-lite,gemini-3.5-flash"
+
+    @property
+    def gemini_modelos(self) -> list[str]:
+        respaldo = [m.strip() for m in self.gemini_modelos_respaldo.split(",") if m.strip()]
+        return [self.gemini_modelo] + [m for m in respaldo if m != self.gemini_modelo]
+
     @field_validator("database_url")
     @classmethod
     def normalizar_url(cls, v: str) -> str:
@@ -49,4 +60,10 @@ def hoy_peru() -> date:
 def cargar_umbrales() -> dict:
     """Lee los umbrales del análisis estacional desde config/umbrales.yaml."""
     with open(BASE_DIR / "config" / "umbrales.yaml", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def cargar_necesidades() -> dict:
+    """Lee las categorías de necesidades desde config/necesidades.yaml."""
+    with open(BASE_DIR / "config" / "necesidades.yaml", encoding="utf-8") as f:
         return yaml.safe_load(f)

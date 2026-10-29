@@ -23,3 +23,8 @@
 | 2026-10-28 | La app consume solo la API del backend con token JWT | Las claves de Firebase y Supabase nunca llegan al celular |
 | 2026-10-28 | Encuestas editables solo por quien las registró o por el gerente | Corregir errores de campo sin perder el control de quién modifica los datos |
 | 2026-10-28 | Validación en el servidor con Pydantic, además del navegador | El navegador se puede saltar; la regla del consentimiento (Ley 29733) debe ser infalible |
+| 2026-10-29 | Necesidades clasificadas por palabras clave (`config/necesidades.yaml`), no por la IA | Resultado repetible, fácil de probar y de explicar; las palabras se ajustan sin tocar código |
+| 2026-10-29 | A Gemini solo van cifras agregadas y textos de necesidad anonimizados (sin nombres, teléfonos ni correos) | Ley 29733 y regla del proyecto; el plan gratuito de Gemini puede usar los datos enviados |
+| 2026-10-29 | Si no hay clave o Gemini falla, el análisis usa un texto automático de plantilla | El sistema nunca se cae por la IA y las pruebas no dependen de internet |
+| 2026-10-29 | Gemini por REST con `httpx` (sin librería de Google), modelo principal `gemini-3.1-flash-lite` y modelos de respaldo (`GEMINI_MODELOS_RESPALDO`) que se prueban si hay saturación (503), falta de cuota (429) o demora | Sin dependencias nuevas; en el plan gratuito los modelos se saturan de forma intermitente y sus nombres cambian seguido |
+| 2026-10-29 | La estación y la fuente del texto (gemini/plantilla) se guardan dentro de `indicadores` de `analisis_bloque` | Evita una migración solo para dos datos de contexto |
