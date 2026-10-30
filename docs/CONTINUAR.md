@@ -1,6 +1,15 @@
 # ACTIVA – Estado del proyecto para continuar (actualizado 2026-10-30)
 
-> Pégale este archivo a la IA al empezar. Las reglas completas están en `C:\Users\USER\activa\AGENTS.md`: léelo antes de tocar código.
+> **Para el usuario:** al entrar, escribe solo: *Lee `C:\Users\USER\activa\docs\CONTINUAR.md` y dime cómo va el proyecto y qué sigue.*
+
+## Empieza aquí (para la IA)
+1. Lee este archivo y `AGENTS.md` completo antes de tocar código.
+2. Comprueba el estado real: `git status` y `git log --oneline -n 5`. Si algo no coincide con este archivo, dilo.
+3. Resume al usuario en pocas líneas cómo va el proyecto y qué sigue. Pregúntale si ya hizo los pasos pendientes.
+
+**Siguiente paso:** el usuario debe crear el servicio en Render (`docs/despliegue_render.md`) y pasar la dirección pública; luego la IA la comprueba. Después queda cerrar la Fase 7.
+
+**Decisión ya tomada, no reabrir:** las 20 encuestas son ficticias y el usuario no tiene encuestas de campo. Quedan como están y se llaman **«encuestas de validación»**: no escribir que son «reales» ni agregar la etiqueta «de ejemplo». Si el usuario pregunta qué decir al jurado, la respuesta correcta es que son simuladas.
 
 ## Proyecto
 Tesis SENATI: sistema de diagnóstico estacional (IoT) y campañas crediticias con IA para GRUPO ACTIVA S.A.C. (Huánuco).
@@ -46,9 +55,10 @@ Pruebas: 173 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 
 - Antes de la sustentación, revisar que Supabase no esté pausado (se pausa tras 1 semana sin uso).
 
 ## Datos útiles
-- Usuarios de prueba: `asesor@activa.pe / Asesor2026!`, `gerente@activa.pe / Gerente2026!`
+- Usuarios de prueba: `asesor@activa.pe / Asesor2026!`, `gerente@activa.pe / Gerente2026!` (dejan de valer cuando el usuario las cambie con `scripts.cambiar_password`; las nuevas no se escriben aquí)
 - Web: `http://localhost:8000/login` · Documentación de la API: `/docs` · Salud de la base: `/api/salud`
 - Firebase: `https://activa-729e7-default-rtdb.firebaseio.com` · Wokwi: proyecto "ACTIVA sensor agricola" en la cuenta del usuario
 - Clima simulado: `cd backend; .\.venv\Scripts\python.exe -m scripts.generar_datos_clima --escenario lluvias|invierno|verano`
 - Flutter: `C:\src\flutter\bin\flutter.bat` · Python del proyecto: `backend\.venv`
+- GitHub: `gh` ya tiene la sesión de `CrisberJAR`; `gh repo create` y `git push` están permitidos en Claude Code
 - Decisiones tomadas: `docs\decisiones.md` · Ideas fuera de alcance: `docs\mejoras_futuras.md`
