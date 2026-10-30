@@ -62,6 +62,23 @@ def test_salud(client):
     assert client.get("/api/salud").json()["base_de_datos"] == "conectada"
 
 
+def test_salud_no_muestra_detalles_de_conexion(client):
+    from app.db import get_db
+    from app.main import app
+
+    class SinConexion:
+        def execute(self, *_):
+            raise RuntimeError("postgresql://usuario:secreto@servidor")
+
+    app.dependency_overrides[get_db] = lambda: SinConexion()
+    try:
+        r = client.get("/api/salud")
+    finally:
+        app.dependency_overrides.pop(get_db)
+    assert r.status_code == 503
+    assert "secreto" not in r.text
+
+
 def test_umbrales_vienen_del_archivo_de_configuracion():
     u = cargar_umbrales()
     assert u["estacion"]["lluvias_humedad_min"] == 75

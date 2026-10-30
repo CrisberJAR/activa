@@ -34,7 +34,7 @@
 
 ## Si algo falla
 - **Gemini no responde:** di que el sistema tiene **modelos de respaldo y plantillas**, y sigue. Es parte del diseño.
-- **No hay internet:** muestra las capturas y la prueba automática (`pytest`, 169 pruebas, incluida la de punta a punta).
+- **No hay internet:** muestra las capturas y la prueba automática (`pytest`, 173 pruebas, incluida la de punta a punta).
 - **Supabase pausado:** entra al panel → **Restore** (tarda unos 2 minutos).
 
 ## Preguntas probables del jurado

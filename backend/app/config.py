@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     database_url: str
     secret_key: str
+    cookie_segura: bool = False  # True en producción: la cookie de sesión solo viaja por HTTPS
     jwt_minutos: int = 60 * 24 * 7  # duración del token de la app móvil
 
     # Firebase Realtime Database (lecturas de los sensores IoT)

@@ -1,3 +1,4 @@
+import logging
 import threading
 from contextlib import asynccontextmanager
 
@@ -15,6 +16,8 @@ from app.db import get_db
 from app.routers import analisis, auth, bloques, campanas, chat, clima, encuestas, interesados, menu, publico
 from app.services import ml
 from app.templating import templates
+
+log = logging.getLogger("activa")
 
 
 @asynccontextmanager
@@ -34,7 +37,7 @@ async def ciclo_de_vida(app: FastAPI):
 app = FastAPI(title="ACTIVA – Diagnóstico estacional y campañas crediticias", lifespan=ciclo_de_vida)
 
 # Sesión de la web en cookie firmada (dura 8 horas)
-app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, max_age=8 * 3600, same_site="lax")
+app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, max_age=8 * 3600, same_site="lax", https_only=settings.cookie_segura)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "app" / "static"), name="static")
 
 app.include_router(auth.router)
@@ -63,5 +66,7 @@ def salud(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))
         return {"estado": "ok", "base_de_datos": "conectada"}
-    except Exception as e:
-        return JSONResponse({"estado": "error", "base_de_datos": str(e)}, status_code=503)
+    except Exception:
+        # El detalle va al registro: esta ruta es pública y no debe mostrar datos de conexión
+        log.exception("La base de datos no responde")
+        return JSONResponse({"estado": "error", "base_de_datos": "sin conexión"}, status_code=503)

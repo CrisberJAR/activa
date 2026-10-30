@@ -1,0 +1,28 @@
+# Despliegue en Render (plan gratuito). Guía paso a paso: docs/despliegue_render.md
+services:
+  - type: web
+    name: activa
+    runtime: python
+    plan: free
+    region: virginia # la más cercana a Supabase (us-east-1)
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && alembic upgrade head
+    # Un solo proceso: la consolidación horaria (APScheduler) no debe correr duplicada
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'
+    healthCheckPath: /login # no toca la base: una pausa de Supabase no reinicia el servicio
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: COOKIE_SEGURA
+        value: "true"
+      - key: SECRET_KEY
+        generateValue: true
+      # Render los pide al crear el servicio; se copian de backend/.env
+      - key: DATABASE_URL
+        sync: false
+      - key: FIREBASE_DB_URL
+        sync: false
+      - key: FIREBASE_DB_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

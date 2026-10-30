@@ -1,10 +1,10 @@
-# ACTIVA – Estado del proyecto para continuar (actualizado 2026-10-28)
+# ACTIVA – Estado del proyecto para continuar (actualizado 2026-10-30)
 
 > Pégale este archivo a la IA al empezar. Las reglas completas están en `C:\Users\USER\activa\AGENTS.md`: léelo antes de tocar código.
 
 ## Proyecto
 Tesis SENATI: sistema de diagnóstico estacional (IoT) y campañas crediticias con IA para GRUPO ACTIVA S.A.C. (Huánuco).
-Ruta: `C:\Users\USER\activa`. Stack: FastAPI + Supabase (PostgreSQL, **sin Docker**) + Firebase RTDB + Wokwi (ESP32) + Flutter + Gemini (pendiente).
+Ruta: `C:\Users\USER\activa`. Stack: FastAPI + Supabase (PostgreSQL, **sin Docker**) + Firebase RTDB + Wokwi (ESP32) + Flutter + Gemini.
 Forma de trabajo: **una fase a la vez**, plan corto → visto bueno del usuario → código + pruebas → validación. Decir siempre qué instalar, dónde registrarse y qué datos debe pasar el usuario (las claves van en `backend\.env`, nunca por el chat).
 
 ## Hecho
@@ -21,7 +21,7 @@ Forma de trabajo: **una fase a la vez**, plan corto → visto bueno del usuario 
 | 6 Chatbot y página pública | ✅ validada (2026-10-29) | `/` landing con campañas vigentes y Uku (Oso de Anteojos) que abre el chat; reglas + Gemini; `/interesados` para asesores. Completar datos de contacto en `config/institucion.yaml` |
 | 7 Integración y cierre | 🟡 falta validación del usuario | Prueba de punta a punta, `scripts.verificar_sistema`, `scripts.medir_tiempos`, manual, guion de demo, tiempos y capturas. Pendiente del usuario: tiempos «antes», capturas a mano, datos de contacto |
 
-Pruebas: 169 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 12 de Flutter (`cd mobile; flutter test`), todas pasan.
+Pruebas: 173 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 12 de Flutter (`cd mobile; flutter test`), todas pasan.
 
 ## Cómo probar la app (Fase 4, ya validada; útil para repetir la demo)
 1. **Firewall (una vez):** abrir PowerShell **como administrador** y ejecutar:
@@ -34,20 +34,14 @@ Pruebas: 169 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 
    - llega la notificación (si no, usar Ajustes → Probar notificación).
 6. Opcional: ensayar con el internet compartido del celular (ver `docs\guia_otra_laptop.md`).
 7. Tomar capturas para el Capítulo IV.
-8. Si funciona, avisar a la IA para **cerrar la Fase 4** y pasar a la Fase 5.
 
-## Lo que falta después
-- **Fase 5 – IA** (en 3 entregas, validando cada una):
-  - (a) análisis por bloque, que usa **solo** las encuestas de ese bloque: ranking de necesidades, indicadores y texto del patrón con Gemini;
-  - (b) Random Forest con encuestas de validación más datos sintéticos declarados como tales, con sus métricas;
-  - (c) generador de campañas con salida JSON en 5 secciones; la temporada detectada se ofrece como sugerencia y **solo el gerente publica**.
-  - El usuario deberá sacar una clave gratis de Gemini en https://aistudio.google.com y ponerla en `.env` como `GEMINI_API_KEY`.
-  - No enviar nombres ni teléfonos a Gemini, y que la IA no invente tasas ni prometa aprobación.
-- **Fase 6 – Chatbot:** widget web público; usa la estación vigente y las campañas publicadas; una pregunta por mensaje; guarda al interesado (nombre y teléfono); tiene límite de mensajes y deriva a un asesor humano.
-- **Fase 7 – Cierre:** prueba de punta a punta, manual de usuario, capturas y tabla de tiempos antes/después.
+## Lo que falta
+**Del usuario (Fase 7):** entrevista para la columna «Antes» de `docs/tiempos.md`, datos de contacto en `config/institucion.yaml`, publicar una campaña, capturas de `docs/manual_usuario.md` (sección 9), probar `docs/guion_demo.md` completo y validar.
+
+**Despliegue:** `render.yaml` listo. Seguir `docs/despliegue_render.md`: crear el servicio en Render, cambiar las contraseñas de prueba y comprobar.
 
 ## Pendientes menores
-- **Commits en git:** hay un commit por fase validada (hasta la Fase 6). Subir a GitHub (privado) cuando el usuario tenga el repositorio.
+- **Repositorio:** privado en https://github.com/CrisberJAR/activa (rama `main`). Cada `git push` desplegará en Render cuando exista el servicio.
 - Completar los datos de contacto `[COMPLETAR]` en `backend\config\institucion.yaml`.
 - Antes de la sustentación, revisar que Supabase no esté pausado (se pausa tras 1 semana sin uso).
 

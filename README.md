@@ -72,3 +72,4 @@ Para usar otra laptop o el internet compartido del celular: [docs/guia_otra_lapt
   - [Guion de demostración](docs/guion_demo.md)
   - [Tiempos antes/después](docs/tiempos.md)
   - Capturas en `docs/capturas/`
+  - [Despliegue en Render](docs/despliegue_render.md)

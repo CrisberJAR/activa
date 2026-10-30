@@ -51,3 +51,5 @@
 | 2026-10-29 | Fase 7: prueba de punta a punta (`tests/test_integracion.py`) con Gemini simulado caído; verifica además que ningún nombre ni teléfono llega a los prompts | Demuestra que las 6 fases funcionan juntas y que el sistema sigue operando sin Gemini |
 | 2026-10-29 | `scripts/verificar_sistema.py` (solo lectura) y `scripts/medir_tiempos.py` (no guarda nada) | Revisión rápida antes de la sustentación y medición real de la columna «después» |
 | 2026-10-29 | La columna «antes» de `docs/tiempos.md` queda en [COMPLETAR] hasta entrevistar a la empresa | No se inventan datos; guía de entrevista incluida |
+| 2026-10-30 | Despliegue en Render (plan gratuito), con Supabase y Firebase sin cambios | Costo S/ 0; a cambio, el servicio se duerme tras 15 minutos sin visitas |
+| 2026-10-30 | Versiones fijas de numpy, scipy, pandas y joblib | El modelo guardado debe cargar en el servidor con las mismas versiones con que se probó |
