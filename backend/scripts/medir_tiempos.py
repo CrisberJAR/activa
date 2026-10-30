@@ -1,6 +1,6 @@
 """Cronometra cuánto tarda el sistema en cada paso (columna "después" de docs/tiempos.md).
 
-Usa las encuestas reales de un bloque y Gemini real, pero NO guarda nada en la base.
+Usa las encuestas guardadas de un bloque y Gemini real, pero NO guarda nada en la base.
 
 Uso (desde backend/, con el entorno activado):
     python -m scripts.medir_tiempos                 # primer bloque con encuestas

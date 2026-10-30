@@ -26,7 +26,7 @@
 | 2–3 | App en el celular | «El asesor en campo ve lo mismo en su celular y recibe un aviso si cambia el clima». |
 | 3–4 | `/encuestas/nueva` | «El asesor registra la encuesta dentro de un bloque. El consentimiento de la Ley 29733 es obligatorio». |
 | 4–5 | `/analisis` → Analizar | «La IA usa solo las encuestas de este bloque: ranking de necesidades, texto con Gemini sin datos personales y el tipo de campaña que sugiere el Random Forest». |
-| 5–6 | `/analisis/modelo` | «El modelo tiene 91 % de exactitud en la prueba y 80 % con encuestas reales». |
+| 5–6 | `/analisis/modelo` | «El modelo tiene 91 % de exactitud en la prueba y 80 % con 20 encuestas de validación que no vio al entrenar». |
 | 6–7 | Generar campaña | «En unos 6 segundos queda la campaña completa. Queda en borrador: la IA no inventa tasas ni promete aprobación». |
 | 7–8 | Publicar (gerente) y recargar la página pública | «Solo el gerente decide. Al publicarla, aparece para los clientes». |
 | 8–9 | Chat con Uku (ventana privada) | «Uku pregunta el oficio, ofrece la campaña según la temporada, pide permiso y solo entonces el nombre y el celular». |
@@ -38,7 +38,7 @@
 - **Supabase pausado:** entra al panel → **Restore** (tarda unos 2 minutos).
 
 ## Preguntas probables del jurado
-- **¿Por qué datos sintéticos en el Random Forest?** Hay pocas encuestas reales. Se declaran como sintéticos y el modelo se valida aparte con 20 encuestas reales etiquetadas a mano (80 %). Reentrenar con campañas reales es una mejora futura.
+- **¿Por qué datos sintéticos en el Random Forest?** Todavía no hay un historial real de campañas. Se declaran como sintéticos y el modelo se valida aparte con 20 encuestas etiquetadas a mano que no vio al entrenar (80 %). Reentrenar con campañas reales es una mejora futura.
 - **¿Qué pasa con los datos personales?**
   - No se envían a Gemini: se anonimizan antes.
   - Hay consentimiento en la encuesta y en el chat.

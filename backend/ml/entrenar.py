@@ -1,7 +1,7 @@
 """Entrena el Random Forest que sugiere el tipo de campaña y guarda sus métricas.
 
 Uso (desde backend/):  python -m ml.entrenar
-Genera: ml/dataset_sintetico.csv, ml/encuestas_reales_etiquetadas.csv, ml/modelo.joblib, ml/metricas.json
+Genera: ml/dataset_sintetico.csv, ml/encuestas_validacion_etiquetadas.csv, ml/modelo.joblib, ml/metricas.json
 """
 import json
 from datetime import datetime
@@ -46,7 +46,7 @@ def importancia_por_variable(modelo: Pipeline) -> list[dict]:
 
 
 def evaluar(sintetico: pd.DataFrame, reales: pd.DataFrame, arboles: int = 100) -> tuple[Pipeline, dict]:
-    """Valida con datos sintéticos (80/20 y validación cruzada) y con las encuestas reales.
+    """Valida con datos sintéticos (80/20 y validación cruzada) y con las encuestas de validación.
 
     Devuelve el modelo final, entrenado con TODO el dataset sintético, y las métricas.
     """
@@ -61,7 +61,7 @@ def evaluar(sintetico: pd.DataFrame, reales: pd.DataFrame, arboles: int = 100) -
     etiquetas = sorted(y.unique())
     reporte = classification_report(y_pru, pred, labels=etiquetas, output_dict=True, zero_division=0)
 
-    # Modelo final con todos los datos sintéticos; se evalúa con las encuestas reales (nunca vistas)
+    # Modelo final con todos los datos sintéticos; se evalúa con las encuestas de validación (nunca vistas)
     final = crear_modelo(arboles).fit(x, y)
     pred_reales = final.predict(reales[VARIABLES])
     conf_reales = final.predict_proba(reales[VARIABLES]).max(axis=1)
@@ -106,7 +106,7 @@ def main():
     if faltan:
         raise SystemExit(f"Los tipos del dataset y de config/tipos_campana.yaml no coinciden: {faltan}")
     sintetico.to_csv(RUTA_MODELO.parent / "dataset_sintetico.csv", index=False, encoding="utf-8")
-    reales.to_csv(RUTA_MODELO.parent / "encuestas_reales_etiquetadas.csv", index=False, encoding="utf-8")
+    reales.to_csv(RUTA_MODELO.parent / "encuestas_validacion_etiquetadas.csv", index=False, encoding="utf-8")
 
     modelo, metricas = evaluar(sintetico, reales)
     joblib.dump(modelo, RUTA_MODELO, compress=3)
@@ -116,7 +116,7 @@ def main():
     print(f"Validación cruzada (F1 macro): {metricas['validacion_cruzada']['f1_macro_media']} "
           f"± {metricas['validacion_cruzada']['f1_macro_desv']}")
     print(f"Prueba sintética: exactitud {metricas['prueba']['exactitud']} · F1 macro {metricas['prueba']['f1_macro']}")
-    print(f"Encuestas reales (nunca vistas): exactitud {metricas['reales']['exactitud']} "
+    print(f"Encuestas de validación (nunca vistas): exactitud {metricas['reales']['exactitud']} "
           f"({sum(f['acierto'] for f in metricas['reales']['filas'])}/{metricas['reales']['n']})")
     for f in metricas["reales"]["filas"]:
         if not f["acierto"]:

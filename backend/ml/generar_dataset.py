@@ -169,9 +169,9 @@ def reales() -> pd.DataFrame:
 def main():
     sintetico = generar()
     sintetico.to_csv(BASE_DIR / "ml" / "dataset_sintetico.csv", index=False, encoding="utf-8")
-    reales().to_csv(BASE_DIR / "ml" / "encuestas_reales_etiquetadas.csv", index=False, encoding="utf-8")
+    reales().to_csv(BASE_DIR / "ml" / "encuestas_validacion_etiquetadas.csv", index=False, encoding="utf-8")
     print(f"Dataset sintético: {len(sintetico)} filas ({sintetico['tipo'].nunique()} tipos) -> ml/dataset_sintetico.csv")
-    print("Encuestas reales etiquetadas: 20 -> ml/encuestas_reales_etiquetadas.csv")
+    print("Encuestas de validación etiquetadas: 20 -> ml/encuestas_validacion_etiquetadas.csv")
 
 
 if __name__ == "__main__":

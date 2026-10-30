@@ -32,8 +32,8 @@
 | 2026-10-29 | El mes de registro de la encuesta es una variable del modelo | Las campañas festivas dependen de la época del año; no se agrega ninguna pregunta a la encuesta |
 | 2026-10-29 | Pecuario, ventas por internet y compra de vehículo se detectan por el texto de la necesidad, sin nuevos sectores | No se modifica la encuesta de la Fase 1 ya validada |
 | 2026-10-29 | Random Forest (100 árboles, `class_weight=balanced`, semilla 42) en un Pipeline con OneHotEncoder, entrenado con 1 500 clientes sintéticos | No hay historial real de campañas; el dataset sintético se declara como limitación |
-| 2026-10-29 | Evaluación: 80/20 + validación cruzada de 5 partes + prueba con las 20 encuestas reales etiquetadas a mano | La prueba con datos que el modelo nunca vio es la métrica más honesta |
-| 2026-10-29 | No se ajustaron los perfiles para acertar las 4 encuestas reales falladas | Hacerlo sería sobreajustar al conjunto de prueba |
+| 2026-10-29 | Evaluación: 80/20 + validación cruzada de 5 partes + prueba con 20 encuestas de validación etiquetadas a mano | La prueba con datos que el modelo nunca vio es la métrica más honesta |
+| 2026-10-29 | No se ajustaron los perfiles para acertar las 4 encuestas de validación falladas | Hacerlo sería sobreajustar al conjunto de prueba |
 | 2026-10-29 | `modelo.joblib` se guarda en el repositorio y scikit-learn se fija en 1.9.1 | Otra laptop funciona sin reentrenar; el archivo solo carga con la misma versión |
 | 2026-10-29 | El modelo se carga una vez en memoria (en segundo plano al arrancar); sin modelo, el análisis sigue sin sugerencia | Predicción en ~30 ms; el sistema nunca se cae por el ML |
 | 2026-10-29 | Solo el gerente edita, regenera, publica, retira y elimina campañas; el asesor solo las genera (quedan en borrador) y las consulta | Las decisiones comerciales son responsabilidad de la gerencia (pedido del usuario) |

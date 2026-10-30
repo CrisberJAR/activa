@@ -16,7 +16,7 @@ Forma de trabajo: **una fase a la vez**, plan corto → visto bueno del usuario 
 | 3 Análisis estacional | ✅ validada | Consolidación horaria Firebase → `registros_diarios`; página `/clima`; API `/api/clima/*`. Escenario «lluvias» simulado en el sensor `sim-huanuco-01` |
 | 4 App Flutter | ✅ validada (2026-10-29) | Pantallas Hoy / Registros / Análisis / Ajustes, notificación local, servidor configurable. APK en `docs\apk\ACTIVA-Clima.apk` |
 | 5a Análisis por bloque | ✅ validada (2026-10-29) | `/analisis`: indicadores, ranking de necesidades (palabras clave en `config/necesidades.yaml`) y texto del patrón con Gemini (principal `gemini-3.1-flash-lite` + respaldos; si todos fallan, plantilla). Probar clave: `python -m scripts.probar_gemini` |
-| 5b Random Forest | ✅ validada (2026-10-29) | 15 tipos de campaña; entrenar con `python -m ml.entrenar` (≈10 s); métricas en `/analisis/modelo`. Exactitud 91 % sintética y 80 % (16/20) con encuestas reales |
+| 5b Random Forest | ✅ validada (2026-10-29) | 15 tipos de campaña; entrenar con `python -m ml.entrenar` (≈10 s); métricas en `/analisis/modelo`. Exactitud 91 % sintética y 80 % (16/20) con 20 encuestas de validación |
 | 5c Generador de campañas | ✅ validada (2026-10-29) | `/campanas`: el asesor genera (borrador), solo el gerente edita/publica/retira. Gemini en JSON validado + filtro de tasas y promesas + plantilla. Vigentes en `/api/campanas/vigentes` (para el chatbot) |
 | 6 Chatbot y página pública | ✅ validada (2026-10-29) | `/` landing con campañas vigentes y Uku (Oso de Anteojos) que abre el chat; reglas + Gemini; `/interesados` para asesores. Completar datos de contacto en `config/institucion.yaml` |
 | 7 Integración y cierre | 🟡 falta validación del usuario | Prueba de punta a punta, `scripts.verificar_sistema`, `scripts.medir_tiempos`, manual, guion de demo, tiempos y capturas. Pendiente del usuario: tiempos «antes», capturas a mano, datos de contacto |
@@ -39,7 +39,7 @@ Pruebas: 169 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 
 ## Lo que falta después
 - **Fase 5 – IA** (en 3 entregas, validando cada una):
   - (a) análisis por bloque, que usa **solo** las encuestas de ese bloque: ranking de necesidades, indicadores y texto del patrón con Gemini;
-  - (b) Random Forest con encuestas reales más datos sintéticos declarados como tales, con sus métricas;
+  - (b) Random Forest con encuestas de validación más datos sintéticos declarados como tales, con sus métricas;
   - (c) generador de campañas con salida JSON en 5 secciones; la temporada detectada se ofrece como sugerencia y **solo el gerente publica**.
   - El usuario deberá sacar una clave gratis de Gemini en https://aistudio.google.com y ponerla en `.env` como `GEMINI_API_KEY`.
   - No enviar nombres ni teléfonos a Gemini, y que la IA no invente tasas ni prometa aprobación.

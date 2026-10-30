@@ -15,7 +15,7 @@
   <i class="bi bi-info-circle"></i> <strong>Datos de entrenamiento sintéticos.</strong> No existe todavía un historial real de
   campañas, así que el modelo se entrenó con {{ m.n_sintetico }} clientes generados con reglas del negocio y ruido aleatorio
   (<code>ml/generar_dataset.py</code>). Las métricas sintéticas miden qué tan bien aprende esas reglas; la prueba con encuestas
-  reales muestra cómo se comporta con datos que nunca vio. Entrenado el {{ m.fecha }}.
+  de validación muestra cómo se comporta con datos que nunca vio. Entrenado el {{ m.fecha }}.
 </div>
 
 <div class="row g-3 mb-4">
@@ -23,7 +23,7 @@
       ("Exactitud (prueba sintética)", "%.0f %%"|format(m.prueba.exactitud * 100), "%d clientes no usados al entrenar"|format(m.n_prueba)),
       ("F1 macro (prueba sintética)", "%.2f"|format(m.prueba.f1_macro), "promedio de los %d tipos"|format(m.prueba.matriz.etiquetas|length)),
       ("Validación cruzada (5 partes)", "%.2f ± %.2f"|format(m.validacion_cruzada.f1_macro_media, m.validacion_cruzada.f1_macro_desv), "F1 macro"),
-      ("Encuestas reales", "%.0f %%"|format(m.reales.exactitud * 100), "%d de %d aciertos"|format(m.reales.filas|selectattr("acierto")|list|length, m.reales.n)),
+      ("Encuestas de validación", "%.0f %%"|format(m.reales.exactitud * 100), "%d de %d aciertos"|format(m.reales.filas|selectattr("acierto")|list|length, m.reales.n)),
   ] %}
   <div class="col-6 col-lg-3">
     <div class="card h-100 text-center"><div class="card-body py-3">
@@ -68,7 +68,7 @@
 </div>
 
 <div class="card mb-4">
-  <div class="card-header fw-semibold">Prueba con las {{ m.reales.n }} encuestas de ejemplo (etiquetadas a mano, nunca vistas por el modelo)</div>
+  <div class="card-header fw-semibold">Prueba con las {{ m.reales.n }} encuestas de validación (etiquetadas a mano, nunca vistas por el modelo)</div>
   <div class="table-responsive">
     <table class="table table-sm mb-0 small align-middle">
       <thead class="table-light"><tr><th>Necesidad</th><th>Tipo correcto</th><th>Tipo predicho</th><th class="text-end">Confianza</th><th></th></tr></thead>
@@ -84,7 +84,7 @@
     </table>
   </div>
   {% if m.reales.tipos_sin_ejemplos %}
-  <div class="card-footer small text-muted">Tipos sin encuestas reales de ejemplo:
+  <div class="card-footer small text-muted">Tipos sin encuestas de validación:
     {% for t in m.reales.tipos_sin_ejemplos %}{{ nombre(t) }}{{ ", " if not loop.last }}{% endfor %}.</div>
   {% endif %}
 </div>

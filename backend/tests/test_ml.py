@@ -33,7 +33,7 @@ def test_dataset_sintetico_es_reproducible_y_cubre_todos_los_tipos():
     assert list(a.columns) == ml.VARIABLES + ["tipo"]
 
 
-def test_encuestas_reales_sin_datos_personales_y_con_tipos_validos():
+def test_encuestas_validacion_sin_datos_personales_y_con_tipos_validos():
     datos = reales()
     assert len(datos) == 20 and set(ETIQUETAS_REALES) <= set(TIPOS)
     assert "nombre" not in datos.columns and "telefono" not in datos.columns
