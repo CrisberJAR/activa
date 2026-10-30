@@ -48,3 +48,6 @@
 | 2026-10-29 | Límites: 20 mensajes por conversación y 10 conversaciones por día por conexión (`config/chatbot.yaml`); se guarda solo una huella cifrada de la IP | La página es pública; se protege la cuota gratuita de Gemini y la privacidad |
 | 2026-10-29 | Consentimiento explícito (Ley 29733) antes de pedir nombre y teléfono; teléfono peruano de 9 dígitos que empieza con 9 | Requisito legal y regla del proyecto |
 | 2026-10-29 | Mascota "Uku" (Oso de Anteojos), dibujo SVG propio con animaciones CSS; textos de la empresa en `config/institucion.yaml` con campos [COMPLETAR] | No se inventan datos de la empresa; se editan sin tocar código |
+| 2026-10-29 | Fase 7: prueba de punta a punta (`tests/test_integracion.py`) con Gemini simulado caído; verifica además que ningún nombre ni teléfono llega a los prompts | Demuestra que las 6 fases funcionan juntas y que el sistema sigue operando sin Gemini |
+| 2026-10-29 | `scripts/verificar_sistema.py` (solo lectura) y `scripts/medir_tiempos.py` (no guarda nada) | Revisión rápida antes de la sustentación y medición real de la columna «después» |
+| 2026-10-29 | La columna «antes» de `docs/tiempos.md` queda en [COMPLETAR] hasta entrevistar a la empresa | No se inventan datos; guía de entrevista incluida |

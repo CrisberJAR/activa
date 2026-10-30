@@ -129,3 +129,6 @@ activa/
   - Chat híbrido en `services/chatbot.py`: reglas (oficio, consentimiento Ley 29733, nombre, teléfono) + Gemini JSON (oferta y dudas) validado: 1 pregunta, sin tasas/promesas. API `/api/chat/{iniciar,mensaje,<id>}`.
   - Configuración en `config/chatbot.yaml` (límites 20/10, oficios, palabras; "si"/"no" entre comillas) y `config/institucion.yaml` (textos de la empresa; completar los [COMPLETAR]).
   - `/interesados` (asesor y gerente): WhatsApp `wa.me/51…`, ver chat, marcar atendido.
+- [ ] Fase 7 – Integración y cierre: 169 pruebas pasando (incluye `tests/test_integracion.py`, punta a punta). Pendiente: validación del usuario.
+  - `scripts/verificar_sistema.py` (revisión antes de la demo) y `scripts/medir_tiempos.py` (columna «después»: 6,4 s de encuestas a campaña).
+  - Documentos: `docs/manual_usuario.md`, `docs/guion_demo.md`, `docs/tiempos.md` («antes» en [COMPLETAR]), `docs/capturas/` (4 automáticas; lista de las que toma el usuario).

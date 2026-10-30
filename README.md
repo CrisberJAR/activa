@@ -24,11 +24,22 @@ python -m scripts.generar_datos_clima --escenario lluvias   # 8 semanas de clima
 uvicorn app.main:app --reload
 ```
 
-- Web: http://localhost:8000/login
+- Página pública (clientes, chat con Uku): http://localhost:8000/
+- Web del asesor y del gerente: http://localhost:8000/login
 - Documentación de la API: http://localhost:8000/docs
 - Prueba de conexión a la base: http://localhost:8000/api/salud
 
 Usuarios de prueba: `asesor@activa.pe / Asesor2026!` y `gerente@activa.pe / Gerente2026!`
+
+Para desarrollo (recarga al guardar cambios), desde la carpeta `activa`: `powershell -ExecutionPolicy Bypass -File .\iniciar_servidor.ps1 -Recargar`
+
+## Antes de una demostración
+
+```powershell
+cd backend
+python -m scripts.verificar_sistema     # Supabase, migraciones, datos, modelo, Gemini y Firebase
+python -m scripts.medir_tiempos         # cronometra análisis y generación de campañas (no guarda nada)
+```
 
 ## Pruebas
 
@@ -37,7 +48,8 @@ cd backend
 pytest
 ```
 
-Las pruebas usan una base SQLite en memoria; no necesitan Supabase.
+Las pruebas usan una base SQLite en memoria; no necesitan Supabase ni llaman a Gemini.
+`tests/test_integracion.py` recorre el sistema completo de punta a punta.
 
 ## App móvil (Flutter)
 
@@ -56,3 +68,7 @@ Para usar otra laptop o el internet compartido del celular: [docs/guia_otra_lapt
 - `iot/` – circuito Wokwi (ESP32 + DHT22)
 - `mobile/` – app Flutter
 - `docs/` – decisiones, mejoras futuras, evidencias
+  - [Manual de usuario](docs/manual_usuario.md)
+  - [Guion de demostración](docs/guion_demo.md)
+  - [Tiempos antes/después](docs/tiempos.md)
+  - Capturas en `docs/capturas/`

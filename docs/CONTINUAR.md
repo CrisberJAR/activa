@@ -19,8 +19,9 @@ Forma de trabajo: **una fase a la vez**, plan corto → visto bueno del usuario 
 | 5b Random Forest | ✅ validada (2026-10-29) | 15 tipos de campaña; entrenar con `python -m ml.entrenar` (≈10 s); métricas en `/analisis/modelo`. Exactitud 91 % sintética y 80 % (16/20) con encuestas reales |
 | 5c Generador de campañas | ✅ validada (2026-10-29) | `/campanas`: el asesor genera (borrador), solo el gerente edita/publica/retira. Gemini en JSON validado + filtro de tasas y promesas + plantilla. Vigentes en `/api/campanas/vigentes` (para el chatbot) |
 | 6 Chatbot y página pública | ✅ validada (2026-10-29) | `/` landing con campañas vigentes y Uku (Oso de Anteojos) que abre el chat; reglas + Gemini; `/interesados` para asesores. Completar datos de contacto en `config/institucion.yaml` |
+| 7 Integración y cierre | 🟡 falta validación del usuario | Prueba de punta a punta, `scripts.verificar_sistema`, `scripts.medir_tiempos`, manual, guion de demo, tiempos y capturas. Pendiente del usuario: tiempos «antes», capturas a mano, datos de contacto |
 
-Pruebas: 166 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 12 de Flutter (`cd mobile; flutter test`), todas pasan.
+Pruebas: 169 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 12 de Flutter (`cd mobile; flutter test`), todas pasan.
 
 ## Cómo probar la app (Fase 4, ya validada; útil para repetir la demo)
 1. **Firewall (una vez):** abrir PowerShell **como administrador** y ejecutar:
