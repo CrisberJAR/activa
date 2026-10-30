@@ -19,6 +19,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    false,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -157,6 +158,25 @@ class Campana(Base):
     autor: Mapped[Usuario] = relationship(foreign_keys=[creado_por])
 
 
+class Conversacion(Base):
+    """Chat de un visitante con el asesor virtual (sus mensajes y en qué paso va)."""
+
+    __tablename__ = "conversaciones"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)  # código aleatorio (uuid4 hex)
+    estado: Mapped[str] = mapped_column(String(20), default="oficio")
+    sector: Mapped[str | None] = mapped_column(String(40))
+    campana_id: Mapped[int | None] = mapped_column(ForeignKey("campanas.id"))
+    datos: Mapped[dict] = mapped_column(JSON, default=dict)      # nombre mientras se capturan los datos
+    mensajes: Mapped[list] = mapped_column(JSON, default=list)   # [{rol: bot|cliente, texto, hora}]
+    n_mensajes: Mapped[int] = mapped_column(Integer, default=0)  # mensajes del cliente (para el límite)
+    ip_hash: Mapped[str] = mapped_column(String(64), index=True)  # IP cifrada (no se guarda la IP real)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+
+    campana: Mapped["Campana | None"] = relationship()
+
+
 class Interesado(Base):
     """Cliente captado por el chatbot."""
 
@@ -168,8 +188,11 @@ class Interesado(Base):
     sector: Mapped[str | None] = mapped_column(String(40))
     campana_id: Mapped[int | None] = mapped_column(ForeignKey("campanas.id"))
     conversacion_id: Mapped[str | None] = mapped_column(String(64))
+    consentimiento: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())  # Ley 29733
     atendido: Mapped[bool] = mapped_column(Boolean, default=False)
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    campana: Mapped["Campana | None"] = relationship()
 
 
 class AnalisisBloque(Base):

@@ -1,0 +1,47 @@
+# Contenido de la página pública. Editar aquí, no en el código.
+# IMPORTANTE: completar los campos marcados con [COMPLETAR] con datos reales de la empresa
+# (no se inventan cifras ni datos de contacto).
+
+nombre: Grupo Activa
+razon_social: GRUPO ACTIVA S.A.C.
+ciudad: Huánuco
+eslogan: Impulsamos a quienes mueven Huánuco
+subtitulo: >-
+  Créditos pensados para agricultores, comerciantes, emprendedores y transportistas,
+  con campañas que llegan justo cuando tu negocio más lo necesita.
+
+quienes_somos: >-
+  Somos una institución de microfinanzas de Huánuco que conoce de cerca el trabajo de la chacra,
+  del mercado y de la calle. Acompañamos a cada cliente con asesores que lo visitan, lo escuchan
+  y le ofrecen un crédito a la medida de su realidad.
+proposito: >-
+  Apoyar firmemente a los microempresarios, agricultores, comerciantes y emprendedores de la región
+  para que sus negocios crezcan y estén preparados para cada temporada del año.
+
+valores:
+  - {icono: heart-fill, titulo: Cercanía, texto: "Te visitamos donde trabajas y te hablamos claro."}
+  - {icono: shield-check, titulo: Confianza, texto: "Información transparente desde la primera conversación."}
+  - {icono: people-fill, titulo: Inclusión, texto: "Oportunidades para quienes la banca tradicional no atiende."}
+  - {icono: graph-up-arrow, titulo: Crecimiento, texto: "Tu progreso es la medida de nuestro trabajo."}
+  - {icono: geo-alt-fill, titulo: Compromiso con Huánuco, texto: "Somos de aquí y trabajamos por nuestra región."}
+
+segmentos:
+  - {icono: tree-fill, titulo: Agricultores, texto: "Siembra, cosecha, riego y protección frente a heladas y lluvias."}
+  - {icono: shop, titulo: Comerciantes de mercado, texto: "Mercadería para cada temporada y fecha especial."}
+  - {icono: basket2-fill, titulo: Emprendedores y ambulantes, texto: "Capital y equipos para vender más cada día."}
+  - {icono: taxi-front-fill, titulo: Taxistas y mototaxistas, texto: "Mantenimiento, repuestos y vehículo de trabajo."}
+
+pasos:
+  - {icono: chat-heart-fill, titulo: Conversa con Uku, texto: "Cuéntale a qué te dedicas y te muestra la campaña ideal."}
+  - {icono: person-check-fill, titulo: Te contacta un asesor, texto: "Una persona de nuestro equipo te llama o te visita."}
+  - {icono: clipboard2-check-fill, titulo: Evaluamos tu caso, texto: "Revisamos tu negocio y tu capacidad de pago."}
+  - {icono: cash-coin, titulo: Recibe tu crédito, texto: "Si tu evaluación es favorable, recibes el desembolso."}
+
+contacto:
+  direccion: "[COMPLETAR dirección de la oficina]"
+  telefono: "[COMPLETAR teléfono]"
+  horario: "[COMPLETAR horario de atención]"
+
+mascota:
+  nombre: Uku
+  descripcion: Oso de Anteojos, nuestro asesor virtual

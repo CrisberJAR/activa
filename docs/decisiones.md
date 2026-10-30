@@ -41,3 +41,10 @@
 | 2026-10-29 | El filtro de reglas solo se aplica al texto de la IA, no a lo que edita el gerente | Fijar condiciones es decisión humana de la gerencia |
 | 2026-10-29 | Vigencia = fecha de inicio + duración en semanas; estados visibles: borrador, programada, vigente, finalizada, retirada | El chatbot ofrece solo las campañas publicadas dentro de sus fechas (`/api/campanas/vigentes`) |
 | 2026-10-29 | El formulario se prellena con el último análisis del bloque (tipo del Random Forest, necesidad, zonas, plazo, meta) y la temporada del IoT como sugerencia | Menos tiempo para crear una campaña: ese es el problema que resuelve el proyecto |
+| 2026-10-29 | La raíz `/` es una landing pública con campañas vigentes y el chat; el login sigue en `/login` | Pedido del usuario: página corporativa que lleve al cliente a la campaña ideal |
+| 2026-10-29 | Chat web con aspecto de WhatsApp, no WhatsApp real | La API de WhatsApp Business exige verificación de Meta y puede tener costo |
+| 2026-10-29 | Chatbot híbrido: reglas para saludo, oficio y captura de datos; Gemini solo para la oferta y las dudas, en JSON validado | La captura (consentimiento, nombre, teléfono) es predecible y nunca envía datos personales a la IA |
+| 2026-10-29 | El backend rechaza respuestas de Gemini con más de una pregunta, con tasas o promesas de aprobación, o con teléfonos; si todos los modelos fallan, usa plantillas | Las reglas del chatbot se cumplen aunque la IA o el cliente intenten saltárselas |
+| 2026-10-29 | Límites: 20 mensajes por conversación y 10 conversaciones por día por conexión (`config/chatbot.yaml`); se guarda solo una huella cifrada de la IP | La página es pública; se protege la cuota gratuita de Gemini y la privacidad |
+| 2026-10-29 | Consentimiento explícito (Ley 29733) antes de pedir nombre y teléfono; teléfono peruano de 9 dígitos que empieza con 9 | Requisito legal y regla del proyecto |
+| 2026-10-29 | Mascota "Uku" (Oso de Anteojos), dibujo SVG propio con animaciones CSS; textos de la empresa en `config/institucion.yaml` con campos [COMPLETAR] | No se inventan datos de la empresa; se editan sin tocar código |

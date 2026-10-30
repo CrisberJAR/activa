@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ inst.nombre }} · Créditos para quienes mueven {{ inst.ciudad }}</title>
+  <meta name="description" content="{{ inst.subtitulo }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', path='css/landing.css') }}" rel="stylesheet">
+</head>
+<body>
+{% set mascota = inst.mascota.nombre %}
+
+<nav class="barra navbar navbar-expand-lg py-2" id="barra">
+  <div class="container">
+    <a class="marca d-flex align-items-center gap-2" href="/">{% with clase="" %}{% include "_oso.html" %}{% endwith %} {{ inst.nombre }}</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-label="Abrir menú">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="#nosotros">Nosotros</a></li>
+        <li class="nav-item"><a class="nav-link" href="#campanas">Campañas</a></li>
+        <li class="nav-item"><a class="nav-link" href="#como-funciona">Cómo funciona</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+      </ul>
+      <a class="boton boton-verde py-2" href="/login"><i class="bi bi-person-badge"></i> Acceso asesores</a>
+    </div>
+  </div>
+</nav>
+
+<header class="portada">
+  <span class="mancha m1"></span><span class="mancha m2"></span><span class="mancha m3"></span>
+  <div class="container position-relative">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7 revelar">
+        <span class="etiqueta mb-3" style="background: rgba(255,255,255,.15); color: #fff">Microfinanzas en {{ inst.ciudad }}</span>
+        <h1 class="mb-3">{{ inst.eslogan }}</h1>
+        <p class="lead mb-4">{{ inst.subtitulo }}</p>
+        <div class="d-flex flex-wrap gap-3">
+          <button class="boton boton-dorado" type="button" data-chat><i class="bi bi-chat-heart-fill"></i> Conversa con {{ mascota }}</button>
+          <a class="boton boton-borde" href="#campanas">Ver campañas <i class="bi bi-arrow-down"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-5 revelar retraso-2">
+        <div class="escena-oso">
+          {% with clase="oso-grande" %}{% include "_oso.html" %}{% endwith %}
+          <div class="tarjeta-flotante t1">👋 ¡Hola! Soy {{ mascota }}</div>
+          <div class="tarjeta-flotante t2"><i class="bi bi-check-circle-fill text-success"></i> Te ayudo a encontrar tu crédito</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <svg class="ola" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 40c240 40 480 40 720 0s480-40 720 0v40H0z" fill="#f7faf8"/>
+  </svg>
+</header>
+
+<section class="seccion" aria-labelledby="titulo-segmentos">
+  <div class="container">
+    <div class="text-center mb-5 revelar">
+      <span class="etiqueta">A quién apoyamos</span>
+      <h2 class="mt-3" id="titulo-segmentos">Créditos para el trabajo de todos los días</h2>
+    </div>
+    <div class="row g-4">
+      {% for s in inst.segmentos %}
+      <div class="col-sm-6 col-lg-3 revelar retraso-{{ loop.index0 % 4 }}">
+        <div class="tarjeta">
+          <div class="icono-circulo"><i class="bi bi-{{ s.icono }}"></i></div>
+          <h3 class="h5">{{ s.titulo }}</h3>
+          <p class="texto-gris mb-0">{{ s.texto }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="seccion seccion-blanca" id="nosotros" aria-labelledby="titulo-nosotros">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6 revelar">
+        <span class="etiqueta">Quiénes somos</span>
+        <h2 class="mt-3 mb-3" id="titulo-nosotros">Somos de {{ inst.ciudad }} y trabajamos por {{ inst.ciudad }}</h2>
+        <p class="texto-gris fs-5">{{ inst.quienes_somos }}</p>
+      </div>
+      <div class="col-lg-6 revelar retraso-2">
+        <div class="proposito">
+          <i class="bi bi-bullseye fs-1"></i>
+          <h3 class="h4 mt-2">Nuestro propósito</h3>
+          <p class="mb-0 fs-5">{{ inst.proposito }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="row g-4 mt-4">
+      {% for v in inst.valores %}
+      <div class="col-sm-6 col-lg revelar retraso-{{ loop.index0 % 4 }}">
+        <div class="tarjeta text-center">
+          <div class="icono-circulo mx-auto"><i class="bi bi-{{ v.icono }}"></i></div>
+          <h3 class="h6 fw-bold">{{ v.titulo }}</h3>
+          <p class="texto-gris small mb-0">{{ v.texto }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="seccion" id="campanas" aria-labelledby="titulo-campanas">
+  <div class="container">
+    <div class="text-center mb-5 revelar">
+      <span class="etiqueta">Campañas vigentes</span>
+      <h2 class="mt-3" id="titulo-campanas">Llegamos justo cuando tu negocio lo necesita</h2>
+      <p class="texto-gris">Todas nuestras campañas están sujetas a evaluación crediticia.</p>
+    </div>
+    {% if campanas %}
+    <div class="row g-4 justify-content-center">
+      {% for c in campanas %}
+      <div class="col-md-6 col-lg-4 revelar retraso-{{ loop.index0 % 3 }}">
+        <article class="campana">
+          <div class="campana-cabecera">
+            <i class="bi bi-{{ c.icono }}"></i>
+            <span class="vigencia">Hasta el {{ c.hasta.strftime('%d/%m') }}</span>
+            <div class="small mt-2 opacity-75">{{ c.tipo }}</div>
+            <h3 class="h5 mb-0">{{ c.nombre }}</h3>
+          </div>
+          <div class="campana-cuerpo">
+            <p class="gancho mb-2">{{ c.gancho }}</p>
+            <p class="texto-gris small recortar">{{ c.propuesta }}</p>
+            <div class="mb-3">
+              <span class="chip"><i class="bi bi-calendar3"></i> Hasta {{ c.plazo }} meses</span>
+              {% if c.monto_maximo %}<span class="chip"><i class="bi bi-cash-stack"></i> Hasta S/ {{ "{:,.0f}".format(c.monto_maximo) }}</span>{% endif %}
+              {% if c.gracia %}<span class="chip"><i class="bi bi-hourglass-split"></i> {{ c.gracia }} mes(es) de gracia</span>{% endif %}
+              <span class="chip"><i class="bi bi-geo-alt"></i> {{ c.zona }}</span>
+            </div>
+            <button class="boton boton-verde mt-auto justify-content-center" type="button" data-chat data-campana="{{ c.id }}">
+              <i class="bi bi-chat-dots-fill"></i> Me interesa
+            </button>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="tarjeta text-center mx-auto revelar" style="max-width: 560px">
+      <div class="icono-circulo mx-auto"><i class="bi bi-stars"></i></div>
+      <h3 class="h5">Muy pronto, nuevas campañas</h3>
+      <p class="texto-gris">Mientras tanto, conversa con {{ mascota }}: un asesor puede evaluar tu caso.</p>
+      <button class="boton boton-verde" type="button" data-chat><i class="bi bi-chat-heart-fill"></i> Conversar ahora</button>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="seccion seccion-blanca" id="como-funciona" aria-labelledby="titulo-pasos">
+  <div class="container">
+    <div class="text-center mb-5 revelar">
+      <span class="etiqueta">Cómo funciona</span>
+      <h2 class="mt-3" id="titulo-pasos">Tu crédito en 4 pasos</h2>
+    </div>
+    <div class="row g-4">
+      {% for p in inst.pasos %}
+      <div class="col-6 col-md-3 paso revelar retraso-{{ loop.index0 % 4 }}">
+        <div class="paso-numero"><i class="bi bi-{{ p.icono }}"></i></div>
+        <div class="small fw-bold text-uppercase" style="color: var(--verde-2)">Paso {{ loop.index }}</div>
+        <h3 class="h6 fw-bold mt-1">{{ p.titulo }}</h3>
+        <p class="texto-gris small">{{ p.texto }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="container">
+    <div class="franja-cta revelar">
+      <div class="row align-items-center g-4">
+        <div class="col-md-auto text-center">{% with clase="" %}{% include "_oso.html" %}{% endwith %}</div>
+        <div class="col-md">
+          <h2 class="h3">¿Listo para impulsar tu negocio?</h2>
+          <p class="mb-0 opacity-75">{{ mascota }} te orienta en un par de minutos y un asesor de nuestro equipo te contacta.</p>
+        </div>
+        <div class="col-md-auto">
+          <button class="boton boton-dorado" type="button" data-chat><i class="bi bi-chat-heart-fill"></i> Empezar a conversar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="pie" id="contacto">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-5">
+        <div class="h5 text-white fw-bold">{{ inst.razon_social }}</div>
+        <p class="small">{{ inst.proposito }}</p>
+      </div>
+      <div class="col-md-4">
+        <div class="fw-bold text-white mb-2">Contacto</div>
+        <div class="small"><i class="bi bi-geo-alt"></i> {{ inst.contacto.direccion }}</div>
+        <div class="small"><i class="bi bi-telephone"></i> {{ inst.contacto.telefono }}</div>
+        <div class="small"><i class="bi bi-clock"></i> {{ inst.contacto.horario }}</div>
+      </div>
+      <div class="col-md-3">
+        <div class="fw-bold text-white mb-2">Equipo</div>
+        <a class="small" href="/login"><i class="bi bi-person-badge"></i> Acceso asesores y gerencia</a>
+      </div>
+    </div>
+    <hr class="border-secondary">
+    <p class="small mb-0">Los créditos están sujetos a evaluación. Tus datos personales se protegen conforme a la
+      Ley N.° 29733, Ley de Protección de Datos Personales, y solo se usan para contactarte.</p>
+  </div>
+</footer>
+
+<!-- Asesor virtual -->
+<div class="chat-globo" id="chat-globo" role="status">
+  ¡Hola! Soy {{ mascota }} 👋 ¿Te ayudo a encontrar tu crédito?
+  <button type="button" id="chat-globo-cerrar" aria-label="Cerrar aviso"><i class="bi bi-x"></i></button>
+</div>
+<button class="chat-lanzador" id="chat-lanzador" type="button" aria-label="Abrir chat con {{ mascota }}, el asesor virtual" aria-controls="chat-panel" aria-expanded="false">
+  {% with clase="" %}{% include "_oso.html" %}{% endwith %}
+</button>
+<section class="chat-panel" id="chat-panel" aria-label="Chat con el asesor virtual" aria-hidden="true">
+  <div class="chat-cabecera">
+    <div class="avatar">{% with clase="" %}{% include "_oso.html" %}{% endwith %}</div>
+    <div>
+      <div class="fw-bold">{{ mascota }} · Asesor virtual</div>
+      <div class="estado" id="chat-estado">en línea</div>
+    </div>
+    <button type="button" id="chat-reiniciar" title="Nueva conversación" aria-label="Nueva conversación"><i class="bi bi-arrow-clockwise"></i></button>
+    <button type="button" id="chat-cerrar" aria-label="Cerrar chat" style="margin-left: 0"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="chat-cuerpo" id="chat-cuerpo" aria-live="polite"></div>
+  <div class="chat-opciones" id="chat-opciones"></div>
+  <form class="chat-pie" id="chat-form" autocomplete="off">
+    <input id="chat-texto" maxlength="500" placeholder="Escribe un mensaje" aria-label="Escribe un mensaje">
+    <button type="submit" aria-label="Enviar"><i class="bi bi-send-fill"></i></button>
+  </form>
+  <div class="chat-legal">Datos protegidos según la Ley 29733 · Créditos sujetos a evaluación</div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', path='js/chat.js') }}"></script>
+</body>
+</html>

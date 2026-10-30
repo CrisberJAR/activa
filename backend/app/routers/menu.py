@@ -16,7 +16,7 @@ OPCIONES_COMUNES = [
     {"titulo": "Análisis de bloque", "descripcion": "Necesidades detectadas por la IA", "icono": "graph-up", "url": "/analisis"},
     {"titulo": "Generar campaña", "descripcion": "Propuesta de campaña con IA", "icono": "megaphone", "url": "/campanas/nueva"},
     {"titulo": "Campañas", "descripcion": "Borradores, vigentes y finalizadas", "icono": "card-list", "url": "/campanas"},
-    {"titulo": "Interesados", "descripcion": "Clientes captados por el chatbot", "icono": "people", "fase": 6},
+    {"titulo": "Interesados", "descripcion": "Clientes captados por el chatbot", "icono": "people", "url": "/interesados"},
 ]
 
 OPCIONES_ASESOR = [BLOQUES_ASESOR] + OPCIONES_COMUNES

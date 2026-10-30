@@ -18,8 +18,9 @@ Forma de trabajo: **una fase a la vez**, plan corto → visto bueno del usuario 
 | 5a Análisis por bloque | ✅ validada (2026-10-29) | `/analisis`: indicadores, ranking de necesidades (palabras clave en `config/necesidades.yaml`) y texto del patrón con Gemini (principal `gemini-3.1-flash-lite` + respaldos; si todos fallan, plantilla). Probar clave: `python -m scripts.probar_gemini` |
 | 5b Random Forest | ✅ validada (2026-10-29) | 15 tipos de campaña; entrenar con `python -m ml.entrenar` (≈10 s); métricas en `/analisis/modelo`. Exactitud 91 % sintética y 80 % (16/20) con encuestas reales |
 | 5c Generador de campañas | ✅ validada (2026-10-29) | `/campanas`: el asesor genera (borrador), solo el gerente edita/publica/retira. Gemini en JSON validado + filtro de tasas y promesas + plantilla. Vigentes en `/api/campanas/vigentes` (para el chatbot) |
+| 6 Chatbot y página pública | ✅ validada (2026-10-29) | `/` landing con campañas vigentes y Uku (Oso de Anteojos) que abre el chat; reglas + Gemini; `/interesados` para asesores. Completar datos de contacto en `config/institucion.yaml` |
 
-Pruebas: 63 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 12 de Flutter (`cd mobile; flutter test`), todas pasan.
+Pruebas: 166 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 12 de Flutter (`cd mobile; flutter test`), todas pasan.
 
 ## Cómo probar la app (Fase 4, ya validada; útil para repetir la demo)
 1. **Firewall (una vez):** abrir PowerShell **como administrador** y ejecutar:
@@ -45,7 +46,8 @@ Pruebas: 63 del backend (`cd backend; .\.venv\Scripts\python.exe -m pytest`) y 1
 - **Fase 7 – Cierre:** prueba de punta a punta, manual de usuario, capturas y tabla de tiempos antes/después.
 
 ## Pendientes menores
-- **Commit en git:** el repositorio existe pero **todavía no hay ningún commit**. El usuario no lo ha pedido; preguntarle. Subir a GitHub (privado) cuando tenga el repositorio.
+- **Commits en git:** hay un commit por fase validada (hasta la Fase 6). Subir a GitHub (privado) cuando el usuario tenga el repositorio.
+- Completar los datos de contacto `[COMPLETAR]` en `backend\config\institucion.yaml`.
 - Antes de la sustentación, revisar que Supabase no esté pausado (se pausa tras 1 semana sin uso).
 
 ## Datos útiles

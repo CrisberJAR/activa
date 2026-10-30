@@ -124,3 +124,8 @@ activa/
   - [x] (b) Random Forest (validada por el usuario 2026-10-29): 112 pruebas pasando. 15 tipos en `config/tipos_campana.yaml`; dataset sintético (`ml/generar_dataset.py`), entrenamiento `python -m ml.entrenar` → `ml/modelo.joblib` + `ml/metricas.json` (scikit-learn fijo en 1.9.1). Variables: sector, categoría de necesidad, temporada, riesgo, frecuencia, garantía, mes de registro y montos. Página `/analisis/modelo`.
   - [x] (c) Generador de campañas: 137 pruebas pasando; migración `7c1f3a9d2e5b` aplicada en Supabase. `/campanas` (lista, nueva, detalle, editar), API `/api/campanas/vigentes`. Lógica en `services/campanas.py` (prompt JSON, validación Pydantic, filtro de tasas/promesas, plantilla de respaldo, vigencia).
     - Solo el gerente edita, regenera, publica, retira y elimina; el asesor genera (borrador) y consulta.
+- [x] Fase 6 – Chatbot y página pública: 166 pruebas pasando; migración `9e4b2c7a1f30` aplicada (tabla `conversaciones`, `interesados.consentimiento`). Validada por el usuario (2026-10-29).
+  - `/` = landing pública (`templates/landing.html`, `static/css/landing.css`, `static/js/chat.js`) con campañas vigentes y widget de la mascota Uku (Oso de Anteojos, `templates/_oso.html`). Login en `/login`.
+  - Chat híbrido en `services/chatbot.py`: reglas (oficio, consentimiento Ley 29733, nombre, teléfono) + Gemini JSON (oferta y dudas) validado: 1 pregunta, sin tasas/promesas. API `/api/chat/{iniciar,mensaje,<id>}`.
+  - Configuración en `config/chatbot.yaml` (límites 20/10, oficios, palabras; "si"/"no" entre comillas) y `config/institucion.yaml` (textos de la empresa; completar los [COMPLETAR]).
+  - `/interesados` (asesor y gerente): WhatsApp `wa.me/51…`, ver chat, marcar atendido.

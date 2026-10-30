@@ -69,6 +69,12 @@ def cargar_necesidades() -> dict:
         return yaml.safe_load(f)
 
 
+def cargar_yaml(nombre: str) -> dict:
+    """Lee config/<nombre>.yaml (chatbot, institucion…)."""
+    with open(BASE_DIR / "config" / f"{nombre}.yaml", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
 def cargar_tipos_campana() -> dict:
     """Tipos de campaña que sugiere el modelo: {clave: {grupo, nombre, descripcion}}."""
     with open(BASE_DIR / "config" / "tipos_campana.yaml", encoding="utf-8") as f:

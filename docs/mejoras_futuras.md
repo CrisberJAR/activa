@@ -10,3 +10,5 @@ Ideas que surgen durante el desarrollo y que NO se implementan para respetar los
 
 - **Reentrenar el Random Forest con campañas reales**: guardar qué campaña tomó cada cliente y reemplazar el dataset sintético por ese historial.
 
+- **Chatbot en WhatsApp real** (API de WhatsApp Business de Meta): requiere cuenta verificada y puede tener costo.
+

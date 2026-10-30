@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}Interesados{% endblock %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">Interesados captados por el chatbot</h1>
+  <a class="btn btn-outline-secondary" href="/?chat=1" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Abrir la página pública</a>
+</div>
+<p class="text-muted">Clientes que pidieron que un asesor los contacte y aceptaron el uso de sus datos (Ley 29733).</p>
+
+<ul class="nav nav-pills mb-3">
+  {% for clave, texto in [("pendientes", "Pendientes"), ("atendidos", "Atendidos"), ("todos", "Todos")] %}
+  <li class="nav-item"><a class="nav-link {{ 'active' if estado == clave }}" href="/interesados?estado={{ clave }}">{{ texto }}</a></li>
+  {% endfor %}
+</ul>
+
+{% if interesados %}
+<div class="table-responsive">
+  <table class="table align-middle bg-white">
+    <thead class="table-light">
+      <tr><th>Fecha</th><th>Cliente</th><th>Oficio</th><th>Campaña</th><th>Estado</th><th class="text-end">Acciones</th></tr>
+    </thead>
+    <tbody>
+      {% for i in interesados %}
+      {% set conv = conversaciones.get(i.conversacion_id) %}
+      <tr>
+        <td class="small text-nowrap">{{ i.creado_en|fecha_hora }}</td>
+        <td><div class="fw-semibold">{{ i.nombre }}</div><div class="small text-muted">{{ i.telefono }}</div></td>
+        <td class="small">{{ oficios.get(i.sector, {}).get("nombre", "Otro oficio") }}</td>
+        <td class="small">{% if i.campana %}<a href="/campanas/{{ i.campana_id }}">{{ i.campana.nombre }}</a>{% else %}<span class="text-muted">Sin campaña</span>{% endif %}</td>
+        <td>{% if i.atendido %}<span class="badge text-bg-success">Atendido</span>{% else %}<span class="badge text-bg-warning">Pendiente</span>{% endif %}</td>
+        <td class="text-end text-nowrap">
+          <a class="btn btn-sm btn-success" href="{{ whatsapp[i.id] }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+          {% if conv %}
+          <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#conv{{ i.id }}" aria-expanded="false">
+            <i class="bi bi-chat-text"></i> Chat</button>
+          {% endif %}
+          <form method="post" action="/interesados/{{ i.id }}/atendido?estado={{ estado }}" class="d-inline">
+            <button class="btn btn-sm {{ 'btn-outline-secondary' if i.atendido else 'btn-activa' }}" type="submit">
+              {{ 'Reabrir' if i.atendido else 'Marcar atendido' }}</button>
+          </form>
+        </td>
+      </tr>
+      {% if conv %}
+      <tr class="collapse" id="conv{{ i.id }}">
+        <td colspan="6" class="bg-light">
+          <div class="d-flex flex-column gap-1 mx-auto" style="max-width: 640px">
+            {% for m in conv.mensajes %}
+            <div class="p-2 rounded small {{ 'align-self-end' if m.rol == 'cliente' else 'align-self-start bg-white border' }}"
+                 style="max-width: 80%; {{ 'background:#d9fdd3' if m.rol == 'cliente' }}">{{ m.texto }}</div>
+            {% endfor %}
+          </div>
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">No hay interesados {{ "pendientes" if estado == "pendientes" else "en esta lista" }}.</div>
+{% endif %}
+{% endblock %}

@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -12,7 +12,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import BASE_DIR, settings
 from app.db import get_db
-from app.routers import analisis, auth, bloques, campanas, clima, encuestas, menu
+from app.routers import analisis, auth, bloques, campanas, chat, clima, encuestas, interesados, menu, publico
 from app.services import ml
 from app.templating import templates
 
@@ -44,6 +44,9 @@ app.include_router(encuestas.router)
 app.include_router(clima.router)
 app.include_router(analisis.router)
 app.include_router(campanas.router)
+app.include_router(publico.router)
+app.include_router(chat.router)
+app.include_router(interesados.router)
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -52,11 +55,6 @@ async def errores_http(request: Request, exc: StarletteHTTPException):
     if exc.status_code == 403 and not request.url.path.startswith("/api"):
         return templates.TemplateResponse(request, "403.html", {"mensaje": exc.detail}, status_code=403)
     return await http_exception_handler(request, exc)
-
-
-@app.get("/", include_in_schema=False)
-def inicio():
-    return RedirectResponse("/login")
 
 
 @app.get("/api/salud")

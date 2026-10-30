@@ -1,0 +1,47 @@
+# Configuración del chatbot (Fase 6). Editar aquí, no en el código.
+
+limites:
+  mensajes_por_conversacion: 20   # mensajes del cliente; al llegar se deriva a un asesor
+  conversaciones_por_ip_dia: 10   # chats nuevos por día desde una misma conexión
+  largo_maximo_mensaje: 500
+
+# Oficios: se detectan por botón o por palabras (sin tildes, al inicio de palabra).
+# Se revisan en este orden.
+oficios:
+  taxista:
+    nombre: Taxista o mototaxista
+    palabras: [taxi, mototaxi, colectivo, chofer, conductor, transport]
+    problema: con las lluvias y el mal estado de las pistas, las llantas, frenos y el motor se desgastan más rápido
+  ambulante:
+    nombre: Ambulante o emprendedor
+    palabras: [ambulant, carretilla, carrito, emprend, calle, emoliente, raspadilla]
+    problema: cada cambio de temporada trae nuevos productos que vender y necesitas capital para surtirte a tiempo
+  agricola:
+    nombre: Agricultor
+    palabras: [agricult, chacra, cultivo, siembr, cosech, campo, ganad, cuy, sembr]
+    problema: el clima define tu cosecha y conviene tener listos semillas, abono y protección antes de que cambie
+  comerciante:
+    nombre: Comerciante de mercado
+    palabras: [comerci, mercado, tienda, bodega, puesto, negocio, vendo, abarrot]
+    problema: las fechas especiales y los cambios de estación mueven las ventas y hay que abastecerse antes
+  otro:
+    nombre: Otro oficio
+    palabras: [otro, otra]
+    problema: los gastos del negocio y de la casa cambian con cada temporada
+
+# Tipos de campaña que se ofrecen primero a cada oficio (claves de tipos_campana.yaml)
+campanas_por_oficio:
+  agricola: [agro_siembra, agro_clima, agro_pecuaria]
+  comerciante: [comercio_temporada, campana_navidena, campana_escolar, campana_fiestas_patrias, campana_dia_madre_padre, campana_cyber_black]
+  ambulante: [comercio_temporada, campana_navidena, campana_escolar, campana_fiestas_patrias, campana_dia_madre_padre]
+  taxista: [movilidad, credito_vehicular]
+# Tipos que sirven para cualquier oficio
+campanas_generales: [capital_trabajo, equipamiento, construccion_vivienda, salud_emergencia]
+
+# Intención del cliente por palabras (sin tildes, palabra completa o frase).
+# OJO: en YAML, si y no van entre comillas (sin ellas "no" se lee como falso).
+palabras:
+  asesor: [asesor, humano, persona, llamen, llamenme, llamar, llamada, hablar con alguien, agente]
+  "si": ["si", claro, ok, okey, dale, bueno, acepto, por supuesto, me interesa, interesa, de acuerdo]
+  "no": ["no", nop, nunca, ahora no, todavia no, despues, luego, no gracias]
+  duda: [duda, pregunta, consulta]
