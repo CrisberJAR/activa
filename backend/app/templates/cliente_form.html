@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "_form360.html" as f %}
+{% block titulo %}{{ "Editar expediente" if cliente else "Nuevo expediente" }}{% endblock %}
+{% block contenido %}
+<a class="small" href="{{ '/clientes/' ~ cliente.id if cliente else '/clientes' }}"><i class="bi bi-arrow-left"></i> Volver</a>
+<h1 class="h3 my-2">{{ "Editar expediente" if cliente else "Nuevo expediente" }}</h1>
+<p class="text-body-secondary small">Registra solo los datos necesarios para la evaluación (minimización de datos personales).</p>
+{% if errores %}<div class="alert alert-danger" role="alert">Revisa los campos marcados en rojo.</div>{% endif %}
+
+<form method="post" novalidate>
+  {% if v.prospecto_id %}<input type="hidden" name="prospecto_id" value="{{ v.prospecto_id }}">{% endif %}
+  <div class="card mb-3"><div class="card-body">
+    <h2 class="h6 text-body-secondary">Identificación y contacto</h2>
+    <div class="row g-3">
+      <div class="col-sm-4 col-md-3">{{ f.texto("dni", "DNI", v, errores, extra='inputmode="numeric" maxlength="8"') }}</div>
+      <div class="col-sm-8 col-md-5">{{ f.texto("nombres", "Nombres y apellidos", v, errores) }}</div>
+      <div class="col-sm-6 col-md-4">{{ f.texto("telefono", "Celular", v, errores, tipo="tel", extra='inputmode="numeric" maxlength="11"') }}</div>
+      <div class="col-sm-6 col-md-4">{{ f.texto("email", "Correo", v, errores, tipo="email", requerido=false) }}</div>
+      <div class="col-sm-6 col-md-4">{{ f.lista("region", "Región", regiones, v, errores) }}</div>
+      <div class="col-sm-6 col-md-4">{{ f.texto("ubicacion", "Provincia o distrito", v, errores, requerido=false) }}</div>
+    </div>
+  </div></div>
+
+  <div class="card mb-3"><div class="card-body">
+    <h2 class="h6 text-body-secondary">Actividad</h2>
+    <div class="row g-3">
+      <div class="col-sm-6 col-md-4">{{ f.lista("segmento", "Tipo de cliente", segmentos, v, errores) }}</div>
+      <div class="col-sm-6 col-md-5">{{ f.texto("ocupacion", "Actividad u ocupación", v, errores) }}</div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("antiguedad_meses", "Antigüedad (meses)", v, errores, tipo="number", extra='min="0" max="720"') }}</div>
+    </div>
+  </div></div>
+
+  <div class="card mb-3"><div class="card-body">
+    <h2 class="h6 text-body-secondary">Situación financiera declarada (mensual)</h2>
+    <div class="row g-3">
+      <div class="col-sm-6 col-md-3">{{ f.texto("ingresos_mensuales", "Ingresos (S/)", v, errores, tipo="number", extra='min="0" step="0.01"') }}</div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("gastos_mensuales", "Gastos del hogar y negocio (S/)", v, errores, tipo="number", extra='min="0" step="0.01"') }}</div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("cuotas_otras_deudas", "Cuotas de otras deudas (S/)", v, errores, tipo="number", requerido=false, extra='min="0" step="0.01"') }}</div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("saldo_otras_deudas", "Saldo de otras deudas (S/)", v, errores, tipo="number", requerido=false, extra='min="0" step="0.01"') }}</div>
+      <div class="col-12">{{ f.area("necesidades", "Necesidades financieras", v, errores, requerido=false, filas=2) }}</div>
+    </div>
+  </div></div>
+
+  <div class="card mb-3 border-activa"><div class="card-body">{{ f.consentimiento(v, errores) }}</div></div>
+  <button class="btn btn-activa" type="submit"><i class="bi bi-check2"></i> Guardar expediente</button>
+</form>
+{% endblock %}

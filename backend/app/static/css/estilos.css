@@ -1,21 +1,94 @@
+/* ACTIVA 360° – estilos de la web interna (modo claro y oscuro) */
 :root {
   --activa: #0b5d3b;
+  --activa-oscuro: #08472d;
+  --activa-claro: #e7f3ec;
+  --acento: #f2a900;
+  --menu-fondo: #0a2e22;
+  --menu-texto: #cfe3d8;
 }
+[data-bs-theme="dark"] {
+  --activa: #3fae78;
+  --activa-oscuro: #2f8f61;
+  --activa-claro: #12352a;
+  --menu-fondo: #07140f;
+}
+
+body { background-color: var(--bs-tertiary-bg); }
 
 .bg-activa { background-color: var(--activa); }
 .text-activa { color: var(--activa); }
+.border-activa { border-color: var(--activa) !important; }
+.btn-activa { background-color: var(--activa); border-color: var(--activa); color: #fff; }
+.btn-activa:hover, .btn-activa:focus { background-color: var(--activa-oscuro); border-color: var(--activa-oscuro); color: #fff; }
+.btn-outline-activa { color: var(--activa); border-color: var(--activa); }
+.btn-outline-activa:hover { background-color: var(--activa); color: #fff; }
 
-.btn-activa {
-  background-color: var(--activa);
-  border-color: var(--activa);
-  color: #fff;
+/* ---------- Menú lateral ---------- */
+/* !important: Bootstrap pone offcanvas-lg transparente en pantallas grandes */
+.menu-lateral { --bs-offcanvas-bg: var(--menu-fondo); --bs-offcanvas-color: var(--menu-texto); background-color: var(--menu-fondo) !important; color: var(--menu-texto); }
+@media (min-width: 992px) {
+  .menu-lateral { position: fixed; inset: 0 auto 0 0; width: 250px; overflow-y: auto; z-index: 1030; }
+  .zona-principal { margin-left: 250px; }
 }
-.btn-activa:hover { background-color: #08472d; color: #fff; }
+.marca { color: #fff; font-weight: 700; font-size: 1.15rem; letter-spacing: .02em; }
+.marca-360 { color: var(--acento); }
+.menu-modulo { text-transform: uppercase; font-size: .7rem; letter-spacing: .08em; color: #8fb5a2; padding: .9rem .75rem .3rem; }
+.menu-lateral .nav-link { color: var(--menu-texto); border-radius: .5rem; padding: .45rem .75rem; font-size: .92rem; }
+.menu-lateral .nav-link i { width: 1.4rem; display: inline-block; }
+.menu-lateral .nav-link:hover, .menu-lateral .nav-link:focus-visible { background: rgba(255, 255, 255, .08); color: #fff; }
+.menu-lateral .nav-link.active { background: var(--activa); color: #fff; }
+
+.barra-superior {
+  position: sticky; top: 0; z-index: 1020;
+  display: flex; align-items: center; gap: .75rem;
+  padding: .6rem 1rem; background: var(--bs-body-bg); border-bottom: 1px solid var(--bs-border-color);
+}
+.contenido { padding: 1.25rem 1rem 2rem; max-width: 1320px; }
+@media (min-width: 768px) { .contenido { padding: 1.5rem 2rem 2.5rem; } }
+
+/* ---------- Tarjetas e indicadores ---------- */
+.card { border-color: var(--bs-border-color-translucent); }
+.kpi { border: 0; border-left: 4px solid var(--activa); }
+.kpi .kpi-valor { font-size: 1.75rem; font-weight: 700; line-height: 1.1; }
+.kpi .kpi-titulo { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--bs-secondary-color); }
+.kpi.kpi-alerta { border-left-color: #dc3545; }
+.kpi.kpi-aviso { border-left-color: var(--acento); }
+.kpi.kpi-info { border-left-color: #0d6efd; }
+a.kpi { text-decoration: none; color: inherit; }
+a.kpi:hover { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .12); }
 
 .opcion-pendiente { opacity: .75; }
 .opcion-activa { transition: box-shadow .15s; }
 .opcion-activa:hover { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .12); }
-
-.border-activa { border-color: var(--activa); }
 .matriz { font-size: .75rem; }
 
+/* Semáforo de riesgos: el color siempre va con su texto */
+.semaforo { display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; }
+.semaforo::before { content: ""; width: .85rem; height: .85rem; border-radius: 50%; background: currentColor; }
+.semaforo-verde { color: #198754; }
+.semaforo-amarillo { color: #b58100; }
+.semaforo-rojo { color: #dc3545; }
+[data-bs-theme="dark"] .semaforo-verde { color: #4cc38a; }
+[data-bs-theme="dark"] .semaforo-amarillo { color: #f2c94c; }
+[data-bs-theme="dark"] .semaforo-rojo { color: #ff6b6b; }
+
+/* Embudo comercial */
+.embudo-barra { height: 1.6rem; background: var(--activa); border-radius: .35rem; min-width: 2px; }
+
+/* Aviso de datos de demostración */
+.aviso-demo { border-left: 4px solid var(--acento); }
+
+/* ---------- Modo oscuro: clases fijas de las plantillas antiguas ---------- */
+[data-bs-theme="dark"] .bg-white, [data-bs-theme="dark"] .bg-light { background-color: var(--bs-body-bg) !important; }
+[data-bs-theme="dark"] .table-light { --bs-table-bg: var(--bs-secondary-bg); --bs-table-color: var(--bs-body-color); --bs-table-border-color: var(--bs-border-color); }
+[data-bs-theme="dark"] .text-bg-light { background-color: var(--bs-secondary-bg) !important; color: var(--bs-body-color) !important; }
+[data-bs-theme="dark"] .text-dark { color: var(--bs-body-color) !important; }
+
+/* Foco visible para navegación con teclado */
+a:focus-visible, button:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+@media print {
+  .menu-lateral, .barra-superior, .no-imprimir { display: none !important; }
+  .zona-principal { margin-left: 0 !important; }
+}

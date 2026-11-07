@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Alertas de seguridad{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Alertas de seguridad</h1>
+<p class="text-body-secondary small">Intentos fallidos de inicio de sesión, bloqueos por intentos y accesos denegados de los últimos {{ datos.dias }} días.
+  Son señales para revisar, no una detección de fraude.</p>
+<form class="d-flex gap-2 align-items-end mb-3" method="get">
+  <div>
+    <label class="form-label small" for="dias">Días</label>
+    <select class="form-select form-select-sm" id="dias" name="dias">
+      {% for d in (1, 7, 30, 90) %}<option value="{{ d }}" {{ 'selected' if datos.dias == d }}>{{ d }}</option>{% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-sm btn-activa" type="submit">Ver</button>
+</form>
+{% if datos.filas %}
+<div class="card"><div class="card-body">
+  <div class="table-responsive">
+  <table class="table table-sm align-middle mb-0" data-tabla>
+    <thead><tr><th>Evento</th><th>Correo</th><th class="text-end">Veces</th><th>Último</th></tr></thead>
+    <tbody>
+      {% for f in datos.filas %}
+      <tr class="{{ 'table-danger' if f.accion == 'login_bloqueado' }}">
+        <td class="small">{{ acciones.get(f.accion, f.accion) }}</td>
+        <td class="small">{{ f.email or "—" }}</td>
+        <td class="text-end">{{ f.cantidad }}</td>
+        <td class="small">{{ f.ultimo|fecha_hora }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div></div>
+{% else %}
+<div class="alert alert-success"><i class="bi bi-shield-check"></i> Sin eventos de seguridad en este periodo.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}Clientes{% endblock %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-0">Expedientes de clientes</h1>
+    <p class="text-body-secondary small mb-0">
+      {% if usuario.rol == "asesor" %}Solo ves los expedientes que tienes a tu cargo.
+      {% elif usuario.rol == "analista_riesgos" %}Solo ves expedientes con solicitudes enviadas a evaluación.
+      {% else %}Todos los expedientes.{% endif %}</p>
+  </div>
+  {% if usuario.rol in ("asesor", "gerente") %}
+  <a class="btn btn-activa" href="/clientes/nuevo"><i class="bi bi-folder-plus"></i> Nuevo expediente</a>
+  {% endif %}
+</div>
+
+{% if clientes %}
+<div class="card"><div class="card-body">
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0" data-tabla>
+    <thead><tr><th>Cliente</th><th>DNI</th><th>Tipo</th><th>Región</th><th>Ingresos</th><th>Solicitudes</th><th>Asesor</th></tr></thead>
+    <tbody>
+      {% for c in clientes %}
+      <tr>
+        <td><a class="fw-semibold" href="/clientes/{{ c.id }}">{{ c.nombres }}</a><div class="small text-body-secondary">{{ c.ocupacion }}</div></td>
+        <td class="small">{{ c.dni }}</td>
+        <td class="small">{{ segmentos.get(c.segmento, c.segmento) }}</td>
+        <td class="small">{{ regiones.get(c.region, c.region) }}</td>
+        <td class="small text-nowrap">{{ c.ingresos_mensuales|soles }}</td>
+        <td class="small">{{ c.solicitudes|length }}</td>
+        <td class="small">{{ c.asesor.nombre }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div></div>
+{% else %}
+<div class="text-center text-body-secondary py-5">
+  <i class="bi bi-folder2-open fs-1 d-block mb-2"></i>No hay expedientes para mostrar.
+  {% if usuario.rol in ("asesor", "gerente") %}Crea uno nuevo o conviértelo desde un <a href="/prospectos">prospecto</a>.{% endif %}
+</div>
+{% endif %}
+{% endblock %}

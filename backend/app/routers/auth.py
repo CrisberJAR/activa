@@ -6,13 +6,31 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import Usuario
 from app.security import autenticar, crear_token, usuario_api
+from app.services import auditoria
 from app.templating import templates
 
 router = APIRouter()
 
 
 def destino(usuario: Usuario) -> str:
-    return "/gerente" if usuario.rol == "gerente" else "/asesor"
+    return "/panel"
+
+
+def ingresar(db: Session, email: str, password: str) -> tuple[Usuario | None, str | None]:
+    """Verifica la contraseña respetando el límite de intentos y deja todo en la auditoría."""
+    email = email.strip().lower()[:160]
+    if auditoria.esta_bloqueado(db, email):
+        auditoria.registrar(db, "login_bloqueado", email=email)
+        db.commit()
+        return None, auditoria.mensaje_bloqueo()
+    usuario = autenticar(db, email, password)
+    if not usuario:
+        auditoria.registrar(db, "login_fallido", email=email)
+        db.commit()
+        return None, "Correo o contraseña incorrectos"
+    auditoria.registrar(db, "login_ok", usuario)
+    db.commit()
+    return usuario, None
 
 
 @router.get("/login")
@@ -31,13 +49,13 @@ def login(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    usuario = autenticar(db, email, password)
-    if not usuario:
+    usuario, error = ingresar(db, email, password)
+    if error:
         return templates.TemplateResponse(
             request,
             "login.html",
-            {"error": "Correo o contraseña incorrectos", "email": email},
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            {"error": error, "email": email},
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS if error == auditoria.mensaje_bloqueo() else status.HTTP_401_UNAUTHORIZED,
         )
     request.session.clear()
     request.session["usuario_id"] = usuario.id
@@ -54,9 +72,10 @@ def logout(request: Request):
 
 @router.post("/api/auth/token")
 def token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    usuario = autenticar(db, form.username, form.password)
-    if not usuario:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Correo o contraseña incorrectos")
+    usuario, error = ingresar(db, form.username, form.password)
+    if error:
+        codigo = status.HTTP_429_TOO_MANY_REQUESTS if error == auditoria.mensaje_bloqueo() else status.HTTP_401_UNAUTHORIZED
+        raise HTTPException(codigo, error)
     return {"access_token": crear_token(usuario), "token_type": "bearer", "rol": usuario.rol}
 
 

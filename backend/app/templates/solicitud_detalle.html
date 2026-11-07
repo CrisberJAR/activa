@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block titulo %}Solicitud #{{ s.id }}{% endblock %}
+{% block contenido %}
+<a class="small" href="/solicitudes"><i class="bi bi-arrow-left"></i> Solicitudes</a>
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 my-2">
+  <div>
+    <h1 class="h3 mb-1">Solicitud #{{ s.id }} · {{ producto.nombre or s.producto }}</h1>
+    <span class="badge text-bg-{{ colores[s.estado] }}">{{ estados[s.estado] }}</span>
+    <span class="small text-body-secondary ms-1">
+      <a href="/clientes/{{ c.id }}">{{ c.nombres }}</a>
+      · {{ segmentos.get(c.segmento) }} · asesor {{ s.asesor.nombre }}</span>
+  </div>
+  {% if editable %}
+  <a class="btn btn-outline-secondary" href="/solicitudes/{{ s.id }}/editar"><i class="bi bi-pencil"></i> Editar</a>
+  {% endif %}
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card mb-3"><div class="card-body">
+      <h2 class="h6">Condiciones solicitadas</h2>
+      <dl class="row small mb-0">
+        <dt class="col-5">Monto</dt><dd class="col-7">{{ s.monto|soles }}</dd>
+        <dt class="col-5">Plazo / frecuencia</dt><dd class="col-7">{{ s.plazo_meses }} meses · {{ frecuencias[s.frecuencia].nombre }}</dd>
+        <dt class="col-5">Destino</dt><dd class="col-7">{{ s.destino }}</dd>
+        {% if s.campana %}<dt class="col-5">Campaña</dt><dd class="col-7">{{ s.campana.nombre }}</dd>{% endif %}
+        {% for campo in campos_perfil %}
+        <dt class="col-5">{{ campo.etiqueta }}</dt>
+        <dd class="col-7">{% set x = s.datos_perfil.get(campo.campo) %}{% if x is none %}—{% elif campo.tipo == "numero" %}{{ "{:,.2f}".format(x) }}{% else %}{{ x }}{% endif %}</dd>
+        {% endfor %}
+      </dl>
+    </div></div>
+
+    {% if simulacion %}
+    <div class="card mb-3"><div class="card-body">
+      <h2 class="h6">Cuota referencial</h2>
+      <div class="alert alert-warning aviso-demo small py-2 mb-2">{{ aviso_demo }}</div>
+      <div class="row text-center g-2">
+        <div class="col-4"><div class="small text-body-secondary">Cuota {{ frecuencias[s.frecuencia].nombre|lower }}</div><div class="fw-bold">{{ simulacion.cuota|soles }}</div></div>
+        <div class="col-4"><div class="small text-body-secondary">N.° de cuotas</div><div class="fw-bold">{{ simulacion.n_cuotas }}</div></div>
+        <div class="col-4"><div class="small text-body-secondary">Total estimado</div><div class="fw-bold">{{ simulacion.total_pagar|soles }}</div></div>
+      </div>
+      <a class="small" href="/simulador?monto={{ s.monto }}&plazo_meses={{ s.plazo_meses }}&frecuencia={{ s.frecuencia }}&producto={{ s.producto }}">Ver cronograma en el simulador</a>
+    </div></div>
+    {% endif %}
+
+    <div class="card mb-3" id="documentos"><div class="card-body">
+      <h2 class="h6">Documentos (lista de control)</h2>
+      <p class="small text-body-secondary">No se suben archivos: se registra quién revisó cada documento físico o digital.</p>
+      <ul class="list-group list-group-flush">
+        {% for d in s.documentos %}
+        <li class="list-group-item px-0">
+          <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center">
+            <div>
+              <div class="fw-semibold small">{{ documentos_nombres.get(d.tipo, d.tipo) }}</div>
+              {% set col = {"pendiente": "secondary", "recibido": "info", "validado": "success", "observado": "warning"} %}
+              <span class="badge text-bg-{{ col[d.estado] }}">{{ doc_estados[d.estado] }}</span>
+              {% if d.revisor %}<span class="small text-body-secondary">· {{ d.revisor.nombre }}, {{ d.revisado_en|fecha_hora }}</span>{% endif %}
+              {% if d.observacion %}<div class="small text-warning-emphasis">{{ d.observacion }}</div>{% endif %}
+            </div>
+            {% if puede_documentos %}
+            <form class="d-flex flex-wrap gap-1" method="post" action="/solicitudes/{{ s.id }}/documentos/{{ d.id }}">
+              <label class="visually-hidden" for="doc-{{ d.id }}">Estado</label>
+              <select class="form-select form-select-sm" style="width: auto" id="doc-{{ d.id }}" name="estado">
+                {% for k, t in doc_estados.items() %}<option value="{{ k }}" {{ 'selected' if d.estado == k }}>{{ t }}</option>{% endfor %}
+              </select>
+              <label class="visually-hidden" for="obs-{{ d.id }}">Observación</label>
+              <input class="form-control form-control-sm" style="width: 11rem" id="obs-{{ d.id }}" name="observacion" placeholder="Observación" value="{{ d.observacion or '' }}">
+              <button class="btn btn-sm btn-outline-activa" type="submit">Guardar</button>
+            </form>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div></div>
+
+    <div class="card mb-3"><div class="card-body">
+      <h2 class="h6">Historial</h2>
+      <ul class="list-unstyled small mb-0">
+        {% for m in s.movimientos %}
+        <li class="mb-2"><span class="text-body-secondary">{{ m.creado_en|fecha_hora }}</span> · <strong>{{ m.usuario.nombre }}</strong>:
+          {{ estados.get(m.estado_anterior, "—") if m.estado_anterior else "Creación" }} → {{ estados.get(m.estado_nuevo) }}
+          {% if m.comentario %}<div class="ps-2 border-start">{{ m.comentario }}</div>{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card mb-3" id="riesgos"><div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h6 mb-0"><i class="bi bi-shield-check text-activa"></i> Evaluación preliminar</h2>
+        {% if s.estado not in ("aprobada", "denegada", "desistida") %}
+        <form method="post" action="/solicitudes/{{ s.id }}/evaluar">
+          <button class="btn btn-sm btn-outline-activa" type="submit"><i class="bi bi-arrow-repeat"></i> Evaluar ahora</button>
+        </form>
+        {% endif %}
+      </div>
+      {% include "_evaluacion.html" %}
+    </div></div>
+
+    <div class="card mb-3 border-activa" id="acciones"><div class="card-body">
+      <h2 class="h6">Acciones</h2>
+      {% if acciones %}
+      <form method="post" action="/solicitudes/{{ s.id }}/accion" data-confirmar="¿Confirmas el cambio de estado de la solicitud?">
+        <label class="form-label small" for="accion">Acción</label>
+        <select class="form-select form-select-sm mb-2" id="accion" name="accion" required>
+          {% for a in acciones %}<option value="{{ a }}">{{ acciones_texto[a] }}{{ " (requiere comentario)" if requiere_comentario[a] }}</option>{% endfor %}
+        </select>
+        <label class="form-label small" for="comentario">Comentario u observación</label>
+        <textarea class="form-control form-control-sm mb-2" id="comentario" name="comentario" rows="3"></textarea>
+        <button class="btn btn-activa btn-sm" type="submit">Registrar</button>
+      </form>
+      {% if "aprobar" in acciones %}
+      <p class="small text-body-secondary mt-2 mb-0">Aprobar o denegar es una decisión humana. El semáforo solo orienta la revisión.</p>
+      {% endif %}
+      {% else %}
+      <p class="small text-body-secondary mb-0">No hay acciones disponibles para tu rol en el estado actual.</p>
+      {% endif %}
+      {% if s.estado == "aprobada" and usuario.rol == "gerente" %}
+      <a class="btn btn-sm btn-outline-activa mt-2" href="/recuperaciones/creditos/nuevo?solicitud_id={{ s.id }}"><i class="bi bi-wallet2"></i> Registrar crédito desembolsado</a>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

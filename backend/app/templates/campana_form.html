@@ -57,6 +57,30 @@
         {{ c.error("tipo_cliente") }}
       </div>
       <div class="col-md-4">{{ c.texto("zona", "Zona") }}</div>
+      <div class="col-md-4">
+        <label class="form-label" for="segmento">Segmento (opcional)</label>
+        <select class="form-select{{ c.invalido('segmento') }}" id="segmento" name="segmento">
+          <option value="">Todos los segmentos</option>
+          {% for valor, texto in segmentos.items() %}<option value="{{ valor }}" {% if v.get("segmento") == valor %}selected{% endif %}>{{ texto }}</option>{% endfor %}
+        </select>
+        {{ c.error("segmento") }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="region">Región (opcional)</label>
+        <select class="form-select{{ c.invalido('region') }}" id="region" name="region">
+          <option value="">Todas las regiones</option>
+          {% for valor, texto in regiones.items() %}<option value="{{ valor }}" {% if v.get("region") == valor %}selected{% endif %}>{{ texto }}</option>{% endfor %}
+        </select>
+        {{ c.error("region") }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="producto">Producto (opcional)</label>
+        <select class="form-select{{ c.invalido('producto') }}" id="producto" name="producto">
+          <option value="">Sin producto específico</option>
+          {% for valor, p in productos.items() %}<option value="{{ valor }}" {% if v.get("producto") == valor %}selected{% endif %}>{{ p.nombre }}</option>{% endfor %}
+        </select>
+        {{ c.error("producto") }}
+      </div>
     </div>
   </div>
 

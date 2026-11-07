@@ -2,22 +2,26 @@ from app.config import cargar_umbrales, settings
 from tests.conftest import ASESOR, GERENTE, iniciar_sesion
 
 
-def test_asesor_inicia_sesion_y_ve_su_menu(client):
+def test_asesor_inicia_sesion_y_ve_su_panel(client):
     r = iniciar_sesion(client, ASESOR)
     assert r.status_code == 303
-    assert r.headers["location"] == "/asesor"
-    r = client.get("/asesor")
+    assert r.headers["location"] == "/panel"
+    r = client.get("/panel")
     assert r.status_code == 200
-    assert "Menú del asesor" in r.text
-    assert "Publicar campañas" not in r.text
+    assert "Panel de asesor de negocios" in r.text
+    assert 'href="/usuarios"' not in r.text  # Administración solo para el gerente
+    assert 'href="/recuperaciones"' not in r.text
+    # Ruta antigua: redirige al panel
+    assert client.get("/asesor", follow_redirects=False).headers["location"] == "/panel"
 
 
-def test_gerente_inicia_sesion_y_ve_su_menu(client):
+def test_gerente_inicia_sesion_y_ve_su_panel(client):
     r = iniciar_sesion(client, GERENTE)
-    assert r.headers["location"] == "/gerente"
-    r = client.get("/gerente")
+    assert r.headers["location"] == "/panel"
+    r = client.get("/panel")
     assert r.status_code == 200
-    assert "Publicar campañas" in r.text
+    for modulo in ("Comercial", "Negocios", "Riesgos", "Recuperaciones", "Administración"):
+        assert modulo in r.text
 
 
 def test_contrasena_incorrecta(client):

@@ -26,7 +26,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
 
-ROLES = ("asesor", "gerente")
+ROLES = ("asesor", "gerente", "analista_riesgos", "gestor_recuperaciones")
 
 
 class Usuario(Base):
@@ -36,7 +36,7 @@ class Usuario(Base):
     nombre: Mapped[str] = mapped_column(String(120))
     email: Mapped[str] = mapped_column(String(160), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(100))
-    rol: Mapped[str] = mapped_column(String(20))  # asesor | gerente
+    rol: Mapped[str] = mapped_column(String(30))  # asesor | gerente | analista_riesgos | gestor_recuperaciones
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -205,3 +205,323 @@ class AnalisisBloque(Base):
     texto_patron: Mapped[str | None] = mapped_column(Text)
     tipo_campana_sugerida: Mapped[str | None] = mapped_column(String(60))
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Auditoria(Base):
+    """Registro de acciones importantes: quién hizo qué y cuándo (sin datos personales de clientes)."""
+
+    __tablename__ = "auditoria"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    usuario_id: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"), index=True)
+    email: Mapped[str | None] = mapped_column(String(160), index=True)  # correo usado al iniciar sesión
+    accion: Mapped[str] = mapped_column(String(40), index=True)  # login_ok, campana_publicada…
+    detalle: Mapped[str | None] = mapped_column(Text)  # solo identificadores, nunca nombres ni teléfonos
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+    usuario: Mapped["Usuario | None"] = relationship()
+
+
+# =====================================================================
+# ACTIVA 360° · Módulo COMERCIAL (Fase 9)
+# =====================================================================
+
+ESTADOS_PROSPECTO = ("nuevo", "contactado", "interesado", "solicitud", "evaluacion", "convertido", "no_convertido")
+
+
+class Prospecto(Base):
+    """Cliente potencial y su avance en el embudo comercial."""
+
+    __tablename__ = "prospectos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(120))
+    telefono: Mapped[str] = mapped_column(String(20))
+    dni: Mapped[str | None] = mapped_column(String(8), index=True)
+    segmento: Mapped[str] = mapped_column(String(30))  # clave de catalogos.SEGMENTOS
+    actividad: Mapped[str] = mapped_column(String(120))  # actividad económica u ocupación
+    necesidad: Mapped[str] = mapped_column(Text)
+    region: Mapped[str] = mapped_column(String(30))  # clave de catalogos.REGIONES
+    ubicacion: Mapped[str | None] = mapped_column(String(120))  # provincia o distrito (ubicación general)
+    monto_solicitado: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    contacto_preferido: Mapped[str] = mapped_column(String(20))
+    consentimiento: Mapped[bool] = mapped_column(Boolean)  # Ley 29733, obligatorio
+    estado: Mapped[str] = mapped_column(String(20), default="nuevo", index=True)
+    origen: Mapped[str] = mapped_column(String(20), default="manual")  # manual | chatbot
+    asesor_id: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"), index=True)  # asesor asignado
+    campana_id: Mapped[int | None] = mapped_column(ForeignKey("campanas.id"), index=True)
+    interesado_id: Mapped[int | None] = mapped_column(ForeignKey("interesados.id"))
+    proxima_accion: Mapped[date | None] = mapped_column(Date)  # fecha de la siguiente actividad
+    creado_por: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+
+    asesor: Mapped["Usuario | None"] = relationship(foreign_keys=[asesor_id])
+    campana: Mapped["Campana | None"] = relationship()
+    contactos: Mapped[list["ContactoProspecto"]] = relationship(
+        back_populates="prospecto", order_by="ContactoProspecto.id.desc()", cascade="all, delete-orphan"
+    )
+
+
+class ContactoProspecto(Base):
+    """Cada contacto con un prospecto: fecha, canal y resultado."""
+
+    __tablename__ = "contactos_prospecto"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prospecto_id: Mapped[int] = mapped_column(ForeignKey("prospectos.id"), index=True)
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    canal: Mapped[str] = mapped_column(String(20))
+    resultado: Mapped[str] = mapped_column(Text)
+    estado_nuevo: Mapped[str] = mapped_column(String(20))
+    proxima_accion: Mapped[date | None] = mapped_column(Date)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    prospecto: Mapped[Prospecto] = relationship(back_populates="contactos")
+    usuario: Mapped[Usuario] = relationship()
+
+
+# =====================================================================
+# ACTIVA 360° · Módulo de NEGOCIOS (Fase 10)
+# =====================================================================
+
+ESTADOS_SOLICITUD = ("borrador", "enviada", "en_evaluacion", "observada", "evaluada", "aprobada", "denegada", "desistida")
+
+
+class Cliente(Base):
+    """Expediente financiero del cliente (datos declarados, con consentimiento)."""
+
+    __tablename__ = "clientes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    dni: Mapped[str] = mapped_column(String(8), unique=True, index=True)
+    nombres: Mapped[str] = mapped_column(String(120))
+    telefono: Mapped[str] = mapped_column(String(20), index=True)
+    email: Mapped[str | None] = mapped_column(String(160))
+    segmento: Mapped[str] = mapped_column(String(30))
+    ocupacion: Mapped[str] = mapped_column(String(120))
+    region: Mapped[str] = mapped_column(String(30))
+    ubicacion: Mapped[str | None] = mapped_column(String(120))
+    ingresos_mensuales: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    gastos_mensuales: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    antiguedad_meses: Mapped[int] = mapped_column(Integer)  # antigüedad en la actividad o empleo
+    cuotas_otras_deudas: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=0)  # pago mensual declarado
+    saldo_otras_deudas: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=0)
+    necesidades: Mapped[str | None] = mapped_column(Text)
+    consentimiento: Mapped[bool] = mapped_column(Boolean)  # Ley 29733
+    prospecto_id: Mapped[int | None] = mapped_column(ForeignKey("prospectos.id"))
+    asesor_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), index=True)  # responsable del expediente
+    creado_por: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+
+    asesor: Mapped[Usuario] = relationship(foreign_keys=[asesor_id])
+    solicitudes: Mapped[list["Solicitud"]] = relationship(back_populates="cliente", order_by="Solicitud.id.desc()")
+
+
+class Solicitud(Base):
+    """Solicitud de crédito digital (no hay desembolsos ni movimientos de dinero)."""
+
+    __tablename__ = "solicitudes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cliente_id: Mapped[int] = mapped_column(ForeignKey("clientes.id"), index=True)
+    asesor_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), index=True)
+    producto: Mapped[str] = mapped_column(String(40))  # clave de config/productos.yaml
+    monto: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    plazo_meses: Mapped[int] = mapped_column(Integer)
+    frecuencia: Mapped[str] = mapped_column(String(20))  # mensual | quincenal | semanal
+    destino: Mapped[str] = mapped_column(Text)
+    datos_perfil: Mapped[dict] = mapped_column(JSON, default=dict)  # campos según el tipo de cliente
+    estado: Mapped[str] = mapped_column(String(20), default="borrador", index=True)
+    campana_id: Mapped[int | None] = mapped_column(ForeignKey("campanas.id"))
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+
+    cliente: Mapped[Cliente] = relationship(back_populates="solicitudes")
+    asesor: Mapped[Usuario] = relationship()
+    campana: Mapped["Campana | None"] = relationship()
+    documentos: Mapped[list["DocumentoSolicitud"]] = relationship(
+        back_populates="solicitud", order_by="DocumentoSolicitud.id", cascade="all, delete-orphan"
+    )
+    movimientos: Mapped[list["MovimientoSolicitud"]] = relationship(
+        back_populates="solicitud", order_by="MovimientoSolicitud.id.desc()", cascade="all, delete-orphan"
+    )
+    evaluaciones: Mapped[list["EvaluacionRiesgo"]] = relationship(
+        back_populates="solicitud", order_by="EvaluacionRiesgo.id.desc()", cascade="all, delete-orphan"
+    )
+
+
+class DocumentoSolicitud(Base):
+    """Lista de control de documentos (no se suben archivos: se registra su revisión)."""
+
+    __tablename__ = "documentos_solicitud"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    solicitud_id: Mapped[int] = mapped_column(ForeignKey("solicitudes.id"), index=True)
+    tipo: Mapped[str] = mapped_column(String(40))
+    estado: Mapped[str] = mapped_column(String(20), default="pendiente")  # pendiente | recibido | validado | observado
+    observacion: Mapped[str | None] = mapped_column(Text)
+    revisado_por: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"))
+    revisado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    solicitud: Mapped[Solicitud] = relationship(back_populates="documentos")
+    revisor: Mapped["Usuario | None"] = relationship()
+
+
+class MovimientoSolicitud(Base):
+    """Historial de estados y observaciones de una solicitud."""
+
+    __tablename__ = "movimientos_solicitud"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    solicitud_id: Mapped[int] = mapped_column(ForeignKey("solicitudes.id"), index=True)
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    estado_anterior: Mapped[str | None] = mapped_column(String(20))
+    estado_nuevo: Mapped[str] = mapped_column(String(20))
+    comentario: Mapped[str | None] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    solicitud: Mapped[Solicitud] = relationship(back_populates="movimientos")
+    usuario: Mapped[Usuario] = relationship()
+
+
+# =====================================================================
+# ACTIVA 360° · Módulo de RIESGOS (Fase 11)
+# =====================================================================
+
+class EvaluacionRiesgo(Base):
+    """Evaluación preliminar y explicable. NO aprueba ni rechaza: solo alerta para revisión humana."""
+
+    __tablename__ = "evaluaciones_riesgo"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    solicitud_id: Mapped[int] = mapped_column(ForeignKey("solicitudes.id"), index=True)
+    version_umbrales: Mapped[str] = mapped_column(String(30))
+    semaforo: Mapped[str] = mapped_column(String(10), index=True)  # verde | amarillo | rojo
+    indicadores: Mapped[dict] = mapped_column(JSON)
+    alertas: Mapped[list] = mapped_column(JSON)  # [{nivel, codigo, mensaje}]
+    opinion: Mapped[str | None] = mapped_column(Text)  # comentario del analista
+    opinion_por: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"))
+    creado_por: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    solicitud: Mapped[Solicitud] = relationship(back_populates="evaluaciones")
+    autor: Mapped[Usuario] = relationship(foreign_keys=[creado_por])
+    analista: Mapped["Usuario | None"] = relationship(foreign_keys=[opinion_por])
+
+
+# =====================================================================
+# ACTIVA 360° · Módulo de RECUPERACIONES (Fase 12)
+# =====================================================================
+
+class Credito(Base):
+    """Crédito ya desembolsado por la entidad, registrado SOLO para su seguimiento."""
+
+    __tablename__ = "creditos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cliente_id: Mapped[int] = mapped_column(ForeignKey("clientes.id"), index=True)
+    solicitud_id: Mapped[int | None] = mapped_column(ForeignKey("solicitudes.id"))
+    producto: Mapped[str] = mapped_column(String(40))
+    monto: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    tea: Mapped[Decimal] = mapped_column(Numeric(7, 3))  # tasa efectiva anual registrada (%)
+    plazo_meses: Mapped[int] = mapped_column(Integer)
+    frecuencia: Mapped[str] = mapped_column(String(20))
+    fecha_desembolso: Mapped[date] = mapped_column(Date)
+    estado: Mapped[str] = mapped_column(String(20), default="vigente", index=True)  # vigente | cancelado
+    gestor_id: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"), index=True)
+    registrado_por: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    cliente: Mapped[Cliente] = relationship()
+    gestor: Mapped["Usuario | None"] = relationship(foreign_keys=[gestor_id])
+    cuotas: Mapped[list["Cuota"]] = relationship(back_populates="credito", order_by="Cuota.numero", cascade="all, delete-orphan")
+    pagos: Mapped[list["Pago"]] = relationship(back_populates="credito", order_by="Pago.id.desc()", cascade="all, delete-orphan")
+    gestiones: Mapped[list["GestionCobranza"]] = relationship(
+        back_populates="credito", order_by="GestionCobranza.id.desc()", cascade="all, delete-orphan")
+    compromisos: Mapped[list["CompromisoPago"]] = relationship(
+        back_populates="credito", order_by="CompromisoPago.id.desc()", cascade="all, delete-orphan")
+    reprogramaciones: Mapped[list["Reprogramacion"]] = relationship(
+        back_populates="credito", order_by="Reprogramacion.id.desc()", cascade="all, delete-orphan")
+
+
+class Cuota(Base):
+    __tablename__ = "cuotas"
+    __table_args__ = (UniqueConstraint("credito_id", "numero"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    credito_id: Mapped[int] = mapped_column(ForeignKey("creditos.id"), index=True)
+    numero: Mapped[int] = mapped_column(Integer)
+    fecha_vencimiento: Mapped[date] = mapped_column(Date, index=True)
+    capital: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    interes: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    monto: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    pagado: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=0)
+    fecha_pago: Mapped[date | None] = mapped_column(Date)  # cuando quedó pagada por completo
+
+    credito: Mapped[Credito] = relationship(back_populates="cuotas")
+
+
+class Pago(Base):
+    """Pago informado por la entidad (registro manual; la plataforma no mueve dinero)."""
+
+    __tablename__ = "pagos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    credito_id: Mapped[int] = mapped_column(ForeignKey("creditos.id"), index=True)
+    fecha: Mapped[date] = mapped_column(Date)
+    monto: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    observacion: Mapped[str | None] = mapped_column(Text)
+    registrado_por: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    credito: Mapped[Credito] = relationship(back_populates="pagos")
+
+
+class GestionCobranza(Base):
+    __tablename__ = "gestiones_cobranza"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    credito_id: Mapped[int] = mapped_column(ForeignKey("creditos.id"), index=True)
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    canal: Mapped[str] = mapped_column(String(20))
+    resultado: Mapped[str] = mapped_column(String(30))  # clave de config/recuperaciones.yaml
+    observacion: Mapped[str | None] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    credito: Mapped[Credito] = relationship(back_populates="gestiones")
+    usuario: Mapped[Usuario] = relationship()
+
+
+class CompromisoPago(Base):
+    __tablename__ = "compromisos_pago"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    credito_id: Mapped[int] = mapped_column(ForeignKey("creditos.id"), index=True)
+    fecha: Mapped[date] = mapped_column(Date, index=True)
+    monto: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    estado: Mapped[str] = mapped_column(String(20), default="pendiente")  # pendiente | cumplido | incumplido
+    creado_por: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    credito: Mapped[Credito] = relationship(back_populates="compromisos")
+
+
+class Reprogramacion(Base):
+    """Pedido de reprogramación o refinanciamiento: siempre lo revisa una persona (gerente)."""
+
+    __tablename__ = "reprogramaciones"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    credito_id: Mapped[int] = mapped_column(ForeignKey("creditos.id"), index=True)
+    tipo: Mapped[str] = mapped_column(String(20))  # reprogramacion | refinanciamiento
+    motivo: Mapped[str] = mapped_column(Text)
+    estado: Mapped[str] = mapped_column(String(20), default="pendiente")  # pendiente | aprobada | rechazada
+    solicitada_por: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    revisada_por: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"))
+    comentario_revision: Mapped[str | None] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    revisado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    credito: Mapped[Credito] = relationship(back_populates="reprogramaciones")

@@ -10,6 +10,7 @@ from app.config import cargar_yaml
 from app.db import get_db
 from app.models import Conversacion, Interesado, Usuario
 from app.security import requiere_rol
+from app.services.auditoria import registrar
 from app.templating import avisar, templates
 
 router = APIRouter(prefix="/interesados")
@@ -60,6 +61,7 @@ def cambiar_atendido(
     if not interesado:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Interesado no encontrado")
     interesado.atendido = not interesado.atendido
+    registrar(db, "interesado_atendido" if interesado.atendido else "interesado_reabierto", usuario, f"interesado {interesado.id}")
     db.commit()
     avisar(request, f"{interesado.nombre}: {'marcado como atendido' if interesado.atendido else 'vuelve a pendientes'}")
     volver = estado if estado in ("pendientes", "atendidos", "todos") else "pendientes"

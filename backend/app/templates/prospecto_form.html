@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "_form360.html" as f %}
+{% block titulo %}{{ "Editar prospecto" if p else "Nuevo prospecto" }}{% endblock %}
+{% block contenido %}
+<a class="small" href="{{ '/prospectos/' ~ p.id if p else '/prospectos' }}"><i class="bi bi-arrow-left"></i> Volver</a>
+<h1 class="h3 my-2">{{ "Editar prospecto" if p else "Nuevo prospecto" }}</h1>
+{% if errores %}<div class="alert alert-danger" role="alert">Revisa los campos marcados en rojo.</div>{% endif %}
+
+<form method="post" novalidate>
+  <div class="card mb-3"><div class="card-body">
+    <h2 class="h6 text-body-secondary">Datos de contacto</h2>
+    <div class="row g-3">
+      <div class="col-md-5">{{ f.texto("nombre", "Nombre", v, errores) }}</div>
+      <div class="col-sm-6 col-md-4">{{ f.texto("telefono", "Celular", v, errores, tipo="tel", extra='inputmode="numeric" maxlength="11"') }}</div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("dni", "DNI", v, errores, requerido=false, extra='inputmode="numeric" maxlength="8"') }}</div>
+      <div class="col-sm-6 col-md-4">{{ f.lista("contacto_preferido", "Contacto preferido", canales, v, errores) }}</div>
+    </div>
+  </div></div>
+
+  <div class="card mb-3"><div class="card-body">
+    <h2 class="h6 text-body-secondary">Perfil y necesidad</h2>
+    <div class="row g-3">
+      <div class="col-sm-6 col-md-4">{{ f.lista("segmento", "Tipo de cliente", segmentos, v, errores) }}</div>
+      <div class="col-sm-6 col-md-8">{{ f.texto("actividad", "Actividad económica u ocupación", v, errores, ayuda="Ej.: venta de abarrotes, mototaxi, docente, cultivo de papa") }}</div>
+      <div class="col-12">{{ f.area("necesidad", "Necesidad financiera", v, errores) }}</div>
+      <div class="col-sm-6 col-md-4">{{ f.texto("monto_solicitado", "Monto aproximado (S/)", v, errores, tipo="number", requerido=false, extra='min="1" step="0.01"') }}</div>
+      <div class="col-sm-6 col-md-4">{{ f.lista("region", "Región", regiones, v, errores) }}</div>
+      <div class="col-md-4">{{ f.texto("ubicacion", "Provincia o distrito", v, errores, requerido=false) }}</div>
+    </div>
+  </div></div>
+
+  <div class="card mb-3"><div class="card-body">
+    <h2 class="h6 text-body-secondary">Seguimiento</h2>
+    <div class="row g-3">
+      <div class="col-md-5">
+        {% set opciones_campana = {} %}
+        {% for c in campanas %}{% set _ = opciones_campana.update({c.id|string: c.nombre}) %}{% endfor %}
+        {{ f.lista("campana_id", "Campaña", opciones_campana, v, errores, requerido=false, vacio="Sin campaña") }}
+      </div>
+      {% if usuario.rol == "gerente" %}
+      <div class="col-sm-6 col-md-4">
+        {% set opciones_asesor = {} %}
+        {% for a in asesores %}{% set _ = opciones_asesor.update({a.id|string: a.nombre}) %}{% endfor %}
+        {{ f.lista("asesor_id", "Asesor asignado", opciones_asesor, v, errores, requerido=false, vacio="Sin asignar") }}
+      </div>
+      {% endif %}
+      <div class="col-sm-6 col-md-3">{{ f.texto("proxima_accion", "Próxima acción", v, errores, tipo="date", requerido=false) }}</div>
+    </div>
+  </div></div>
+
+  <div class="card mb-3 border-activa"><div class="card-body">
+    {{ f.consentimiento(v, errores) }}
+  </div></div>
+
+  <button class="btn btn-activa" type="submit"><i class="bi bi-check2"></i> Guardar</button>
+</form>
+{% endblock %}

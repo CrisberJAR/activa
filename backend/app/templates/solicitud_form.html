@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% import "_form360.html" as f %}
+{% block titulo %}{{ "Editar solicitud" if s else "Nueva solicitud" }}{% endblock %}
+{% block contenido %}
+<a class="small" href="{{ '/solicitudes/' ~ s.id if s else '/clientes/' ~ c.id }}"><i class="bi bi-arrow-left"></i> Volver</a>
+<h1 class="h3 my-2">{{ "Editar solicitud #" ~ s.id if s else "Nueva solicitud" }}</h1>
+<p class="text-body-secondary small mb-2">{{ c.nombres }} · {{ segmentos.get(c.segmento) }}. El formulario se adapta al tipo de cliente.</p>
+{{ f.aviso_demo(aviso_demo) }}
+{% if errores %}<div class="alert alert-danger" role="alert">Revisa los campos marcados en rojo.</div>{% endif %}
+
+<form method="post" novalidate>
+  <div class="card mb-3"><div class="card-body">
+    <h2 class="h6 text-body-secondary">Condiciones solicitadas</h2>
+    {% if not productos %}
+    <div class="alert alert-info small">No hay productos de demostración configurados para este tipo de cliente.</div>
+    {% endif %}
+    <div class="row g-3">
+      <div class="col-md-6">
+        {% set opciones = {} %}
+        {% for k, p in productos.items() %}{% set _ = opciones.update({k: p.nombre ~ " · S/ " ~ "{:,}".format(p.monto_min) ~ " a S/ " ~ "{:,}".format(p.monto_max) ~ ", " ~ p.plazo_min ~ "-" ~ p.plazo_max ~ " meses"}) %}{% endfor %}
+        {{ f.lista("producto", "Producto", opciones, v, errores) }}
+      </div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("monto", "Monto (S/)", v, errores, tipo="number", extra='min="1" step="0.01"') }}</div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("plazo_meses", "Plazo (meses)", v, errores, tipo="number", extra='min="1" max="120"') }}</div>
+      <div class="col-sm-6 col-md-3">{{ f.lista("frecuencia", "Frecuencia de pago", frecuencias, v, errores) }}</div>
+      <div class="col-sm-6 col-md-4">
+        {% set opciones_campana = {} %}
+        {% for cp in campanas %}{% set _ = opciones_campana.update({cp.id|string: cp.nombre}) %}{% endfor %}
+        {{ f.lista("campana_id", "Campaña", opciones_campana, v, errores, requerido=false, vacio="Sin campaña") }}
+      </div>
+      <div class="col-12">{{ f.area("destino", "Destino del crédito", v, errores, filas=2) }}</div>
+    </div>
+  </div></div>
+
+  <div class="card mb-3"><div class="card-body">
+    <h2 class="h6 text-body-secondary">Información de la actividad · {{ segmentos.get(c.segmento) }}</h2>
+    <div class="row g-3">
+      {% for campo in campos_perfil %}
+      <div class="col-sm-6 col-md-4">
+        {% if campo.tipo == "numero" %}
+        {{ f.texto("perfil_" ~ campo.campo, campo.etiqueta, v, errores, tipo="number", requerido=campo.requerido, extra='min="0" step="0.01"') }}
+        {% else %}
+        {{ f.texto("perfil_" ~ campo.campo, campo.etiqueta, v, errores, requerido=campo.requerido) }}
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div></div>
+
+  <button class="btn btn-activa" type="submit"><i class="bi bi-save"></i> Guardar borrador</button>
+  <span class="small text-body-secondary ms-2">Podrás completarla después y enviarla a evaluación.</span>
+</form>
+{% endblock %}

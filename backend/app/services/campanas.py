@@ -67,7 +67,7 @@ def infracciones(contenido: dict) -> list[str]:
 
 FORMATO_JSON = """{
   "nombre": "nombre corto y atractivo de la campaña (máx. 8 palabras)",
-  "propuesta_valor": "2 o 3 frases: qué problema de la temporada resuelve y por qué conviene al cliente",
+  "propuesta_valor": "2 o 3 frases: qué necesidad del público atiende este tipo de campaña y por qué le conviene",
   "decisiones_gerencia": ["3 a 5 decisiones concretas que debe tomar el gerente (presupuesto, asesores, condiciones, metas)"],
   "capacitacion": {
     "speech": "guion de 4 a 6 frases que el asesor dice al cliente, en tono cercano",
@@ -86,7 +86,7 @@ def crear_prompt(entrada: CampanaEntrada, contexto: list[str]) -> str:
     monto = f"S/ {entrada.monto_maximo:.0f}" if entrada.monto_maximo else "según evaluación"
     datos = [
         f"Tipo de campaña: {tipo['nombre']} ({tipo['descripcion']})",
-        f"Temporada: {TEMPORADAS[entrada.temporada]}",
+        f"Temporada en que se lanza (solo referencia de fechas): {TEMPORADAS[entrada.temporada]}",
         f"Público objetivo: {entrada.publico_objetivo}",
         f"Necesidad o riesgo que atiende: {entrada.necesidad}",
         f"Monto máximo: {monto}; plazo: {entrada.plazo_meses} meses; periodo de gracia: {entrada.periodo_gracia_meses} meses",
@@ -95,7 +95,7 @@ def crear_prompt(entrada: CampanaEntrada, contexto: list[str]) -> str:
         f"Presupuesto de difusión: S/ {entrada.presupuesto_difusion:.0f}; meta: {entrada.meta_creditos} créditos",
     ]
     lineas = "\n".join("- " + d for d in datos + contexto)
-    return f"""Eres especialista en marketing de una microfinanciera de Huánuco (Perú) que atiende agricultores, comerciantes de mercado, ambulantes y taxistas.
+    return f"""Eres especialista en marketing de una institución de microfinanzas peruana que atiende a comerciantes, emprendedores, agricultores, transportistas y personas naturales.
 Diseña una campaña crediticia con estos datos:
 {lineas}
 
@@ -103,9 +103,12 @@ Responde SOLO con un JSON válido con exactamente esta estructura (textos en esp
 {FORMATO_JSON}
 
 Reglas obligatorias:
+- El eje de toda la campaña es el TIPO DE CAMPAÑA elegido y la necesidad del público: nombre, propuesta, gancho y mensaje deben hablar de eso.
+- NO hables del clima, las lluvias, el calor ni el frío, salvo que el tipo de campaña o la necesidad indicada trate justamente de eso.
 - NO menciones tasas de interés, TEA, TCEA ni porcentajes de interés: las define la gerencia.
 - NO prometas aprobación: todo crédito está sujeto a evaluación; puedes decir "sujeto a evaluación".
 - No inventes datos de clientes ni cifras que no estén arriba.
+- Ubicación: menciona SOLO la zona y la región indicadas arriba. Si dicen "todo el Perú", "nacional" o "todas", no nombres ninguna ciudad, provincia ni región en particular.
 - Incluye 3 objeciones típicas del cliente con su respuesta."""
 
 
@@ -126,7 +129,6 @@ def validar_contenido(texto: str) -> dict:
 
 def contenido_plantilla(entrada: CampanaEntrada) -> dict:
     tipo = cargar_tipos_campana()[entrada.tipo_campana]
-    temporada = TEMPORADAS[entrada.temporada].lower()
     monto = f"hasta S/ {entrada.monto_maximo:.0f}" if entrada.monto_maximo else "según tu capacidad de pago"
     gracia = (f" y {entrada.periodo_gracia_meses} mes(es) de gracia" if entrada.periodo_gracia_meses else "")
     contenido = {
@@ -143,8 +145,8 @@ def contenido_plantilla(entrada: CampanaEntrada) -> dict:
         ],
         "capacitacion": {
             "speech": (
-                f"Buenos días, soy asesor de Grupo Activa. Sabemos que en temporada de {temporada} "
-                f"aparecen gastos como: {entrada.necesidad.rstrip('.').lower()}. Tenemos la campaña "
+                f"Buenos días, soy asesor de Grupo Activa. Sabemos que muchos clientes como usted "
+                f"necesitan: {entrada.necesidad.rstrip('.').lower()}. Tenemos la campaña "
                 f"{tipo['nombre']}, con un crédito a {entrada.plazo_meses} meses{gracia}. "
                 "Si le interesa, revisamos juntos su caso; todo crédito está sujeto a evaluación."
             ),
@@ -159,7 +161,7 @@ def contenido_plantilla(entrada: CampanaEntrada) -> dict:
         },
         "marketing": {
             "canales": ["WhatsApp", "Visitas del asesor", "Perifoneo en mercados y paraderos", "Facebook"],
-            "gancho": f"¡Prepárate para la temporada de {temporada} con Grupo Activa!",
+            "gancho": f"¡{tipo['nombre']}: el impulso que tu negocio necesita con Grupo Activa!",
             "mensaje_whatsapp": (
                 f"Hola 👋 En Grupo Activa tenemos la campaña {tipo['nombre']}: crédito a "
                 f"{entrada.plazo_meses} meses{gracia}, sujeto a evaluación. ¿Te gustaría que un asesor te visite?"
@@ -195,7 +197,7 @@ def aplicar_entrada(campana: Campana, entrada: CampanaEntrada) -> None:
 
 
 def estado_visible(c: Campana, hoy: date | None = None) -> str:
-    """borrador | programada | vigente | finalizada | retirada."""
+    """borrador | pendiente | programada | vigente | finalizada | retirada."""
     hoy = hoy or hoy_peru()
     if c.estado != "publicada":
         return c.estado
@@ -208,8 +210,8 @@ def estado_visible(c: Campana, hoy: date | None = None) -> str:
 
 def publicar(c: Campana, gerente_id: int) -> str | None:
     """Publica la campaña. Devuelve un mensaje de error si no se puede."""
-    if c.estado != "borrador":
-        return "Solo se publican campañas en borrador"
+    if c.estado not in ("borrador", "pendiente"):
+        return "Solo se publican campañas en borrador o pendientes de aprobación"
     if c.vigente_hasta and c.vigente_hasta < hoy_peru():
         return "La fecha de fin ya pasó: edita la fecha de inicio o la duración antes de publicar"
     c.estado = "publicada"
@@ -244,19 +246,16 @@ def campana_a_dict(c: Campana) -> dict:
 
 # ---------- Datos del bloque: contexto para la IA y valores sugeridos del formulario ----------
 
-def contexto_bloque(db: Session, bloque_id: int | None, estacion: dict | None) -> list[str]:
-    """Resumen agregado del último análisis del bloque (sin datos personales) y la estación IoT."""
-    lineas = []
+def contexto_bloque(db: Session, bloque_id: int | None) -> list[str]:
+    """Resumen agregado del último análisis del bloque (sin datos personales).
+    El clima del IoT no se envía a la IA: solo sirve para sugerir la temporada en el formulario."""
     analisis = ultimo_analisis(db, bloque_id) if bloque_id else None
-    if analisis:
-        ind = analisis.indicadores
-        lineas = ["Datos del bloque de encuestas que origina la campaña:"] + ia.resumen_bloque(
-            ind, analisis.ranking_necesidades, None, ind.get("campana_modelo")
-        )
-    if estacion and estacion.get("estacion_actual"):
-        lineas.append(f"Estación actual según los sensores IoT: {estacion['estacion_nombre']}; "
-                      f"temporada que se acerca: {estacion['temporada_nombre']}. {estacion.get('mensaje') or ''}")
-    return lineas
+    if not analisis:
+        return []
+    ind = analisis.indicadores
+    return ["Datos del bloque de encuestas que origina la campaña:"] + ia.resumen_bloque(
+        ind, analisis.ranking_necesidades, None, ind.get("campana_modelo")
+    )
 
 
 def valores_sugeridos(db: Session, bloque_id: int | None, estacion: dict | None) -> dict:

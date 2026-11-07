@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block titulo %}{{ c.nombres }}{% endblock %}
+{% block contenido %}
+<a class="small" href="/clientes"><i class="bi bi-arrow-left"></i> Expedientes</a>
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 my-2">
+  <div>
+    <h1 class="h3 mb-1">{{ c.nombres }}</h1>
+    <span class="small text-body-secondary">DNI {{ c.dni }} · {{ segmentos.get(c.segmento) }} · {{ regiones.get(c.region) }}{{ " · " ~ c.ubicacion if c.ubicacion }}</span>
+  </div>
+  {% if editable %}
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-secondary" href="/clientes/{{ c.id }}/editar"><i class="bi bi-pencil"></i> Editar</a>
+    <a class="btn btn-activa" href="/clientes/{{ c.id }}/solicitud/nueva"><i class="bi bi-file-earmark-plus"></i> Nueva solicitud</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="card kpi h-100"><div class="card-body py-2">
+    <div class="kpi-titulo">Ingresos</div><div class="kpi-valor fs-5">{{ c.ingresos_mensuales|soles }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card kpi kpi-aviso h-100"><div class="card-body py-2">
+    <div class="kpi-titulo">Gastos</div><div class="kpi-valor fs-5">{{ c.gastos_mensuales|soles }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card kpi kpi-info h-100"><div class="card-body py-2">
+    <div class="kpi-titulo">Ingreso neto</div><div class="kpi-valor fs-5">{{ ingreso_neto|soles }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card kpi {{ 'kpi-alerta' if capacidad <= 0 }} h-100"><div class="card-body py-2">
+    <div class="kpi-titulo">Capacidad disponible</div><div class="kpi-valor fs-5">{{ capacidad|soles }}</div>
+    <div class="small text-body-secondary">neto − cuotas de otras deudas</div></div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card mb-3"><div class="card-body small">
+      <h2 class="h6">Datos del expediente</h2>
+      <dl class="row mb-0">
+        <dt class="col-5">Celular</dt><dd class="col-7">{{ c.telefono }}</dd>
+        <dt class="col-5">Correo</dt><dd class="col-7">{{ c.email or "—" }}</dd>
+        <dt class="col-5">Ocupación</dt><dd class="col-7">{{ c.ocupacion }}</dd>
+        <dt class="col-5">Antigüedad</dt><dd class="col-7">{{ c.antiguedad_meses }} meses</dd>
+        <dt class="col-5">Cuotas otras deudas</dt><dd class="col-7">{{ c.cuotas_otras_deudas|soles }} / mes</dd>
+        <dt class="col-5">Saldo otras deudas</dt><dd class="col-7">{{ c.saldo_otras_deudas|soles }}</dd>
+        <dt class="col-5">Necesidades</dt><dd class="col-7">{{ c.necesidades or "—" }}</dd>
+        <dt class="col-5">Consentimiento</dt><dd class="col-7">{{ "Sí (Ley 29733)" if c.consentimiento else "No" }}</dd>
+        <dt class="col-5">Asesor</dt><dd class="col-7">{{ c.asesor.nombre }}</dd>
+        {% if c.prospecto_id and usuario.rol in ("asesor", "gerente") %}<dt class="col-5">Prospecto</dt><dd class="col-7"><a href="/prospectos/{{ c.prospecto_id }}">Ver embudo</a></dd>{% endif %}
+      </dl>
+    </div></div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card mb-3"><div class="card-body">
+      <h2 class="h6">Historial de solicitudes</h2>
+      {% if c.solicitudes %}
+      <div class="table-responsive"><table class="table table-sm align-middle mb-0">
+        <thead><tr><th>N.°</th><th>Producto</th><th>Monto</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody>
+          {% for s in c.solicitudes %}
+          <tr>
+            <td><a href="/solicitudes/{{ s.id }}">#{{ s.id }}</a></td>
+            <td class="small">{{ productos.get(s.producto, {}).get("nombre", s.producto) }}</td>
+            <td class="small text-nowrap">{{ s.monto|soles }}</td>
+            <td><span class="badge text-bg-{{ colores[s.estado] }}">{{ estados[s.estado] }}</span></td>
+            <td class="small">{{ s.creado_en|fecha_hora }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}<p class="text-body-secondary small mb-0">Sin solicitudes todavía.</p>{% endif %}
+    </div></div>
+    {% if creditos %}
+    <div class="card"><div class="card-body">
+      <h2 class="h6">Créditos en seguimiento</h2>
+      <ul class="list-unstyled small mb-0">
+        {% for cr in creditos %}
+        <li>{% if usuario.rol in ("gerente", "gestor_recuperaciones") %}<a href="/recuperaciones/creditos/{{ cr.id }}">Crédito #{{ cr.id }}</a>{% else %}Crédito #{{ cr.id }}{% endif %}
+          · {{ cr.monto|soles }} · {{ cr.estado }}</li>
+        {% endfor %}
+      </ul>
+    </div></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

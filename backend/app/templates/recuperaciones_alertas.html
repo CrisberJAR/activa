@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Alertas preventivas{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Alertas preventivas</h1>
+<p class="text-body-secondary small">Alertas internas. Los mensajes sugeridos solo se pueden abrir en WhatsApp si el cliente dio su consentimiento.</p>
+
+<div class="alert alert-light border small">
+  <strong>Reglas de trato:</strong>
+  <ul class="mb-0">{% for r in reglas %}<li>{{ r }}</li>{% endfor %}</ul>
+</div>
+
+{% if alertas %}
+<div class="list-group">
+  {% for a in alertas %}
+  {% set m = mensajes[loop.index0] %}
+  <div class="list-group-item">
+    <div class="d-flex flex-wrap justify-content-between gap-2">
+      <div>
+        <span class="badge text-bg-{{ a.nivel }}">{{ tipos[a.tipo] }}</span>
+        <a class="fw-semibold ms-1" href="/recuperaciones/creditos/{{ a.credito.id }}">Crédito #{{ a.credito.id }} · {{ a.credito.cliente.nombres }}</a>
+        <div class="small">{{ a.texto }}</div>
+      </div>
+      {% if m.whatsapp %}
+      <a class="btn btn-sm btn-success align-self-start" target="_blank" rel="noopener" href="{{ m.whatsapp }}"><i class="bi bi-whatsapp"></i> Enviar recordatorio</a>
+      {% elif m.texto %}
+      <span class="small text-body-secondary align-self-start">Sin consentimiento para WhatsApp: contactar por el canal autorizado.</span>
+      {% endif %}
+    </div>
+    {% if m.texto %}<details class="small mt-1"><summary>Mensaje sugerido</summary><p class="mb-0 mt-1">{{ m.texto }}</p></details>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-success"><i class="bi bi-check-circle"></i> No hay alertas pendientes.</div>
+{% endif %}
+{% endblock %}

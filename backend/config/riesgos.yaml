@@ -1,0 +1,45 @@
+# Umbrales de la evaluación PRELIMINAR de riesgos (ACTIVA 360°).
+# El semáforo NO aprueba ni rechaza créditos: solo indica qué solicitudes requieren revisión humana.
+# Si cambias un valor, cambia también la versión: cada evaluación guarda la versión con la que se hizo.
+
+version: "2026-11-v1"
+
+umbrales:
+  # Cuota estimada / ingresos mensuales declarados
+  cuota_ingreso:
+    amarillo: 0.25
+    rojo: 0.40
+    justificacion: >-
+      Referencia prudente usada en microfinanzas: comprometer más de la cuarta parte del
+      ingreso en una sola cuota pide revisión; más del 40 % deja poco margen al hogar.
+  # (Cuotas de otras deudas + cuota estimada) / ingresos mensuales
+  deuda_ingreso:
+    amarillo: 0.40
+    rojo: 0.60
+    justificacion: >-
+      Mide el endeudamiento total declarado. Por encima del 60 % del ingreso el cliente
+      tendría poca capacidad para gastos imprevistos.
+  # Cuota estimada / capacidad disponible (ingreso neto - cuotas de otras deudas)
+  cuota_capacidad:
+    amarillo: 0.60
+    rojo: 0.90
+    justificacion: >-
+      La cuota no debería consumir casi toda la capacidad disponible; se deja un margen
+      para variaciones de ingresos (estacionalidad, días sin trabajo).
+  # Completitud mínima del expediente (campos + documentos validados), en %
+  completitud:
+    amarillo: 100
+    rojo: 50
+    justificacion: >-
+      Un expediente incompleto no se puede evaluar bien: falta información o documentos.
+  # Monto solicitado / ingreso neto mensual (veces)
+  monto_ingreso_neto_veces: 12
+  # Antigüedad mínima en la actividad (meses) antes de pedir revisión adicional
+  antiguedad_minima_meses: 6
+  # Variación de ingresos declarados frente a la evaluación anterior (fracción)
+  cambio_ingresos: 0.50
+
+textos:
+  verde: No se identificaron alertas configuradas. La decisión final sigue siendo de una persona autorizada.
+  amarillo: Requiere información o revisión adicional antes de continuar.
+  rojo: Se identificaron condiciones que requieren revisión prioritaria por un analista.

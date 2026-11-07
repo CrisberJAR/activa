@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import "_form360.html" as f %}
+{% block titulo %}Productos{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Catálogo de productos</h1>
+<p class="text-body-secondary small">Configurable en <code>backend/config/productos.yaml</code>. El ahorro se agregará solo cuando exista una oferta real y autorizada.</p>
+{{ f.aviso_demo(aviso_demo) }}
+<div class="row g-3">
+  {% for clave, p in productos.items() %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card h-100"><div class="card-body">
+      <h2 class="h5"><i class="bi bi-box-seam text-activa"></i> {{ p.nombre }}</h2>
+      <p class="small">{{ p.descripcion }}</p>
+      <dl class="row small mb-2">
+        <dt class="col-5">Monto</dt><dd class="col-7">S/ {{ "{:,}".format(p.monto_min) }} – S/ {{ "{:,}".format(p.monto_max) }}</dd>
+        <dt class="col-5">Plazo</dt><dd class="col-7">{{ p.plazo_min }} a {{ p.plazo_max }} meses</dd>
+        <dt class="col-5">Frecuencias</dt><dd class="col-7">{% for fr in p.frecuencias %}{{ frecuencias[fr] }}{{ ", " if not loop.last }}{% endfor %}</dd>
+        <dt class="col-5">TEA demo</dt><dd class="col-7">{{ p.tea_demo }} % <span class="badge text-bg-warning">demostración</span></dd>
+      </dl>
+      <div class="small mb-2">{% for s in p.segmentos %}<span class="badge text-bg-light border me-1">{{ segmentos.get(s, s) }}</span>{% endfor %}</div>
+      <a class="btn btn-sm btn-outline-activa" href="/simulador?producto={{ clave }}&monto={{ p.monto_min * 2 }}&plazo_meses={{ p.plazo_min * 2 if p.plazo_min * 2 <= p.plazo_max else p.plazo_max }}&frecuencia={{ p.frecuencias[0] }}"><i class="bi bi-calculator"></i> Simular</a>
+    </div></div>
+  </div>
+  {% endfor %}
+</div>
+<div class="card mt-3"><div class="card-body">
+  <h2 class="h6">Documentos que se revisan</h2>
+  <ul class="small mb-0">{% for k, t in documentos.items() %}<li>{{ t }}</li>{% endfor %}</ul>
+</div></div>
+{% endblock %}

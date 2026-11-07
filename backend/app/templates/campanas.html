@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}Campañas{% endblock %}
 {% block contenido %}
-{% set colores = {"borrador": "secondary", "programada": "info", "vigente": "success", "finalizada": "dark", "retirada": "danger"} %}
+{% set colores = {"borrador": "secondary", "pendiente": "warning", "programada": "info", "vigente": "success", "finalizada": "dark", "retirada": "danger"} %}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
   <h1 class="h3 mb-0">Campañas</h1>
   <a class="btn btn-activa" href="/campanas/nueva"><i class="bi bi-megaphone"></i> Generar campaña</a>
@@ -18,7 +18,7 @@
 
 {% if filas %}
 <div class="table-responsive">
-  <table class="table table-hover align-middle bg-white">
+  <table class="table table-hover align-middle bg-white" data-tabla>
     <thead class="table-light">
       <tr><th>Campaña</th><th>Tipo</th><th>Vigencia</th><th>Estado</th><th>Creada por</th></tr>
     </thead>

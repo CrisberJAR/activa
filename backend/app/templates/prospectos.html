@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block titulo %}Prospectos{% endblock %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+  <div>
+    <h1 class="h3 mb-0">Prospectos</h1>
+    <p class="text-body-secondary mb-0 small">Captación y embudo comercial{{ " · tus prospectos y los sin asignar" if usuario.rol == "asesor" }}.</p>
+  </div>
+  <a class="btn btn-activa" href="/prospectos/nuevo"><i class="bi bi-person-plus"></i> Nuevo prospecto</a>
+</div>
+
+<div class="card my-3"><div class="card-body">
+  <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+    <h2 class="h6 mb-0">Embudo comercial</h2>
+    <span class="small text-body-secondary">Conversión (convertidos / cerrados):
+      <strong>{{ (embudo.tasa_conversion ~ " %") if embudo.tasa_conversion is not none else "sin cierres aún" }}</strong></span>
+  </div>
+  {% for f in embudo.filas %}
+  <a class="d-flex align-items-center gap-2 mb-1 text-decoration-none text-body" href="/prospectos?estado={{ f.estado }}">
+    <span class="small" style="width: 9.5rem">{{ f.nombre }}</span>
+    <span class="flex-grow-1"><span class="embudo-barra d-block {{ 'bg-danger' if f.estado == 'no_convertido' }}" style="width: {{ (100 * f.cantidad / embudo.maximo)|round(0) }}%"></span></span>
+    <span class="small fw-semibold" style="width: 2.5rem; text-align: right">{{ f.cantidad }}</span>
+  </a>
+  {% endfor %}
+</div></div>
+
+<form class="row g-2 align-items-end mb-3" method="get" action="/prospectos">
+  <div class="col-sm-4 col-lg-3">
+    <label class="form-label small" for="f-estado">Estado</label>
+    <select class="form-select form-select-sm" id="f-estado" name="estado">
+      <option value="">Todos</option>
+      {% for k, t in estados.items() %}<option value="{{ k }}" {{ 'selected' if f.estado == k }}>{{ t }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-4 col-lg-3">
+    <label class="form-label small" for="f-segmento">Segmento</label>
+    <select class="form-select form-select-sm" id="f-segmento" name="segmento">
+      <option value="">Todos</option>
+      {% for k, t in segmentos.items() %}<option value="{{ k }}" {{ 'selected' if f.segmento == k }}>{{ t }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-4 col-lg-3">
+    <label class="form-label small" for="f-region">Región</label>
+    <select class="form-select form-select-sm" id="f-region" name="region">
+      <option value="">Todas</option>
+      {% for k, t in regiones.items() %}<option value="{{ k }}" {{ 'selected' if f.region == k }}>{{ t }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-12 col-lg-3 d-flex gap-2">
+    <button class="btn btn-sm btn-activa" type="submit"><i class="bi bi-funnel"></i> Filtrar</button>
+    <a class="btn btn-sm btn-outline-secondary" href="/prospectos">Limpiar</a>
+  </div>
+</form>
+
+{% if prospectos %}
+<div class="card"><div class="card-body">
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0" data-tabla>
+    <thead><tr><th>Prospecto</th><th>Segmento</th><th>Región</th><th>Monto</th><th>Estado</th><th>Asesor</th><th>Próxima acción</th></tr></thead>
+    <tbody>
+      {% for p in prospectos %}
+      <tr>
+        <td><a class="fw-semibold" href="/prospectos/{{ p.id }}">{{ p.nombre }}</a>
+          <div class="small text-body-secondary">{{ p.actividad }}{% if p.origen == "chatbot" %} · <i class="bi bi-chat-heart"></i> chatbot{% endif %}</div></td>
+        <td class="small">{{ segmentos.get(p.segmento, p.segmento) }}</td>
+        <td class="small">{{ regiones.get(p.region, p.region) }}</td>
+        <td class="small text-nowrap">{{ p.monto_solicitado|soles if p.monto_solicitado else "—" }}</td>
+        <td><span class="badge text-bg-{{ colores[p.estado] }}">{{ estados[p.estado] }}</span></td>
+        <td class="small">{{ p.asesor.nombre if p.asesor else "Sin asignar" }}</td>
+        <td class="small text-nowrap">{{ p.proxima_accion.strftime('%d/%m/%Y') if p.proxima_accion else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div></div>
+{% else %}
+<div class="text-center text-body-secondary py-5">
+  <i class="bi bi-person-plus fs-1 d-block mb-2"></i>
+  No hay prospectos {{ "con ese filtro" if f.estado or f.segmento or f.region else "todavía" }}.
+  Registra uno o agrega interesados del chatbot desde <a href="/interesados">Interesados</a>.
+</div>
+{% endif %}
+{% endblock %}

@@ -12,12 +12,15 @@ from app.models import Bloque, Campana, Usuario
 from app.schemas import CampanaContenido, CampanaEntrada, errores_es
 from app.security import requiere_rol, usuario_web_o_api
 from app.services import campanas as servicio
+from app.services.auditoria import registrar
+from app.services.comercial import resultados_campana
+from app.services.negocios import productos
 from app.services.clima import diagnostico_actual
 from app.templating import avisar, templates
 
 router = APIRouter()
 
-ESTADOS = ["borrador", "programada", "vigente", "finalizada", "retirada"]
+ESTADOS = ["borrador", "pendiente", "programada", "vigente", "finalizada", "retirada"]
 MAX_OBJECIONES = 6
 
 
@@ -34,8 +37,9 @@ def _obtener(db: Session, campana_id: int) -> Campana:
 
 
 def _solo_borrador(campana: Campana) -> None:
-    if campana.estado != "borrador":
-        raise HTTPException(status.HTTP_409_CONFLICT, "Solo se pueden cambiar campañas en borrador")
+    # "pendiente" = enviada a aprobación: el gerente aún puede editarla antes de publicar
+    if campana.estado not in ("borrador", "pendiente"):
+        raise HTTPException(status.HTTP_409_CONFLICT, "Solo se pueden cambiar campañas en borrador o pendientes")
 
 
 def _volver(campana_id: int) -> RedirectResponse:
@@ -46,6 +50,7 @@ def _contexto_formulario(db: Session) -> dict:
     return {
         "tipos": cargar_tipos_campana(),
         "tipos_cliente": TIPOS_CLIENTE,
+        "productos": productos(),
         "bloques": db.scalars(select(Bloque).order_by(Bloque.fecha_inicio.desc())).all(),
     }
 
@@ -95,11 +100,12 @@ async def crear(
             {"usuario": usuario, "v": datos, "errores": errores_es(e)} | _contexto_formulario(db),
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
-    estacion = _estacion(db)
-    contenido, generado_con, error = servicio.generar_contenido(entrada, servicio.contexto_bloque(db, entrada.bloque_id, estacion))
+    contenido, generado_con, error = servicio.generar_contenido(entrada, servicio.contexto_bloque(db, entrada.bloque_id))
     campana = Campana(nombre=contenido["nombre"], contenido=contenido, generado_con=generado_con, creado_por=usuario.id)
     servicio.aplicar_entrada(campana, entrada)
     db.add(campana)
+    db.flush()
+    registrar(db, "campana_generada", usuario, f"campaña {campana.id} · {generado_con}")
     db.commit()
     if error:
         avisar(request, f"Campaña creada con la plantilla automática. Gemini no respondió: {error}")
@@ -119,7 +125,8 @@ def detalle(
     return templates.TemplateResponse(
         request, "campana_detalle.html",
         {"usuario": usuario, "c": campana, "estado": servicio.estado_visible(campana),
-         "tipos": cargar_tipos_campana(), "tipos_cliente": TIPOS_CLIENTE},
+         "tipos": cargar_tipos_campana(), "tipos_cliente": TIPOS_CLIENTE, "productos": productos(),
+         "resultados": resultados_campana(db, campana.id)},
     )
 
 
@@ -201,6 +208,7 @@ async def editar(
     campana.contenido = contenido
     campana.nombre = contenido["nombre"]
     servicio.aplicar_entrada(campana, entrada)
+    registrar(db, "campana_editada", usuario, f"campaña {campana.id}")
     db.commit()
     avisar(request, "Cambios guardados")
     return _volver(campana.id)
@@ -214,9 +222,10 @@ def regenerar(
     _solo_borrador(campana)
     entrada = CampanaEntrada(**campana.entradas)
     contenido, generado_con, error = servicio.generar_contenido(
-        entrada, servicio.contexto_bloque(db, entrada.bloque_id, _estacion(db))
+        entrada, servicio.contexto_bloque(db, entrada.bloque_id)
     )
     campana.contenido, campana.nombre, campana.generado_con = contenido, contenido["nombre"], generado_con
+    registrar(db, "campana_regenerada", usuario, f"campaña {campana.id} · {generado_con}")
     db.commit()
     avisar(request, f"Plantilla automática: Gemini no respondió ({error})" if error else f"Campaña regenerada con {generado_con}")
     return _volver(campana.id)
@@ -231,8 +240,40 @@ def publicar(
     if error:
         avisar(request, error)
     else:
+        registrar(db, "campana_publicada", usuario, f"campaña {campana.id}")
         db.commit()
         avisar(request, f"Campaña publicada: estará vigente del {campana.vigente_desde:%d/%m/%Y} al {campana.vigente_hasta:%d/%m/%Y}")
+    return _volver(campana.id)
+
+
+@router.post("/campanas/{campana_id}/enviar")
+def enviar_a_aprobacion(
+    campana_id: int, request: Request, usuario: Usuario = Depends(requiere_rol("asesor", "gerente")), db: Session = Depends(get_db)
+):
+    """El autor (o el gerente) envía el borrador a aprobación: queda «pendiente»."""
+    campana = _obtener(db, campana_id)
+    if campana.estado != "borrador":
+        raise HTTPException(status.HTTP_409_CONFLICT, "Solo se envían a aprobación campañas en borrador")
+    if usuario.rol != "gerente" and campana.creado_por != usuario.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Solo quien generó la campaña puede enviarla a aprobación")
+    campana.estado = "pendiente"
+    registrar(db, "campana_enviada", usuario, f"campaña {campana.id}")
+    db.commit()
+    avisar(request, "Campaña enviada a aprobación: el gerente la revisará y decidirá si la publica")
+    return _volver(campana.id)
+
+
+@router.post("/campanas/{campana_id}/devolver")
+def devolver_a_borrador(
+    campana_id: int, request: Request, usuario: Usuario = Depends(requiere_rol("gerente")), db: Session = Depends(get_db)
+):
+    campana = _obtener(db, campana_id)
+    if campana.estado != "pendiente":
+        raise HTTPException(status.HTTP_409_CONFLICT, "Solo se devuelven campañas pendientes")
+    campana.estado = "borrador"
+    registrar(db, "campana_devuelta", usuario, f"campaña {campana.id}")
+    db.commit()
+    avisar(request, "Campaña devuelta a borrador")
     return _volver(campana.id)
 
 
@@ -244,6 +285,7 @@ def retirar(
     if campana.estado != "publicada":
         raise HTTPException(status.HTTP_409_CONFLICT, "Solo se retiran campañas publicadas")
     campana.estado = "retirada"
+    registrar(db, "campana_retirada", usuario, f"campaña {campana.id}")
     db.commit()
     avisar(request, "Campaña retirada: el chatbot ya no la ofrecerá")
     return _volver(campana.id)
@@ -255,6 +297,7 @@ def eliminar(
 ):
     campana = _obtener(db, campana_id)
     _solo_borrador(campana)
+    registrar(db, "campana_eliminada", usuario, f"campaña {campana.id}")
     db.delete(campana)
     db.commit()
     avisar(request, "Borrador eliminado")

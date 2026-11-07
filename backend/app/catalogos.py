@@ -69,3 +69,41 @@ CATALOGOS = {
     "riesgo_principal": RIESGOS,
     "contacto_preferido": CONTACTOS,
 }
+
+
+# ---------- ACTIVA 360° ----------
+
+ROLES_TEXTO = {
+    "asesor": "Asesor de negocios",
+    "gerente": "Gerente",
+    "analista_riesgos": "Analista de riesgos",
+    "gestor_recuperaciones": "Gestor de recuperaciones",
+}
+
+# Tipo de cliente (segmento) para prospectos, expedientes y campañas
+SEGMENTOS = {
+    "comerciante": "Comerciante",
+    "emprendedor": "Emprendedor",
+    "independiente": "Trabajador independiente",
+    "dependiente": "Trabajador dependiente",
+    "agricultor": "Agricultor",
+    "transportista": "Transportista",
+    "persona_natural": "Persona natural",
+}
+
+# Departamentos del Perú (alcance nacional) y el Callao
+REGIONES = {
+    "amazonas": "Amazonas", "ancash": "Áncash", "apurimac": "Apurímac", "arequipa": "Arequipa",
+    "ayacucho": "Ayacucho", "cajamarca": "Cajamarca", "callao": "Callao", "cusco": "Cusco",
+    "huancavelica": "Huancavelica", "huanuco": "Huánuco", "ica": "Ica", "junin": "Junín",
+    "la_libertad": "La Libertad", "lambayeque": "Lambayeque", "lima": "Lima", "loreto": "Loreto",
+    "madre_de_dios": "Madre de Dios", "moquegua": "Moquegua", "pasco": "Pasco", "piura": "Piura",
+    "puno": "Puno", "san_martin": "San Martín", "tacna": "Tacna", "tumbes": "Tumbes", "ucayali": "Ucayali",
+}
+
+CANALES = {
+    "whatsapp": "WhatsApp",
+    "llamada": "Llamada",
+    "visita": "Visita",
+    "agencia": "En agencia",
+}

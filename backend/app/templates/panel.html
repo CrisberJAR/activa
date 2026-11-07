@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block titulo %}Panel{% endblock %}
+{% block contenido %}
+<div class="mb-3">
+  <h1 class="h3 mb-0">Hola, {{ usuario.nombre.split()[0] }}</h1>
+  <p class="text-body-secondary mb-0">Panel de {{ roles_texto.get(rol, rol)|lower }} · indicadores calculados con los registros guardados.</p>
+</div>
+
+{% if com %}
+<section class="mb-4" aria-labelledby="t-comercial">
+  <h2 class="h5 mb-2" id="t-comercial"><i class="bi bi-megaphone text-activa"></i> Comercial</h2>
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3"><a class="card kpi h-100" href="/prospectos?estado=nuevo"><div class="card-body py-2"><div class="kpi-titulo">Prospectos nuevos</div><div class="kpi-valor">{{ com.nuevos }}</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-info h-100" href="/prospectos?estado=contactado"><div class="card-body py-2"><div class="kpi-titulo">Contactados / interesados</div><div class="kpi-valor">{{ com.contactados }}</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-aviso h-100" href="/prospectos?estado=solicitud"><div class="card-body py-2"><div class="kpi-titulo">Solicitudes iniciadas</div><div class="kpi-valor">{{ com.solicitudes_iniciadas }}</div></div></a></div>
+    <div class="col-6 col-lg-3"><div class="card kpi h-100"><div class="card-body py-2"><div class="kpi-titulo">Tasa de conversión</div>
+      <div class="kpi-valor">{{ (com.embudo.tasa_conversion ~ " %") if com.embudo.tasa_conversion is not none else "—" }}</div><div class="small text-body-secondary">convertidos / cerrados</div></div></div></div>
+    <div class="col-6 col-lg-3"><a class="card kpi h-100" href="/campanas?estado=vigente"><div class="card-body py-2"><div class="kpi-titulo">Campañas vigentes</div><div class="kpi-valor">{{ com.vigentes }}</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-aviso h-100" href="/campanas?estado=pendiente"><div class="card-body py-2"><div class="kpi-titulo">Campañas por aprobar</div><div class="kpi-valor">{{ com.pendientes_aprobacion }}</div><div class="small text-body-secondary">{{ com.borradores }} en borrador</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-info h-100" href="/interesados"><div class="card-body py-2"><div class="kpi-titulo">Interesados del chatbot</div><div class="kpi-valor">{{ com.interesados_pendientes }}</div><div class="small text-body-secondary">pendientes de atender</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi h-100" href="/encuestas"><div class="card-body py-2"><div class="kpi-titulo">Encuestas</div><div class="kpi-valor">{{ com.encuestas }}</div><div class="small text-body-secondary">{{ com.bloques_abiertos }} bloque(s) abierto(s)</div></div></a></div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="card h-100"><div class="card-body">
+        <h3 class="h6">Prospectos registrados por semana</h3>
+        <div style="height: 220px"><canvas id="graficoSemanas" role="img" aria-label="Prospectos registrados en las últimas 8 semanas"></canvas></div>
+        <p class="visually-hidden">{% for e in com.grafico_semanas.etiquetas %}{{ e }}: {{ com.grafico_semanas.valores[loop.index0] }}. {% endfor %}</p>
+      </div></div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card h-100"><div class="card-body">
+        <h3 class="h6">Actividades pendientes {{ "(tuyas)" if rol == "asesor" }}</h3>
+        {% if com.actividades %}
+        <ul class="list-group list-group-flush">
+          {% for p in com.actividades[:6] %}
+          <li class="list-group-item px-0 d-flex justify-content-between">
+            <a href="/prospectos/{{ p.id }}">{{ p.nombre }}</a>
+            <span class="small {{ 'text-danger' if p.proxima_accion < hoy else 'text-body-secondary' }}">{{ p.proxima_accion.strftime('%d/%m') }}{% if rol == "gerente" %} · {{ p.asesor.nombre if p.asesor else "sin asignar" }}{% endif %}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if com.actividades|length > 6 %}<div class="small text-body-secondary mt-1">y {{ com.actividades|length - 6 }} más</div>{% endif %}
+        {% else %}<p class="small text-body-secondary mb-0">Sin actividades vencidas ni para hoy.</p>{% endif %}
+        <h3 class="h6 mt-3">Campañas con mejor desempeño</h3>
+        {% if com.mejores_campanas %}
+        <ul class="list-unstyled small mb-0">
+          {% for c in com.mejores_campanas %}<li><a href="/campanas/{{ c.id }}">{{ c.nombre }}</a> · {{ c.convertidos }}/{{ c.prospectos }} convertidos ({{ c.tasa }} %)</li>{% endfor %}
+        </ul>
+        {% else %}<p class="small text-body-secondary mb-0">Aún no hay prospectos vinculados a campañas.</p>{% endif %}
+      </div></div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if neg %}
+<section class="mb-4" aria-labelledby="t-negocios">
+  <h2 class="h5 mb-2" id="t-negocios"><i class="bi bi-file-earmark-text text-activa"></i> Negocios</h2>
+  <div class="card"><div class="card-body">
+    {% if neg.total %}
+    <div class="d-flex flex-wrap gap-2">
+      {% for k, t in neg.estados.items() %}{% if neg.conteo.get(k) %}
+      <a class="btn btn-sm btn-outline-{{ neg.colores[k] }}" href="/solicitudes?estado={{ k }}">{{ t }} <span class="badge text-bg-{{ neg.colores[k] }}">{{ neg.conteo[k] }}</span></a>
+      {% endif %}{% endfor %}
+    </div>
+    {% else %}
+    <p class="small text-body-secondary mb-0">Aún no hay solicitudes. {% if rol in ("asesor", "gerente") %}Crea un <a href="/clientes/nuevo">expediente</a> para iniciar una.{% endif %}</p>
+    {% endif %}
+  </div></div>
+</section>
+{% endif %}
+
+{% if rie %}
+<section class="mb-4" aria-labelledby="t-riesgos">
+  <h2 class="h5 mb-2" id="t-riesgos"><i class="bi bi-shield-check text-activa"></i> Riesgos</h2>
+  <div class="row g-3">
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-alerta h-100" href="/riesgos?semaforo=rojo"><div class="card-body py-2"><div class="kpi-titulo"><span class="semaforo semaforo-rojo">Rojo</span></div><div class="kpi-valor">{{ rie.conteo.rojo }}</div><div class="small text-body-secondary">revisión prioritaria</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-aviso h-100" href="/riesgos?semaforo=amarillo"><div class="card-body py-2"><div class="kpi-titulo"><span class="semaforo semaforo-amarillo">Amarillo</span></div><div class="kpi-valor">{{ rie.conteo.amarillo }}</div><div class="small text-body-secondary">requieren revisión</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-info h-100" href="/solicitudes?estado=enviada"><div class="card-body py-2"><div class="kpi-titulo">Por tomar</div><div class="kpi-valor">{{ rie.por_tomar }}</div><div class="small text-body-secondary">enviadas sin asignar</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi h-100" href="/riesgos/seguridad"><div class="card-body py-2"><div class="kpi-titulo">Eventos de seguridad</div><div class="kpi-valor">{{ rie.seguridad }}</div><div class="small text-body-secondary">últimos 7 días</div></div></a></div>
+  </div>
+</section>
+{% endif %}
+
+{% if rec %}
+<section class="mb-4" aria-labelledby="t-rec">
+  <h2 class="h5 mb-2" id="t-rec"><i class="bi bi-wallet2 text-activa"></i> Recuperaciones</h2>
+  <div class="row g-3">
+    <div class="col-6 col-lg-3"><a class="card kpi h-100" href="/recuperaciones"><div class="card-body py-2"><div class="kpi-titulo">Créditos en seguimiento</div><div class="kpi-valor">{{ rec.creditos }}</div><div class="small text-body-secondary">saldo {{ rec.saldo|soles }}</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-alerta h-100" href="/recuperaciones?tramo=leve"><div class="card-body py-2"><div class="kpi-titulo">Con atraso</div><div class="kpi-valor">{{ rec.en_mora }}</div><div class="small text-body-secondary">vencido {{ rec.vencido|soles }} ({{ rec.pct_mora }} %)</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-aviso h-100" href="/recuperaciones/alertas"><div class="card-body py-2"><div class="kpi-titulo">Vencen pronto</div><div class="kpi-valor">{{ rec.vencen_pronto }}</div></div></a></div>
+    <div class="col-6 col-lg-3"><a class="card kpi kpi-info h-100" href="/recuperaciones/alertas"><div class="card-body py-2"><div class="kpi-titulo">Alertas preventivas</div><div class="kpi-valor">{{ rec.alertas }}</div></div></a></div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if com %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  var lienzo = document.getElementById("graficoSemanas");
+  if (!lienzo || !window.Chart) return;
+  var datos = {{ com.grafico_semanas|tojson }};
+  function colores() {
+    var css = getComputedStyle(document.documentElement);
+    return { barra: css.getPropertyValue("--activa").trim() || "#0b5d3b", texto: css.getPropertyValue("--bs-body-color").trim(), rejilla: css.getPropertyValue("--bs-border-color").trim() };
+  }
+  var c = colores();
+  var grafico = new Chart(lienzo, {
+    type: "bar",
+    data: { labels: datos.etiquetas, datasets: [{ label: "Prospectos", data: datos.valores, backgroundColor: c.barra, borderRadius: 4 }] },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: c.texto }, grid: { display: false } },
+        y: { beginAtZero: true, ticks: { precision: 0, color: c.texto }, grid: { color: c.rejilla } }
+      }
+    }
+  });
+  document.addEventListener("activa:tema", function () {
+    var n = colores();
+    grafico.data.datasets[0].backgroundColor = n.barra;
+    grafico.options.scales.x.ticks.color = n.texto;
+    grafico.options.scales.y.ticks.color = n.texto;
+    grafico.options.scales.y.grid.color = n.rejilla;
+    grafico.update();
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

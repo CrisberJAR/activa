@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block titulo %}Cartera{% endblock %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+  <div>
+    <h1 class="h3 mb-0">Cartera de seguimiento</h1>
+    <p class="text-body-secondary small mb-0">{{ "Créditos asignados a ti." if usuario.rol == "gestor_recuperaciones" else "Todos los créditos vigentes." }}
+      La plataforma no mueve dinero: los pagos se registran según lo informado por la entidad.</p>
+  </div>
+  {% if usuario.rol == "gerente" %}
+  <a class="btn btn-activa" href="/recuperaciones/creditos/nuevo"><i class="bi bi-plus-circle"></i> Registrar crédito</a>
+  {% endif %}
+</div>
+
+<div class="row g-3 my-2">
+  <div class="col-6 col-lg-3"><div class="card kpi h-100"><div class="card-body py-2"><div class="kpi-titulo">Créditos vigentes</div><div class="kpi-valor">{{ por_tramo.values()|sum }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card kpi kpi-info h-100"><div class="card-body py-2"><div class="kpi-titulo">Saldo por cobrar</div><div class="kpi-valor fs-5">{{ total_saldo|soles }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card kpi kpi-alerta h-100"><div class="card-body py-2"><div class="kpi-titulo">Monto vencido</div><div class="kpi-valor fs-5">{{ total_vencido|soles }}</div><div class="small text-body-secondary">{{ pct_mora }} % del saldo</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card kpi kpi-aviso h-100"><div class="card-body py-2"><div class="kpi-titulo">Créditos con atraso</div><div class="kpi-valor">{{ en_mora }}</div></div></div></div>
+</div>
+
+<ul class="nav nav-pills mb-3 flex-wrap">
+  <li class="nav-item"><a class="nav-link {{ 'active' if not tramo }}" href="/recuperaciones">Todos</a></li>
+  {% for t in tramos %}
+  <li class="nav-item"><a class="nav-link {{ 'active' if tramo == t.clave }}" href="/recuperaciones?tramo={{ t.clave }}">{{ t.nombre }} <span class="badge text-bg-light border">{{ por_tramo.get(t.clave, 0) }}</span></a></li>
+  {% endfor %}
+</ul>
+
+{% if filas %}
+<div class="card"><div class="card-body">
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0" data-tabla>
+    <thead><tr><th>Crédito</th><th>Cliente</th><th>Saldo</th><th>Vencido</th><th>Atraso</th><th>Próxima cuota</th><th>Gestor</th></tr></thead>
+    <tbody>
+      {% for f in filas %}
+      <tr>
+        <td><a class="fw-semibold" href="/recuperaciones/creditos/{{ f.cr.id }}">#{{ f.cr.id }}</a></td>
+        <td class="small">{{ f.cr.cliente.nombres }}</td>
+        <td class="small text-nowrap">{{ f.r.saldo|soles }}</td>
+        <td class="small text-nowrap {{ 'text-danger fw-semibold' if f.r.vencido > 0 }}">{{ f.r.vencido|soles }}</td>
+        <td><span class="badge {{ 'text-bg-success' if f.r.dias_atraso == 0 else ('text-bg-warning' if f.r.dias_atraso <= 30 else 'text-bg-danger') }}">{{ f.r.dias_atraso }} días</span>
+          <div class="small text-body-secondary">{{ f.r.tramo.nombre }}</div></td>
+        <td class="small text-nowrap">{% if f.r.proxima %}{{ f.r.proxima.fecha_vencimiento.strftime('%d/%m/%Y') }}<br>{{ f.r.proxima.monto|soles }}{% else %}—{% endif %}</td>
+        <td class="small">{{ f.cr.gestor.nombre if f.cr.gestor else "Sin asignar" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div></div>
+{% else %}
+<div class="text-center text-body-secondary py-5"><i class="bi bi-wallet2 fs-1 d-block mb-2"></i>No hay créditos en seguimiento{{ " en este tramo" if tramo }}.</div>
+{% endif %}
+{% endblock %}

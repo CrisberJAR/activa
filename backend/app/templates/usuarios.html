@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block titulo %}Usuarios{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Usuarios y roles</h1>
+<p class="text-body-secondary">Cada rol ve solo su módulo. Los usuarios no se borran: se desactivan para conservar la auditoría.</p>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card"><div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0" data-tabla>
+          <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th class="text-end">Acción</th></tr></thead>
+          <tbody>
+            {% for u in usuarios %}
+            <tr>
+              <td>{{ u.nombre }}</td>
+              <td class="small">{{ u.email }}</td>
+              <td class="small">{{ roles_texto.get(u.rol, u.rol) }}</td>
+              <td>{% if u.activo %}<span class="badge text-bg-success">Activo</span>{% else %}<span class="badge text-bg-secondary">Inactivo</span>{% endif %}</td>
+              <td class="text-end">
+                {% if u.id != usuario.id %}
+                <form method="post" action="/usuarios/{{ u.id }}/estado" data-confirmar="¿{{ 'Desactivar' if u.activo else 'Activar' }} a {{ u.email }}?">
+                  <button class="btn btn-sm btn-outline-secondary" type="submit">{{ 'Desactivar' if u.activo else 'Activar' }}</button>
+                </form>
+                {% else %}<span class="small text-body-secondary">Tú</span>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div></div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card"><div class="card-body">
+      <h2 class="h5">Nuevo usuario</h2>
+      <form method="post" action="/usuarios" novalidate>
+        <div class="mb-2">
+          <label class="form-label" for="nombre">Nombre</label>
+          <input class="form-control {{ 'is-invalid' if errores.nombre }}" id="nombre" name="nombre" value="{{ v.nombre or '' }}" required>
+          <div class="invalid-feedback">{{ errores.nombre }}</div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label" for="email">Correo</label>
+          <input class="form-control {{ 'is-invalid' if errores.email }}" type="email" id="email" name="email" value="{{ v.email or '' }}" required>
+          <div class="invalid-feedback">{{ errores.email }}</div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label" for="rol">Rol</label>
+          <select class="form-select {{ 'is-invalid' if errores.rol }}" id="rol" name="rol" required>
+            <option value="">Elige…</option>
+            {% for clave, texto in roles_texto.items() %}<option value="{{ clave }}" {{ 'selected' if v.rol == clave }}>{{ texto }}</option>{% endfor %}
+          </select>
+          <div class="invalid-feedback">{{ errores.rol }}</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="password">Contraseña inicial</label>
+          <input class="form-control {{ 'is-invalid' if errores.password }}" type="password" id="password" name="password" autocomplete="new-password" required>
+          <div class="invalid-feedback">{{ errores.password }}</div>
+          <div class="form-text">Mínimo 10 caracteres, con letras y números.</div>
+        </div>
+        <button class="btn btn-activa w-100" type="submit"><i class="bi bi-person-plus"></i> Crear usuario</button>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

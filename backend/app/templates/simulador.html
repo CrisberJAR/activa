@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% import "_form360.html" as f %}
+{% block titulo %}Simulador de cuotas{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Simulador de cuotas referenciales</h1>
+<p class="text-body-secondary small">Método francés (cuota fija). Tasa periódica = (1 + TEA)<sup>1/n</sup> − 1. No incluye comisiones ni seguros.</p>
+{{ f.aviso_demo(aviso_demo) }}
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card"><div class="card-body">
+      <form method="get" action="/simulador" novalidate>
+        <div class="mb-2">
+          {% set opciones = {} %}
+          {% for k, p in productos.items() %}{% set _ = opciones.update({k: p.nombre ~ " · TEA demo " ~ p.tea_demo ~ " %"}) %}{% endfor %}
+          {{ f.lista("producto", "Producto de demostración", opciones, v, errores, requerido=false, vacio="Ingresar TEA manualmente") }}
+        </div>
+        <div class="mb-2">{{ f.texto("monto", "Monto (S/)", v, errores, tipo="number", extra='min="1" step="0.01"') }}</div>
+        <div class="mb-2">{{ f.texto("tea", "TEA (%)", v, errores, tipo="number", requerido=false, extra='min="0" max="300" step="0.01"', ayuda="Si eliges un producto y dejas esto vacío, se usa su TEA de demostración.") }}</div>
+        <div class="mb-2">{{ f.texto("plazo_meses", "Plazo (meses)", v, errores, tipo="number", extra='min="1" max="120"') }}</div>
+        <div class="mb-3">{{ f.lista("frecuencia", "Frecuencia", frecuencias, v, errores) }}</div>
+        <button class="btn btn-activa w-100" type="submit"><i class="bi bi-calculator"></i> Calcular</button>
+      </form>
+    </div></div>
+  </div>
+  <div class="col-lg-8">
+    {% if r %}
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-md-3"><div class="card kpi h-100"><div class="card-body py-2"><div class="kpi-titulo">Cuota {{ frecuencias[r.frecuencia]|lower }}</div><div class="kpi-valor fs-5">{{ r.cuota|soles }}</div></div></div></div>
+      <div class="col-6 col-md-3"><div class="card kpi kpi-info h-100"><div class="card-body py-2"><div class="kpi-titulo">N.° cuotas</div><div class="kpi-valor fs-5">{{ r.n_cuotas }}</div></div></div></div>
+      <div class="col-6 col-md-3"><div class="card kpi kpi-aviso h-100"><div class="card-body py-2"><div class="kpi-titulo">Intereses</div><div class="kpi-valor fs-5">{{ r.total_intereses|soles }}</div></div></div></div>
+      <div class="col-6 col-md-3"><div class="card kpi h-100"><div class="card-body py-2"><div class="kpi-titulo">Total estimado</div><div class="kpi-valor fs-5">{{ r.total_pagar|soles }}</div></div></div></div>
+    </div>
+    <p class="small text-body-secondary">TEA {{ r.tea }} % → tasa {{ frecuencias[r.frecuencia]|lower }} {{ r.tasa_periodica }} %. Resultado referencial: no es una cotización.</p>
+    <div class="card"><div class="card-body">
+      <h2 class="h6">Cronograma</h2>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0" data-tabla data-por-pagina="12">
+          <thead><tr><th>N.°</th><th>Fecha</th><th class="text-end">Capital</th><th class="text-end">Interés</th><th class="text-end">Cuota</th><th class="text-end">Saldo</th></tr></thead>
+          <tbody>
+            {% for c in r.cronograma %}
+            <tr><td>{{ c.numero }}</td><td>{{ c.fecha.strftime('%d/%m/%Y') }}</td><td class="text-end">{{ "{:,.2f}".format(c.capital) }}</td>
+              <td class="text-end">{{ "{:,.2f}".format(c.interes) }}</td><td class="text-end fw-semibold">{{ "{:,.2f}".format(c.cuota) }}</td><td class="text-end">{{ "{:,.2f}".format(c.saldo) }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div></div>
+    {% else %}
+    <div class="text-center text-body-secondary py-5 border rounded"><i class="bi bi-calculator fs-1 d-block mb-2"></i>Ingresa monto, plazo y tasa para ver la cuota y el cronograma.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

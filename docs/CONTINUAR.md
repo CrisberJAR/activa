@@ -1,6 +1,12 @@
-# ACTIVA – Estado del proyecto para continuar (actualizado 2026-10-30)
+# ACTIVA – Estado del proyecto para continuar (actualizado 2026-11-06)
 
-> **Para el usuario:** al entrar, escribe solo: *Lee `C:\Users\USER\activa\docs\CONTINUAR.md` y dime cómo va el proyecto y qué sigue.*
+> **Para el usuario:** al entrar, escribe solo: *Lee `docs\CONTINUAR.md` y dime cómo va el proyecto y qué sigue.*
+
+## Novedad 2026-11-06: ACTIVA 360° (Cajathon 2026)
+Se construyeron seguidas las fases 8 a 13 (base 360°, Comercial, Negocios, Riesgos, Recuperaciones y cierre), **pendientes de validación del usuario**.
+Guía completa: `docs/activa360.md`. Ruta actual del proyecto: `C:\Users\ESTUDIANTE\Documents\HACKATON_CAJA_TRUJILLO\activa`.
+Siguiente paso: el usuario prueba con `python -m scripts.seed_360`, valida y decide si se hace `git push` (despliega en Render).
+Lo de abajo (fases 0 a 7) sigue vigente.
 
 ## Empieza aquí (para la IA)
 1. Lee este archivo y `AGENTS.md` completo antes de tocar código.

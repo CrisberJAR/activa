@@ -1,0 +1,44 @@
+# Parámetros del módulo de Recuperaciones (ACTIVA 360°).
+# La plataforma NO mueve dinero ni envía mensajes por sí sola: genera alertas internas
+# y propone mensajes respetuosos que el gestor decide enviar (solo con consentimiento).
+
+dias_aviso_vencimiento: 3   # avisar cuotas que vencen dentro de estos días
+dias_aviso_compromiso: 2    # avisar compromisos de pago próximos
+
+# Tramos de atraso (días) para ordenar la cartera
+tramos:
+  - {hasta: 0, clave: al_dia, nombre: Al día}
+  - {hasta: 8, clave: leve, nombre: Atraso leve (1-8 días)}
+  - {hasta: 30, clave: moderado, nombre: Atraso moderado (9-30 días)}
+  - {hasta: 60, clave: alto, nombre: Atraso alto (31-60 días)}
+  - {hasta: null, clave: critico, nombre: Atraso crítico (más de 60 días)}
+
+resultados_gestion:
+  contactado: Contactado, sin compromiso
+  compromiso: Contactado, con compromiso de pago
+  no_contesta: No contesta
+  numero_errado: Número equivocado
+  pago_realizado: Indica que ya pagó
+  dificultad: Indica dificultad de pago
+  reprogramacion: Pide reprogramación
+
+# Mensajes preventivos sugeridos (sin amenazas ni exposición a terceros).
+# {nombre}, {fecha} y {monto} se completan al mostrar el mensaje al gestor.
+mensajes:
+  proximo: >-
+    Hola {nombre}, le saludamos de su entidad financiera. Le recordamos con cariño que su cuota
+    de {monto} vence el {fecha}. Si necesita orientación, estamos para ayudarle.
+  vencida: >-
+    Hola {nombre}, le saludamos de su entidad financiera. Notamos que su cuota del {fecha}
+    ({monto}) aún figura pendiente. Si ya pagó, por favor ignore este mensaje. Si tiene alguna
+    dificultad, escríbanos y buscamos juntos una alternativa.
+  compromiso: >-
+    Hola {nombre}, gracias por su compromiso de pago para el {fecha} por {monto}.
+    Quedamos atentos para ayudarle en lo que necesite.
+
+# Reglas de trato (se muestran al gestor)
+reglas_trato:
+  - Contactar solo al titular y por el canal que autorizó.
+  - Nunca comentar la deuda con familiares, vecinos ni empleadores.
+  - Sin amenazas, burlas ni presiones; horario de 8:00 a 19:00.
+  - Registrar cada gestión y cada compromiso en el sistema.

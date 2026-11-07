@@ -34,6 +34,11 @@
           <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#conv{{ i.id }}" aria-expanded="false">
             <i class="bi bi-chat-text"></i> Chat</button>
           {% endif %}
+          {% if i.consentimiento %}
+          <form method="post" action="/interesados/{{ i.id }}/prospecto" class="d-inline">
+            <button class="btn btn-sm btn-outline-activa" type="submit" title="Agregar al embudo comercial"><i class="bi bi-person-plus"></i> Prospecto</button>
+          </form>
+          {% endif %}
           <form method="post" action="/interesados/{{ i.id }}/atendido?estado={{ estado }}" class="d-inline">
             <button class="btn btn-sm {{ 'btn-outline-secondary' if i.atendido else 'btn-activa' }}" type="submit">
               {{ 'Reabrir' if i.atendido else 'Marcar atendido' }}</button>

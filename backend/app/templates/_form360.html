@@ -1,0 +1,41 @@
+{# Macros de formulario para los módulos de ACTIVA 360° #}
+{% macro texto(campo, etiqueta, v, errores, tipo="text", requerido=true, extra="", ayuda="") -%}
+<label class="form-label" for="{{ campo }}">{{ etiqueta }}{% if not requerido %} <span class="text-body-secondary small">(opcional)</span>{% endif %}</label>
+<input class="form-control{{ ' is-invalid' if errores.get(campo) }}" type="{{ tipo }}" id="{{ campo }}" name="{{ campo }}"
+  value="{{ v.get(campo, '') if v.get(campo) is not none else '' }}" {{ 'required' if requerido }} {{ extra|safe }}
+  {% if errores.get(campo) %}aria-invalid="true" aria-describedby="{{ campo }}-error"{% endif %}>
+{% if ayuda %}<div class="form-text">{{ ayuda }}</div>{% endif %}
+{% if errores.get(campo) %}<div class="invalid-feedback" id="{{ campo }}-error">{{ errores[campo] }}</div>{% endif %}
+{%- endmacro %}
+
+{% macro area(campo, etiqueta, v, errores, requerido=true, filas=3) -%}
+<label class="form-label" for="{{ campo }}">{{ etiqueta }}{% if not requerido %} <span class="text-body-secondary small">(opcional)</span>{% endif %}</label>
+<textarea class="form-control{{ ' is-invalid' if errores.get(campo) }}" id="{{ campo }}" name="{{ campo }}" rows="{{ filas }}" {{ 'required' if requerido }}
+  {% if errores.get(campo) %}aria-invalid="true" aria-describedby="{{ campo }}-error"{% endif %}>{{ v.get(campo, '') or '' }}</textarea>
+{% if errores.get(campo) %}<div class="invalid-feedback" id="{{ campo }}-error">{{ errores[campo] }}</div>{% endif %}
+{%- endmacro %}
+
+{% macro lista(campo, etiqueta, opciones, v, errores, requerido=true, vacio="Elige…") -%}
+<label class="form-label" for="{{ campo }}">{{ etiqueta }}{% if not requerido %} <span class="text-body-secondary small">(opcional)</span>{% endif %}</label>
+<select class="form-select{{ ' is-invalid' if errores.get(campo) }}" id="{{ campo }}" name="{{ campo }}" {{ 'required' if requerido }}
+  {% if errores.get(campo) %}aria-invalid="true" aria-describedby="{{ campo }}-error"{% endif %}>
+  <option value="">{{ vacio }}</option>
+  {% for valor, texto in opciones.items() %}
+  <option value="{{ valor }}" {{ 'selected' if v.get(campo)|string == valor|string }}>{{ texto }}</option>
+  {% endfor %}
+</select>
+{% if errores.get(campo) %}<div class="invalid-feedback" id="{{ campo }}-error">{{ errores[campo] }}</div>{% endif %}
+{%- endmacro %}
+
+{% macro consentimiento(v, errores, texto="El cliente autoriza el tratamiento de sus datos personales para fines de evaluación y contacto comercial (Ley 29733).") -%}
+<div class="form-check">
+  <input class="form-check-input{{ ' is-invalid' if errores.get('consentimiento') }}" type="checkbox" id="consentimiento" name="consentimiento"
+    {{ 'checked' if v.get('consentimiento') in (true, 'on', 'true') }}>
+  <label class="form-check-label" for="consentimiento">{{ texto }}</label>
+  {% if errores.get('consentimiento') %}<div class="invalid-feedback">{{ errores.consentimiento }}</div>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro aviso_demo(texto) -%}
+<div class="alert alert-warning aviso-demo small" role="note"><i class="bi bi-info-circle"></i> {{ texto }}</div>
+{%- endmacro %}

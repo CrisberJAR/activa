@@ -1,0 +1,42 @@
+{# Evaluación preliminar de riesgos: el color SIEMPRE va con su explicación #}
+{% set textos_semaforo = {"verde": "Verde", "amarillo": "Amarillo", "rojo": "Rojo"} %}
+{% set colores_alerta = {"rojo": "danger", "amarillo": "warning", "verde": "success"} %}
+{% if evaluacion %}
+{% set ind = evaluacion.indicadores %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+  <span class="semaforo semaforo-{{ evaluacion.semaforo }} fs-5">{{ textos_semaforo[evaluacion.semaforo] }}</span>
+  <span class="small text-body-secondary">Umbrales {{ evaluacion.version_umbrales }} · {{ evaluacion.creado_en|fecha_hora }} · {{ evaluacion.autor.nombre }}</span>
+</div>
+<p class="small mb-2">
+  {% if evaluacion.semaforo == "verde" %}No se identificaron alertas configuradas.
+  {% elif evaluacion.semaforo == "amarillo" %}Requiere información o revisión adicional.
+  {% else %}Se identificaron condiciones que requieren revisión prioritaria.{% endif %}
+  <strong>No es una decisión crediticia automática:</strong> la decisión la toma una persona autorizada.
+</p>
+{% if evaluacion.alertas %}
+<ul class="list-unstyled small mb-3">
+  {% for a in evaluacion.alertas %}
+  <li class="mb-1"><span class="badge text-bg-{{ colores_alerta[a.nivel] }}">{{ textos_semaforo[a.nivel] }}</span> {{ a.mensaje }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+<div class="table-responsive">
+<table class="table table-sm small mb-2">
+  <tbody>
+    <tr><th scope="row">Ingreso neto declarado</th><td class="text-end">{{ ind.ingreso_neto|soles }}</td></tr>
+    <tr><th scope="row">Cuotas de otras deudas</th><td class="text-end">{{ ind.cuotas_otras_deudas|soles }}</td></tr>
+    <tr><th scope="row">Capacidad disponible estimada</th><td class="text-end">{{ ind.capacidad_disponible|soles }}</td></tr>
+    <tr><th scope="row">Cuota mensual estimada <span class="fw-normal text-body-secondary">(TEA demo {{ ind.tea_demo }} %)</span></th><td class="text-end">{{ ind.cuota_estimada_mensual|soles }}</td></tr>
+    <tr><th scope="row">Cuota / ingresos</th><td class="text-end">{{ "%.0f %%"|format(ind.cuota_ingreso * 100) if ind.cuota_ingreso is not none else "—" }}</td></tr>
+    <tr><th scope="row">Deudas totales / ingresos</th><td class="text-end">{{ "%.0f %%"|format(ind.deuda_ingreso * 100) if ind.deuda_ingreso is not none else "—" }}</td></tr>
+    <tr><th scope="row">Cuota / capacidad disponible</th><td class="text-end">{{ "%.0f %%"|format(ind.cuota_capacidad * 100) if ind.cuota_capacidad is not none else "—" }}</td></tr>
+    <tr><th scope="row">Completitud del expediente</th><td class="text-end">{{ ind.completitud }} %</td></tr>
+  </tbody>
+</table>
+</div>
+{% if evaluacion.opinion %}
+<div class="border-start border-3 ps-2 small"><strong>Opinión del analista ({{ evaluacion.analista.nombre if evaluacion.analista else "" }}):</strong> {{ evaluacion.opinion }}</div>
+{% endif %}
+{% else %}
+<p class="small text-body-secondary mb-0">Aún no hay evaluación preliminar. Se genera al enviar la solicitud o con el botón «Evaluar ahora».</p>
+{% endif %}

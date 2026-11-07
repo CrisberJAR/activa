@@ -24,3 +24,6 @@ docs/apk/
 .idea/
 Thumbs.db
 .DS_Store
+
+# Respaldos de la base (contienen datos personales)
+backend/respaldos/

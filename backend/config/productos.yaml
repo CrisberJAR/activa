@@ -1,0 +1,84 @@
+# Catálogo de productos de ACTIVA 360°.
+# IMPORTANTE: son CONFIGURACIONES DE DEMOSTRACIÓN. No son productos, tasas ni condiciones
+# de Caja Trujillo ni de ninguna entidad. Antes de usarlos con clientes reales, la entidad
+# debe reemplazarlos por su tarifario oficial (tasas, comisiones y seguros autorizados).
+#
+# tea_demo: tasa efectiva anual (%) SOLO para simular cuotas referenciales.
+# El ahorro no se incluye: solo se agrega cuando exista una oferta real y autorizada.
+
+aviso: >-
+  Producto y tasa de demostración. No es una oferta ni una cotización de Caja Trujillo
+  ni de otra entidad financiera; las condiciones reales las define la entidad.
+
+productos:
+  capital_trabajo:
+    nombre: Capital de trabajo (demo)
+    descripcion: Compra de mercadería, insumos o materia prima para el negocio.
+    segmentos: [comerciante, emprendedor, agricultor, transportista, independiente]
+    monto_min: 500
+    monto_max: 50000
+    plazo_min: 3
+    plazo_max: 24
+    frecuencias: [mensual, quincenal, semanal]
+    tea_demo: 45.0
+  emprendimiento:
+    nombre: Crédito para emprendimiento (demo)
+    descripcion: Inicio o crecimiento de un negocio pequeño con plan sencillo.
+    segmentos: [emprendedor, comerciante, independiente, persona_natural]
+    monto_min: 500
+    monto_max: 15000
+    plazo_min: 3
+    plazo_max: 18
+    frecuencias: [mensual, quincenal]
+    tea_demo: 55.0
+  activo_fijo:
+    nombre: Crédito para activos fijos (demo)
+    descripcion: Compra de maquinaria, equipos, vehículo de trabajo o mejoras del local.
+    segmentos: [comerciante, emprendedor, agricultor, transportista, independiente]
+    monto_min: 2000
+    monto_max: 120000
+    plazo_min: 6
+    plazo_max: 48
+    frecuencias: [mensual]
+    tea_demo: 32.0
+  personal:
+    nombre: Crédito personal (demo)
+    descripcion: Necesidades personales o familiares con ingresos demostrables.
+    segmentos: [dependiente, independiente, persona_natural]
+    monto_min: 500
+    monto_max: 30000
+    plazo_min: 3
+    plazo_max: 36
+    frecuencias: [mensual]
+    tea_demo: 38.0
+  independientes:
+    nombre: Financiamiento para independientes (demo)
+    descripcion: Para quienes trabajan por su cuenta con ingresos variables (servicios, oficios).
+    segmentos: [independiente, transportista, persona_natural]
+    monto_min: 500
+    monto_max: 20000
+    plazo_min: 3
+    plazo_max: 24
+    frecuencias: [mensual, quincenal, semanal]
+    tea_demo: 48.0
+
+# Documentos que se revisan (lista de control; no se suben archivos)
+documentos:
+  dni: Copia de DNI
+  recibo_servicio: Recibo de luz o agua (domicilio)
+  sustento_ventas: Sustento de ventas (cuaderno, boletas o facturas)
+  boleta_pago: Últimas boletas de pago
+  recibos_honorarios: Recibos por honorarios o comprobantes de ingresos
+  constancia_posesion: Constancia de posesión o de productor
+  tarjeta_propiedad: Tarjeta de propiedad del vehículo
+  plan_negocio: Plan de negocio sencillo
+  sustento_ingresos: Sustento de ingresos
+documentos_base: [dni, recibo_servicio]
+documentos_por_segmento:
+  comerciante: [sustento_ventas]
+  emprendedor: [plan_negocio]
+  independiente: [recibos_honorarios]
+  dependiente: [boleta_pago]
+  agricultor: [constancia_posesion]
+  transportista: [tarjeta_propiedad]
+  persona_natural: [sustento_ingresos]

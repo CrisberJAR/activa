@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block titulo %}Riesgos{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Evaluación preliminar de riesgos</h1>
+<p class="text-body-secondary small">Solicitudes en curso ordenadas por prioridad. El semáforo <strong>no aprueba ni rechaza</strong>: indica qué revisar primero y por qué.</p>
+
+<div class="row g-3 mb-3">
+  {% for clave, titulo, clase in [("rojo", "Revisión prioritaria", "kpi-alerta"), ("amarillo", "Requieren revisión", "kpi-aviso"), ("verde", "Sin alertas", ""), ("sin_evaluar", "Sin evaluar", "kpi-info")] %}
+  <div class="col-6 col-lg-3">
+    <a class="card kpi {{ clase }} h-100" href="/riesgos?semaforo={{ clave }}">
+      <div class="card-body py-2"><div class="kpi-titulo">{{ titulo }}</div><div class="kpi-valor">{{ conteo[clave] }}</div></div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+{% if semaforo %}<p class="small">Filtro: <strong>{{ semaforo|replace("_", " ") }}</strong> · <a href="/riesgos">ver todas</a></p>{% endif %}
+
+{% if filas %}
+<div class="card mb-4"><div class="card-body">
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0" data-tabla>
+    <thead><tr><th>Solicitud</th><th>Cliente</th><th>Monto</th><th>Estado</th><th>Semáforo</th><th>Principal alerta</th></tr></thead>
+    <tbody>
+      {% for f in filas %}
+      <tr>
+        <td><a class="fw-semibold" href="/solicitudes/{{ f.s.id }}#riesgos">#{{ f.s.id }}</a><div class="small text-body-secondary">{{ productos.get(f.s.producto, {}).get("nombre", f.s.producto) }}</div></td>
+        <td class="small">{{ f.s.cliente.nombres }}<div class="text-body-secondary">{{ segmentos.get(f.s.cliente.segmento) }}</div></td>
+        <td class="small text-nowrap">{{ f.s.monto|soles }}</td>
+        <td><span class="badge text-bg-{{ colores[f.s.estado] }}">{{ estados[f.s.estado] }}</span></td>
+        <td>{% if f.ev %}<span class="semaforo semaforo-{{ f.ev.semaforo }} small">{{ f.ev.semaforo|capitalize }}</span>{% else %}<span class="small text-body-secondary">Sin evaluar</span>{% endif %}</td>
+        <td class="small">{{ f.ev.alertas[0].mensaje if f.ev and f.ev.alertas else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div></div>
+{% else %}
+<div class="text-center text-body-secondary py-5"><i class="bi bi-shield-check fs-1 d-block mb-2"></i>No hay solicitudes en evaluación.</div>
+{% endif %}
+
+<div class="card"><div class="card-body">
+  <h2 class="h6">Umbrales vigentes · versión {{ cfg.version }}</h2>
+  <p class="small text-body-secondary">Se configuran en <code>backend/config/riesgos.yaml</code>. Cada evaluación guarda la versión usada.</p>
+  <div class="table-responsive">
+  <table class="table table-sm small mb-0">
+    <thead><tr><th>Indicador</th><th>Amarillo desde</th><th>Rojo desde</th><th>Justificación</th></tr></thead>
+    <tbody>
+      {% for clave, nombre in [("cuota_ingreso", "Cuota / ingresos"), ("deuda_ingreso", "Deudas totales / ingresos"), ("cuota_capacidad", "Cuota / capacidad disponible")] %}
+      {% set u = cfg.umbrales[clave] %}
+      <tr><td>{{ nombre }}</td><td>{{ (u.amarillo * 100)|round(0)|int }} %</td><td>{{ (u.rojo * 100)|round(0)|int }} %</td><td>{{ u.justificacion }}</td></tr>
+      {% endfor %}
+      {% set u = cfg.umbrales.completitud %}
+      <tr><td>Completitud del expediente</td><td>menos de {{ u.amarillo }} %</td><td>menos de {{ u.rojo }} %</td><td>{{ u.justificacion }}</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div></div>
+{% endblock %}

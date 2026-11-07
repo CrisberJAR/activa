@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}Solicitudes{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Solicitudes de crédito</h1>
+<p class="text-body-secondary small">
+  {% if usuario.rol == "asesor" %}Tus solicitudes. Para iniciar una, abre el expediente del cliente.
+  {% elif usuario.rol == "analista_riesgos" %}Solicitudes enviadas a evaluación.
+  {% else %}Todas las solicitudes.{% endif %}</p>
+
+<ul class="nav nav-pills mb-3 flex-wrap">
+  <li class="nav-item"><a class="nav-link {{ 'active' if not estado }}" href="/solicitudes">Todas</a></li>
+  {% for k, t in estados.items() %}
+  {% if not (usuario.rol == "analista_riesgos" and k == "borrador") %}
+  <li class="nav-item"><a class="nav-link {{ 'active' if estado == k }}" href="/solicitudes?estado={{ k }}">{{ t }}</a></li>
+  {% endif %}
+  {% endfor %}
+</ul>
+
+{% if solicitudes %}
+<div class="card"><div class="card-body">
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0" data-tabla>
+    <thead><tr><th>N.°</th><th>Cliente</th><th>Producto</th><th>Monto</th><th>Estado</th><th>Semáforo</th><th>Asesor</th></tr></thead>
+    <tbody>
+      {% for s in solicitudes %}
+      {% set ev = ultima(s) %}
+      <tr>
+        <td><a class="fw-semibold" href="/solicitudes/{{ s.id }}">#{{ s.id }}</a></td>
+        <td>{{ s.cliente.nombres }}<div class="small text-body-secondary">{{ segmentos.get(s.cliente.segmento) }}</div></td>
+        <td class="small">{{ productos.get(s.producto, {}).get("nombre", s.producto) }}</td>
+        <td class="small text-nowrap">{{ s.monto|soles }}</td>
+        <td><span class="badge text-bg-{{ colores[s.estado] }}">{{ estados[s.estado] }}</span></td>
+        <td>{% if ev %}<span class="semaforo semaforo-{{ ev.semaforo }} small">{{ ev.semaforo|capitalize }}</span>{% else %}<span class="small text-body-secondary">Sin evaluar</span>{% endif %}</td>
+        <td class="small">{{ s.asesor.nombre }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div></div>
+{% else %}
+<div class="text-center text-body-secondary py-5"><i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>No hay solicitudes {{ "en este estado" if estado }}.</div>
+{% endif %}
+{% endblock %}

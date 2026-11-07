@@ -67,7 +67,7 @@ def main():
                 "publico_objetivo": f"Clientes del bloque {bloque.nombre}", "necesidad": ranking[0]["nombre"],
                 "zona": ", ".join(list(indicadores["por_zona"])[:3]),
             })
-            contexto = campanas.contexto_bloque(db, bloque_id, estacion)
+            contexto = campanas.contexto_bloque(db, bloque_id)
             (_, generado_con, _), t = cronometrar(lambda: campanas.generar_contenido(entrada, contexto))
             tiempos["campana"].append(t)
             fuentes.add(generado_con)

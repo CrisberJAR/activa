@@ -1,0 +1,9 @@
+# Parámetros de seguridad (se cambian aquí, sin tocar código)
+login:
+  # Tras este número de intentos fallidos con el mismo correo se bloquea el ingreso…
+  max_intentos: 5
+  # …durante estos minutos (cuentan los fallos dentro de esta misma ventana)
+  bloqueo_minutos: 15
+
+auditoria:
+  por_pagina: 50

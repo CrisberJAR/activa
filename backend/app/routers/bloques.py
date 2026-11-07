@@ -8,6 +8,7 @@ from app.db import get_db
 from app.models import Bloque, Encuesta, Usuario
 from app.schemas import BloqueEntrada, errores_es
 from app.security import requiere_rol, usuario_web
+from app.services.auditoria import registrar
 from app.templating import avisar, templates
 
 router = APIRouter(prefix="/bloques")
@@ -45,6 +46,8 @@ async def crear(request: Request, usuario: Usuario = Depends(solo_gerente), db: 
         return _pagina(request, usuario, db, datos, errores_es(e), status.HTTP_422_UNPROCESSABLE_ENTITY)
     bloque = Bloque(**entrada.model_dump(), creado_por=usuario.id, activo=True)
     db.add(bloque)
+    db.flush()
+    registrar(db, "bloque_creado", usuario, f"bloque {bloque.id}")
     db.commit()
     avisar(request, f"Bloque «{bloque.nombre}» creado y abierto para encuestas")
     return RedirectResponse("/bloques", status.HTTP_303_SEE_OTHER)
@@ -58,6 +61,7 @@ def abrir_o_cerrar(
     if not bloque:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Bloque no encontrado")
     bloque.activo = not bloque.activo
+    registrar(db, "bloque_abierto" if bloque.activo else "bloque_cerrado", usuario, f"bloque {bloque.id}")
     db.commit()
     avisar(request, f"Bloque «{bloque.nombre}» {'abierto' if bloque.activo else 'cerrado'}")
     return RedirectResponse("/bloques", status.HTTP_303_SEE_OTHER)

@@ -53,3 +53,36 @@
 | 2026-10-29 | La columna «antes» de `docs/tiempos.md` queda en [COMPLETAR] hasta entrevistar a la empresa | No se inventan datos; guía de entrevista incluida |
 | 2026-10-30 | Despliegue en Render (plan gratuito), con Supabase y Firebase sin cambios | Costo S/ 0; a cambio, el servicio se duerme tras 15 minutos sin visitas |
 | 2026-10-30 | Versiones fijas de numpy, scipy, pandas y joblib | El modelo guardado debe cargar en el servidor con las mismas versiones con que se probó |
+| 2026-11-06 | ACTIVA 360°: se amplía el alcance con 4 módulos (Comercial, Negocios, Riesgos, Recuperaciones) sin tocar los 5 objetivos de la tesis | Pedido del usuario para el Cajathon 2026; lo anterior sigue funcionando y se integra al módulo Comercial |
+| 2026-11-06 | Se mantiene el stack (FastAPI + Jinja2 + Bootstrap + Supabase + Gemini); Chart.js por CDN para gráficos | No hay motivo técnico para cambiarlo y todo sigue en planes gratuitos |
+| 2026-11-06 | Cuatro roles: asesor, gerente, analista de riesgos y gestor de recuperaciones; el gerente crea usuarios | Separación de funciones típica de una microfinanciera; cada rol ve solo su módulo |
+| 2026-11-06 | Respaldo en JSON con `scripts/respaldo.py` (SQLAlchemy) en vez de `pg_dump` | `pg_dump` no está instalado y el plan gratuito de Supabase no permite descargar copias |
+| 2026-11-06 | Auditoría en una tabla propia; solo guarda identificadores, nunca nombres ni teléfonos de clientes | Trazabilidad sin exponer datos personales |
+| 2026-11-06 | Bloqueo de 15 min tras 5 intentos fallidos por correo (`config/seguridad.yaml`), también para el token de la app | Frena ataques de fuerza bruta sin servicios externos |
+| 2026-11-06 | CSRF: cookie SameSite=Lax + verificación del encabezado Origin/Referer en formularios | Protección suficiente sin añadir tokens a los ~40 formularios existentes |
+| 2026-11-06 | Documentos del expediente como lista de control (pendiente/recibido/validado/observado), sin subir archivos | Render gratis borra el disco en cada despliegue y Supabase Storage no está autorizado; se evita guardar copias de DNI |
+| 2026-11-06 | Productos y tasas en `config/productos.yaml`, rotulados «de demostración»; sin producto de ahorro | No se inventan productos ni condiciones de Caja Trujillo |
+| 2026-11-06 | Simulador con método francés: i = (1+TEA)^(1/n) − 1, cuota fija, última cuota ajusta el saldo; sin comisiones ni seguros | Fórmula verificable a mano; el resultado se declara referencial |
+| 2026-11-06 | Solicitud: borrador → enviada → en evaluación → (observada) → evaluada → aprobada/denegada; aprobar y denegar solo el gerente, con comentario | La IA y el semáforo nunca deciden; la decisión es humana y queda en el historial |
+| 2026-11-06 | Al enviar y al cerrar la evaluación se guarda una «foto» de la evaluación preliminar con la versión de umbrales | Se puede explicar después con qué datos y reglas se revisó cada solicitud |
+| 2026-11-06 | Semáforo: rojo sin capacidad o ratios sobre el límite rojo; amarillo por ratios, expediente incompleto o inconsistencias; verde si no hay alertas | Indicadores explicables y parametrizables; los umbrales tienen justificación en el YAML |
+| 2026-11-06 | Inconsistencias: monto fuera del producto, monto > 12 veces el ingreso neto, ingresos mayores que lo que sustenta el formulario, antigüedad < 6 meses, teléfono o solicitud duplicados, cambio de ingresos > 50 % | Se piden revisiones, no se afirma fraude |
+| 2026-11-06 | Créditos registrados solo por el gerente para seguimiento; pagos registrados a mano y aplicados a las cuotas más antiguas | La plataforma no mueve dinero; refleja lo informado por la entidad |
+| 2026-11-06 | Alertas de recuperaciones calculadas al vuelo; una tarea diaria marca compromisos incumplidos | Sin tablas extra ni servicios de mensajería; siempre reflejan los datos actuales |
+| 2026-11-06 | Mensajes de cobranza por plantilla respetuosa (sin IA), WhatsApp solo con consentimiento y celular válido | Evita enviar datos financieros a la IA y cumple reglas de trato (sin amenazas ni terceros) |
+| 2026-11-06 | Mensaje comercial con Gemini solo con segmento, actividad y necesidad anonimizados; se rechaza si menciona tasas o promete aprobación | Mismas reglas del chatbot y de las campañas |
+| 2026-11-06 | Una sola migración para las 13 tablas nuevas de los 4 módulos | Las fases 8 a 13 se hicieron seguidas; las tablas no cambian datos existentes |
+
+
+## 2026-11-06 – Columna `usuarios.rol` ampliada a 30 caracteres
+
+`gestor_recuperaciones` tiene 21 caracteres y la columna era `VARCHAR(20)`: en Supabase el seed fallaba y los usuarios
+demo no se creaban (en SQLite de las pruebas no se nota porque no controla el largo). Migración `d3f6a8b2c9e1`
+y prueba `test_roles_caben_en_columna_rol`.
+
+## 2026-11-06 – Las campañas generadas ya no hablan del clima
+
+A pedido del usuario: Gemini mencionaba siempre las lluvias/el clima porque se le enviaba la estación del IoT y el
+formato pedía "qué problema de la temporada resuelve". Ahora el eje del texto es el tipo de campaña elegido y la
+necesidad del público; el clima solo se menciona si la campaña trata de eso. El IoT sigue sugiriendo la temporada
+en el formulario (`valores_sugeridos`), pero ya no entra al prompt (`contexto_bloque`).

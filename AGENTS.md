@@ -1,4 +1,4 @@
-# AGENTS.md – Proyecto ACTIVA
+# AGENTS.md – Proyecto ACTIVA / ACTIVA 360°
 
 Instrucciones para cualquier agente de IA (Claude Code, Codex, etc.) que trabaje en este repositorio. Léelas completas antes de tocar código.
 
@@ -17,6 +17,20 @@ Problema: las campañas crediticias se crean de forma lenta, manual y reactiva. 
 5. **App Flutter:** dashboard IoT (registros diarios, análisis semana/mes, estación actual, temporada próxima, notificación de cambios). Sin encuestas ni créditos.
 
 Cualquier idea fuera de esto va a `docs/mejoras_futuras.md` y **no se implementa**.
+
+### Ampliación autorizada: ACTIVA 360° (Cajathon 2026 – Caja Trujillo)
+
+Autorizada por el usuario el 2026-11-06. **ACTIVA 360° – Plataforma inteligente de inclusión y gestión financiera**,
+de alcance nacional, para comerciantes, emprendedores, independientes, dependientes, agricultores, transportistas y
+personas naturales. Los cinco objetivos anteriores **se conservan sin cambios** (la tesis SENATI se sustenta con ellos)
+y quedan como parte del módulo Comercial. Se agregan cuatro módulos:
+
+1. **Comercial:** prospectos con embudo (nuevo → contactado → interesado → solicitud → evaluación → convertido / no convertido), asignación a asesores, historial de contactos, segmentos y regiones, campañas con estado *pendiente de aprobación*, segmento/región/producto, resultados y conversiones, mensaje comercial con IA (datos anonimizados).
+2. **Negocios:** expediente del cliente, solicitud digital con formulario según el tipo de cliente y borrador, documentos como lista de control (sin subir archivos), catálogo de productos **de demostración** (`config/productos.yaml`), simulador de cuotas (método francés) y gestión de estados con historial.
+3. **Riesgos:** evaluación preliminar explicable (ingreso neto, capacidad, cuota/ingreso, deuda/ingreso, completitud), semáforo con explicación y umbrales versionados (`config/riesgos.yaml`), inconsistencias (montos, duplicados, cambios inusuales) y alertas de seguridad. **Nunca aprueba ni rechaza**: decide una persona.
+4. **Recuperaciones:** créditos registrados solo para seguimiento (el gerente es el operador autorizado), cronograma, pagos registrados, días de atraso y tramos, alertas preventivas internas, gestiones, compromisos y reprogramaciones revisadas por el gerente. Mensajes respetuosos; WhatsApp solo con consentimiento. **No mueve dinero.**
+
+Además: menú lateral por módulos, modo oscuro, tablas con búsqueda y paginación, panel con indicadores reales por rol, auditoría, límite de intentos de inicio de sesión y protección CSRF.
 
 ## Stack decidido
 
@@ -76,7 +90,11 @@ activa/
 - Campañas: entradas (temporada, público objetivo, riesgo/necesidad, monto máximo opcional, plazo, zona, tipo de cliente, periodo de gracia, duración, presupuesto de difusión, meta). Salida JSON validada con: nombre, propuesta de valor, decisiones para la gerencia, capacitación (speech + objeciones con respuestas), plan de marketing (canales, gancho, mensaje de WhatsApp).
 - La IA **no inventa tasas de interés ni promete aprobación**. Una campaña solo es vigente si el **gerente** la publica.
 - Chatbot: tono cercano tipo WhatsApp, lenguaje sencillo, UNA pregunta por mensaje, conecta el oficio con el problema de la temporada, pide nombre y teléfono solo si hay interés, deriva a un asesor humano, límite de mensajes por usuario.
-- Roles: `asesor` y `gerente`.
+- Roles: `asesor` (Comercial y Negocios), `gerente` (todo, decisiones finales y administración), `analista_riesgos` (Riesgos y solicitudes enviadas) y `gestor_recuperaciones` (su cartera asignada). Los usuarios los crea el gerente en `/usuarios`.
+- ACTIVA 360°: los productos y tasas son **de demostración** y se rotulan así; nunca se atribuyen a Caja Trujillo. El simulador es referencial (sin comisiones ni seguros).
+- ACTIVA 360°: el semáforo de riesgos no decide; aprobar o denegar es una acción humana del gerente con comentario obligatorio.
+- ACTIVA 360°: no se envía información financiera personal identificable a Gemini.
+- Antes de cada migración en Supabase: `python -m scripts.respaldo`.
 
 ## Seguridad y costo
 
@@ -86,7 +104,7 @@ activa/
 
 ## Forma de trabajar (obligatoria)
 
-1. Una fase a la vez: 0 base y login · 1 bloques y encuestas · 2 IoT Wokwi · 3 registros diarios y análisis estacional · 4 app móvil · 5 IA · 6 chatbot · 7 integración y cierre.
+1. Una fase a la vez: 0 base y login · 1 bloques y encuestas · 2 IoT Wokwi · 3 registros diarios y análisis estacional · 4 app móvil · 5 IA · 6 chatbot · 7 integración y cierre · **ACTIVA 360°:** 8 base 360° · 9 comercial · 10 negocios · 11 riesgos · 12 recuperaciones · 13 cierre 360°. (Las fases 8 a 13 se hicieron seguidas por pedido del usuario.)
 2. Antes de programar una fase: plan corto (archivos, decisiones, riesgos) y **esperar visto bueno**.
 3. Código completo y ejecutable, con comandos exactos para correr y probar (Windows / PowerShell).
 4. pytest para la lógica crítica y datos de ejemplo para ver resultados sin esperar semanas.
@@ -133,3 +151,9 @@ activa/
   - `scripts/verificar_sistema.py` (revisión antes de la demo) y `scripts/medir_tiempos.py` (columna «después»: 6,4 s de encuestas a campaña).
   - Documentos: `docs/manual_usuario.md`, `docs/guion_demo.md`, `docs/tiempos.md` («antes» en [COMPLETAR]), `docs/capturas/` (4 automáticas; lista de las que toma el usuario).
   - Despliegue preparado, aún sin ejecutar: `render.yaml`, `docs/despliegue_render.md`, `scripts/cambiar_password.py`, `COOKIE_SEGURA`. Repositorio privado: https://github.com/CrisberJAR/activa
+- [ ] ACTIVA 360° – Fases 8 a 13 (2026-11-06): 212 pruebas pasando (173 anteriores + 39 en `tests/test_activa360.py`). Pendiente: validación del usuario.
+  - Migraciones `b5d8e1f2a4c6` (auditoría), `c7e2a9f4d1b3` (13 tablas de los 4 módulos) y `d3f6a8b2c9e1` (`usuarios.rol` a 30 caracteres). Respaldo previo: `python -m scripts.respaldo` (carpeta `backend/respaldos/`, fuera de git).
+  - Datos de demostración: `python -m scripts.seed_360` (borrar con `--borrar`); crea `analista@activa.pe / Analista2026!` y `gestor@activa.pe / Gestor2026!`.
+  - Al entrar se va a `/panel` (las rutas `/asesor` y `/gerente` redirigen ahí). Plantillas nuevas usan `_form360.html` (macros) y `_evaluacion.html`.
+  - Configuración: `config/productos.yaml` (demo), `config/riesgos.yaml` (umbrales versionados), `config/recuperaciones.yaml`, `config/seguridad.yaml` (intentos de login).
+

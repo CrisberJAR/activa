@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "_form360.html" as f %}
+{% block titulo %}Registrar crédito{% endblock %}
+{% block contenido %}
+<a class="small" href="/recuperaciones"><i class="bi bi-arrow-left"></i> Cartera</a>
+<h1 class="h3 my-2">Registrar crédito desembolsado</h1>
+<div class="alert alert-warning aviso-demo small">Registro solo para seguimiento: el desembolso lo realizó la entidad en su sistema oficial.
+  Copia aquí las condiciones reales del crédito (monto, TEA, plazo y fecha). El cronograma se calcula con el método francés.</div>
+{% if errores %}<div class="alert alert-danger" role="alert">Revisa los campos marcados en rojo.</div>{% endif %}
+
+<form method="post" novalidate data-confirmar="¿Registrar este crédito y generar su cronograma?">
+  <input type="hidden" name="solicitud_id" value="{{ v.solicitud_id or '' }}">
+  {% if errores.solicitud_id %}<div class="alert alert-danger small">{{ errores.solicitud_id }}</div>{% endif %}
+  <div class="card mb-3"><div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-6">
+        {% set op_cli = {} %}
+        {% for c in clientes %}{% set _ = op_cli.update({c.id|string: c.nombres ~ " · DNI " ~ c.dni}) %}{% endfor %}
+        {{ f.lista("cliente_id", "Cliente", op_cli, v, errores) }}
+      </div>
+      <div class="col-md-6">
+        {% set op_prod = {} %}
+        {% for k, p in productos.items() %}{% set _ = op_prod.update({k: p.nombre}) %}{% endfor %}
+        {{ f.lista("producto", "Producto", op_prod, v, errores) }}
+      </div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("monto", "Monto desembolsado (S/)", v, errores, tipo="number", extra='min="1" step="0.01"') }}</div>
+      <div class="col-sm-6 col-md-3">{{ f.texto("tea", "TEA registrada (%)", v, errores, tipo="number", extra='min="0" max="300" step="0.001"') }}</div>
+      <div class="col-sm-6 col-md-2">{{ f.texto("plazo_meses", "Plazo (meses)", v, errores, tipo="number", extra='min="1" max="120"') }}</div>
+      <div class="col-sm-6 col-md-2">{{ f.lista("frecuencia", "Frecuencia", frecuencias, v, errores) }}</div>
+      <div class="col-sm-6 col-md-2">{{ f.texto("fecha_desembolso", "Desembolso", v, errores, tipo="date") }}</div>
+      <div class="col-sm-6 col-md-4">
+        {% set op_g = {} %}
+        {% for g in gestores %}{% set _ = op_g.update({g.id|string: g.nombre}) %}{% endfor %}
+        {{ f.lista("gestor_id", "Gestor de recuperaciones", op_g, v, errores, requerido=false, vacio="Sin asignar") }}
+      </div>
+    </div>
+  </div></div>
+  <button class="btn btn-activa" type="submit"><i class="bi bi-check2"></i> Registrar y generar cronograma</button>
+</form>
+{% endblock %}

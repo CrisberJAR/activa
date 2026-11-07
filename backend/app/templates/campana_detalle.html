@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}{{ c.nombre }}{% endblock %}
 {% block contenido %}
-{% set colores = {"borrador": "secondary", "programada": "info", "vigente": "success", "finalizada": "dark", "retirada": "danger"} %}
+{% set colores = {"borrador": "secondary", "pendiente": "warning", "programada": "info", "vigente": "success", "finalizada": "dark", "retirada": "danger"} %}
 {% set cont = c.contenido %}
 {% set e = c.entradas %}
 {% set es_gerente = usuario.rol == "gerente" %}
@@ -19,7 +19,12 @@
   </div>
   {% if es_gerente %}
   <div class="d-flex flex-wrap gap-2">
-    {% if c.estado == "borrador" %}
+    {% if c.estado in ("borrador", "pendiente") %}
+    {% if c.estado == "pendiente" %}
+    <form method="post" action="/campanas/{{ c.id }}/devolver">
+      <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-arrow-counterclockwise"></i> Devolver a borrador</button>
+    </form>
+    {% endif %}
     <a class="btn btn-outline-secondary" href="/campanas/{{ c.id }}/editar"><i class="bi bi-pencil"></i> Editar</a>
     <form method="post" action="/campanas/{{ c.id }}/regenerar" onsubmit="this.querySelector('button').disabled = true">
       <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-arrow-repeat"></i> Regenerar con IA</button>
@@ -37,8 +42,28 @@
     {% endif %}
   </div>
   {% elif c.estado == "borrador" %}
-  <div class="alert alert-light border small mb-0">Borrador: el gerente la revisa, edita y publica.</div>
+  <div class="d-flex flex-wrap gap-2 align-items-center">
+    <div class="alert alert-light border small mb-0">Borrador: el gerente la revisa, edita y publica.</div>
+    {% if c.creado_por == usuario.id %}
+    <form method="post" action="/campanas/{{ c.id }}/enviar">
+      <button class="btn btn-activa" type="submit"><i class="bi bi-send"></i> Enviar a aprobación</button>
+    </form>
+    {% endif %}
+  </div>
+  {% elif c.estado == "pendiente" %}
+  <div class="alert alert-warning small mb-0">Pendiente de aprobación del gerente.</div>
   {% endif %}
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-md-3"><div class="card kpi h-100"><div class="card-body py-2">
+    <div class="kpi-titulo">Prospectos</div><div class="kpi-valor">{{ resultados.total }}</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="card kpi h-100"><div class="card-body py-2">
+    <div class="kpi-titulo">Convertidos</div><div class="kpi-valor">{{ resultados.convertidos }}</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="card kpi kpi-info h-100"><div class="card-body py-2">
+    <div class="kpi-titulo">Conversión</div><div class="kpi-valor">{{ (resultados.tasa ~ " %") if resultados.tasa is not none else "—" }}</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="card kpi kpi-aviso h-100"><div class="card-body py-2">
+    <div class="kpi-titulo">Meta</div><div class="kpi-valor">{{ e.meta_creditos }}</div></div></div></div>
 </div>
 
 <div class="card mb-3 border-activa">
@@ -65,6 +90,9 @@
           <dt class="col-5">Temporada</dt><dd class="col-7">{{ cat.temporada_necesidad.get(e.temporada) }}</dd>
           <dt class="col-5">Zona</dt><dd class="col-7">{{ e.zona }}</dd>
           <dt class="col-5">Cliente</dt><dd class="col-7">{{ tipos_cliente.get(e.tipo_cliente) }}</dd>
+          <dt class="col-5">Segmento</dt><dd class="col-7">{{ segmentos.get(e.segmento, "Todos") if e.segmento else "Todos" }}</dd>
+          <dt class="col-5">Región</dt><dd class="col-7">{{ regiones.get(e.region, "Todas") if e.region else "Todas" }}</dd>
+          <dt class="col-5">Producto</dt><dd class="col-7">{{ productos.get(e.producto, {}).get("nombre", "—") if e.producto else "Sin producto específico" }}</dd>
           <dt class="col-5">Monto máximo</dt><dd class="col-7">{{ "S/ %.0f"|format(e.monto_maximo|float) if e.monto_maximo else "Según evaluación" }}</dd>
           <dt class="col-5">Plazo / gracia</dt><dd class="col-7">{{ e.plazo_meses }} meses / {{ e.periodo_gracia_meses }} mes(es)</dd>
           <dt class="col-5">Difusión / meta</dt><dd class="col-7">S/ {{ "%.0f"|format(e.presupuesto_difusion|float) }} / {{ e.meta_creditos }} créditos</dd>

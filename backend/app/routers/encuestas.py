@@ -8,6 +8,7 @@ from app.db import get_db
 from app.models import Bloque, Encuesta, Usuario
 from app.schemas import CAMPOS_ENCUESTA, EncuestaEntrada, errores_es
 from app.security import usuario_web
+from app.services.auditoria import registrar
 from app.templating import avisar, templates
 
 router = APIRouter(prefix="/encuestas")
@@ -123,6 +124,8 @@ async def crear(request: Request, usuario: Usuario = Depends(usuario_web), db: S
         return _formulario(request, usuario, db, datos, errores, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
     encuesta = Encuesta(**entrada.model_dump(), asesor_id=usuario.id)
     db.add(encuesta)
+    db.flush()
+    registrar(db, "encuesta_creada", usuario, f"encuesta {encuesta.id} · bloque {encuesta.bloque_id}")
     db.commit()
     request.session["bloque_id"] = encuesta.bloque_id
     avisar(request, f"Encuesta de {encuesta.nombre} guardada")
@@ -164,6 +167,7 @@ async def editar(
         )
     for campo, valor in entrada.model_dump().items():
         setattr(encuesta, campo, valor)
+    registrar(db, "encuesta_editada", usuario, f"encuesta {encuesta.id}")
     db.commit()
     avisar(request, f"Encuesta de {encuesta.nombre} actualizada")
     return RedirectResponse(f"/encuestas/{encuesta.id}", status.HTTP_303_SEE_OTHER)

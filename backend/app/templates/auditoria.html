@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block titulo %}Auditoría{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-1">Auditoría</h1>
+<p class="text-body-secondary">Quién hizo qué y cuándo. Solo se guardan identificadores, nunca nombres ni teléfonos de clientes.</p>
+
+<form class="row g-2 align-items-end mb-3" method="get" action="/auditoria">
+  <div class="col-sm-5 col-lg-4">
+    <label class="form-label small" for="accion">Acción</label>
+    <select class="form-select form-select-sm" id="accion" name="accion">
+      <option value="">Todas</option>
+      {% for clave, texto in acciones.items() %}<option value="{{ clave }}" {{ 'selected' if accion == clave }}>{{ texto }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-5 col-lg-4">
+    <label class="form-label small" for="usuario_id">Usuario</label>
+    <select class="form-select form-select-sm" id="usuario_id" name="usuario_id">
+      <option value="">Todos</option>
+      {% for u in usuarios %}<option value="{{ u.id }}" {{ 'selected' if usuario_id == u.id }}>{{ u.nombre }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-2"><button class="btn btn-sm btn-activa w-100" type="submit"><i class="bi bi-funnel"></i> Filtrar</button></div>
+</form>
+
+{% if registros %}
+<div class="card"><div class="card-body">
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead><tr><th>Fecha y hora</th><th>Acción</th><th>Usuario / correo</th><th>Detalle</th></tr></thead>
+      <tbody>
+        {% for r in registros %}
+        <tr>
+          <td class="small text-nowrap">{{ r.creado_en|fecha_hora }}</td>
+          <td class="small">{% if r.accion in ('login_fallido', 'login_bloqueado', 'acceso_denegado') %}<i class="bi bi-exclamation-triangle text-danger" aria-hidden="true"></i> {% endif %}{{ acciones.get(r.accion, r.accion) }}</td>
+          <td class="small">{{ r.usuario.nombre if r.usuario else (r.email or "—") }}</td>
+          <td class="small text-body-secondary">{{ r.detalle or "" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div></div>
+<nav aria-label="Páginas de la auditoría" class="mt-2">
+  <span class="small text-body-secondary">{{ total }} registros · página {{ pagina }} de {{ paginas }}</span>
+  <ul class="pagination pagination-sm mt-1 flex-wrap">
+    {% for p in range(1, paginas + 1) %}{% if p <= 3 or p > paginas - 2 or (p - pagina)|abs <= 2 %}
+    <li class="page-item {{ 'active' if p == pagina }}"><a class="page-link" href="/auditoria?pagina={{ p }}&accion={{ accion }}&usuario_id={{ usuario_id or '' }}">{{ p }}</a></li>
+    {% endif %}{% endfor %}
+  </ul>
+</nav>
+{% else %}
+<div class="alert alert-info">No hay registros con ese filtro.</div>
+{% endif %}
+{% endblock %}

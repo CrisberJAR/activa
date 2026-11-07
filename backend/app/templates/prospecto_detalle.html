@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% import "_form360.html" as f %}
+{% block titulo %}{{ p.nombre }}{% endblock %}
+{% block contenido %}
+<a class="small" href="/prospectos"><i class="bi bi-arrow-left"></i> Prospectos</a>
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 my-2">
+  <div>
+    <h1 class="h3 mb-1">{{ p.nombre }}</h1>
+    <span class="badge text-bg-{{ colores[p.estado] }}">{{ estados[p.estado] }}</span>
+    <span class="small text-body-secondary ms-1">{{ segmentos.get(p.segmento) }} · {{ regiones.get(p.region) }}{{ " · " ~ p.ubicacion if p.ubicacion }}</span>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-secondary" href="/prospectos/{{ p.id }}/editar"><i class="bi bi-pencil"></i> Editar</a>
+    <a class="btn btn-activa" href="/clientes/nuevo?prospecto_id={{ p.id }}"><i class="bi bi-folder-plus"></i> Crear expediente</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card mb-3"><div class="card-body small">
+      <dl class="row mb-0">
+        <dt class="col-5">Celular</dt><dd class="col-7">{{ p.telefono }}</dd>
+        <dt class="col-5">DNI</dt><dd class="col-7">{{ p.dni or "—" }}</dd>
+        <dt class="col-5">Actividad</dt><dd class="col-7">{{ p.actividad }}</dd>
+        <dt class="col-5">Necesidad</dt><dd class="col-7">{{ p.necesidad }}</dd>
+        <dt class="col-5">Monto aprox.</dt><dd class="col-7">{{ p.monto_solicitado|soles if p.monto_solicitado else "—" }}</dd>
+        <dt class="col-5">Contacto</dt><dd class="col-7">{{ canales.get(p.contacto_preferido) }}</dd>
+        <dt class="col-5">Campaña</dt><dd class="col-7">{% if p.campana %}<a href="/campanas/{{ p.campana_id }}">{{ p.campana.nombre }}</a>{% else %}—{% endif %}</dd>
+        <dt class="col-5">Origen</dt><dd class="col-7">{{ "Chatbot Uku" if p.origen == "chatbot" else "Registro del asesor" }}</dd>
+        <dt class="col-5">Asesor</dt><dd class="col-7">{{ p.asesor.nombre if p.asesor else "Sin asignar" }}</dd>
+        <dt class="col-5">Próxima acción</dt><dd class="col-7">{{ p.proxima_accion.strftime('%d/%m/%Y') if p.proxima_accion else "—" }}</dd>
+        <dt class="col-5">Consentimiento</dt><dd class="col-7">{{ "Sí (Ley 29733)" if p.consentimiento else "No" }}</dd>
+        <dt class="col-5">Registrado</dt><dd class="col-7">{{ p.creado_en|fecha_hora }}</dd>
+      </dl>
+    </div></div>
+
+    {% if usuario.rol == "gerente" %}
+    <div class="card mb-3"><div class="card-body">
+      <h2 class="h6">Asignar a un asesor</h2>
+      <form class="d-flex gap-2" method="post" action="/prospectos/{{ p.id }}/asignar">
+        <label class="visually-hidden" for="asesor_id">Asesor</label>
+        <select class="form-select form-select-sm" id="asesor_id" name="asesor_id" required>
+          {% for a in asesores %}<option value="{{ a.id }}" {{ 'selected' if p.asesor_id == a.id }}>{{ a.nombre }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-sm btn-activa" type="submit">Asignar</button>
+      </form>
+    </div></div>
+    {% endif %}
+
+    <div class="card mb-3" id="mensaje"><div class="card-body">
+      <h2 class="h6"><i class="bi bi-stars text-activa"></i> Mensaje comercial sugerido</h2>
+      <p class="small text-body-secondary">La IA recibe solo datos anonimizados (sin nombre, celular ni DNI). Revisa el texto antes de enviarlo.</p>
+      {% if mensaje %}
+      <textarea class="form-control mb-2" rows="5" id="texto-mensaje" aria-label="Mensaje sugerido">{{ mensaje.texto }}</textarea>
+      <div class="small text-body-secondary mb-2">{{ "Generado con Gemini (" ~ mensaje.fuente ~ ")" if mensaje.fuente != "plantilla" else "Plantilla automática (la IA no respondió)" }}</div>
+      {% if p.consentimiento and p.contacto_preferido == "whatsapp" %}
+      <a class="btn btn-sm btn-success" target="_blank" rel="noopener" href="https://wa.me/51{{ p.telefono }}?text={{ mensaje.texto|urlencode }}"><i class="bi bi-whatsapp"></i> Abrir en WhatsApp</a>
+      {% endif %}
+      {% endif %}
+      <form method="post" action="/prospectos/{{ p.id }}/mensaje" class="d-inline" data-una-vez>
+        <button class="btn btn-sm btn-outline-activa" type="submit"><i class="bi bi-stars"></i> {{ "Generar otro" if mensaje else "Sugerir mensaje" }}</button>
+      </form>
+    </div></div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card mb-3"><div class="card-body">
+      <h2 class="h6">Registrar contacto</h2>
+      {% if errores %}<div class="alert alert-danger py-2 small" role="alert">Revisa los campos marcados.</div>{% endif %}
+      <form method="post" action="/prospectos/{{ p.id }}/contacto" novalidate>
+        <div class="row g-2">
+          <div class="col-sm-4">{{ f.lista("canal", "Canal", canales, v, errores) }}</div>
+          <div class="col-sm-4">
+            {% set vv = v if v else {"estado_nuevo": p.estado} %}
+            {{ f.lista("estado_nuevo", "Nuevo estado", estados, vv, errores) }}
+          </div>
+          <div class="col-sm-4">{{ f.texto("proxima_accion", "Próxima acción", v, errores, tipo="date", requerido=false) }}</div>
+          <div class="col-12">{{ f.area("resultado", "Resultado del contacto", v, errores, filas=2) }}</div>
+        </div>
+        <button class="btn btn-activa btn-sm mt-2" type="submit"><i class="bi bi-plus-circle"></i> Guardar contacto</button>
+      </form>
+    </div></div>
+
+    <div class="card"><div class="card-body">
+      <h2 class="h6">Historial de contactos</h2>
+      {% if p.contactos %}
+      <ul class="list-group list-group-flush">
+        {% for c in p.contactos %}
+        <li class="list-group-item px-0">
+          <div class="d-flex justify-content-between small">
+            <span><strong>{{ canales.get(c.canal, c.canal) }}</strong> · {{ c.usuario.nombre }}</span>
+            <span class="text-body-secondary">{{ c.creado_en|fecha_hora }}</span>
+          </div>
+          <div>{{ c.resultado }}</div>
+          <span class="badge text-bg-{{ colores[c.estado_nuevo] }}">{{ estados[c.estado_nuevo] }}</span>
+          {% if c.proxima_accion %}<span class="small text-body-secondary">· próxima acción {{ c.proxima_accion.strftime('%d/%m/%Y') }}</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-body-secondary small mb-0">Aún no hay contactos registrados.</p>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}
