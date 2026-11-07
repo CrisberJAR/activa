@@ -41,6 +41,16 @@ def soles(valor) -> str:
 templates.env.filters["soles"] = soles
 
 
+def estatico(ruta: str) -> str:
+    """URL de un archivo estático con versión (fecha de modificación) para que el navegador no use una copia vieja."""
+    archivo = BASE_DIR / "app" / "static" / ruta
+    version = int(archivo.stat().st_mtime) if archivo.exists() else 0
+    return f"/static/{ruta}?v={version}"
+
+
+templates.env.globals["estatico"] = estatico
+
+
 def avisar(request: Request, texto: str) -> None:
     """Guarda un mensaje para mostrarlo en la siguiente página."""
     request.session["aviso"] = texto
